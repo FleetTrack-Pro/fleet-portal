@@ -3,695 +3,827 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FleetTrack Pro — Cloud Fleet Management</title>
+    <title>Fleet Management Portal</title>
     <style>
         :root {
-            --primary: #1e293b;
-            --accent: #2563eb;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
             --success: #16a34a;
             --warning: #ca8a04;
             --danger: #dc2626;
-            --bg: #f8fafc;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
         }
-        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--primary); margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; background: white; padding: 24px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
-        h2, h3 { color: var(--accent); }
-        .form-group { margin-bottom: 16px; }
-        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
-        button { background: var(--accent); color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 16px; }
-        button:hover { background: #1d4ed8; }
-        .hidden { display: none; }
-        .card { background: #f1f5f9; padding: 16px; border-radius: 8px; margin-bottom: 16px; }
-        .alert { padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 14px; }
-        .alert-error { background: #fee2e2; color: var(--danger); border: 1px solid #fca5a5; }
-        .alert-success { background: #dcfce7; color: var(--success); border: 1px solid #86efac; }
-        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
-        .badge-active { background: #dcfce7; color: var(--success); }
-        .badge-inactive { background: #fee2e2; color: var(--danger); }
-        .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
-        .nav-tabs button { background: #e2e8f0; color: var(--primary); width: auto; padding: 8px 16px; font-size: 14px; }
-        .nav-tabs button.active { background: var(--accent); color: white; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: left; font-size: 13px; }
-        th { background: #f8fafc; }
-        .action-btn { padding: 4px 8px; font-size: 12px; width: auto; margin-right: 4px; border-radius: 4px; }
-        .btn-warning { background: var(--warning); color: white; }
-        .btn-warning:hover { background: #a16207; }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-danger:hover { background: #b91c1c; }
-        #loadingOverlay { font-weight: 600; color: var(--accent); margin-bottom: 10px; }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        header h1 {
+            font-size: 1.25rem;
+            color: var(--primary);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            width: 100%;
+            flex: 1;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            text-align: center;
+            padding: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            z-index: 1000;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            font-weight: 600;
+        }
+
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-active { background-color: #dcfce7; color: var(--success); }
+        .badge-inactive { background-color: #fee2e2; color: var(--danger); }
+
+        .action-btn {
+            padding: 0.35rem 0.75rem;
+            font-size: 0.8rem;
+            width: auto;
+            margin-right: 0.25rem;
+        }
+
+        .btn-warning { background-color: var(--warning); }
+        .btn-warning:hover { background-color: #a16207; }
+        .btn-danger { background-color: var(--danger); }
+        .btn-danger:hover { background-color: #b91c1c; }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        .tab-btn {
+            background: none;
+            color: var(--text-muted);
+            width: auto;
+            padding: 0.5rem 1rem;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .alert {
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .alert-success { background-color: #dcfce7; color: var(--success); }
+        .alert-error { background-color: #fee2e2; color: var(--danger); }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>FleetTrack Pro</h2>
-    <p style="color: #64748b; margin-top: -10px;">Cloud-Synced Fleet Attendance & Management Portal</p>
-    
-    <!-- LOGIN SECTION -->
-    <div id="loginSection" class="card">
-        <h3>System Login</h3>
-        <div id="loadingOverlay">Connecting to Cloud Database...</div>
-        <div class="alert" style="background: #eef2ff; color: #3730a3; border: 1px solid #c7d2fe;">
-            <strong>System Credentials:</strong><br>
-            • <strong>Super Admin:</strong> Username: <code>superadmin</code> | Password: <code>superadmin</code><br>
-            • <strong>Admin / Custom Admins:</strong> Use your assigned credentials (e.g., <code>saroj</code>)<br>
-            • <strong>Driver:</strong> Use your registered <strong>Phone Number</strong> as ID and the <strong>last 4 digits</strong> as password.
-        </div>
-        <div class="form-group">
-            <label>Login ID / Username / Phone Number *</label>
-            <input type="text" id="loginId" placeholder="Enter username or phone number">
-        </div>
-        <div class="form-group">
-            <label>Password *</label>
-            <input type="password" id="loginPass" placeholder="Enter password">
-        </div>
-        <button onclick="handleLogin()">Login</button>
-    </div>
+    <div id="loadingOverlay" class="loading-overlay">Connecting to Cloud Database...</div>
 
-    <!-- SUPER ADMIN DASHBOARD -->
-    <div id="superAdminDashboard" class="hidden">
-        <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <strong>Role: Super Admin Master</strong>
-                <p style="margin: 4px 0 0 0; font-size: 13px; color: #64748b;">Manage cloud administrators and oversee operations.</p>
-            </div>
-            <button onclick="logout()" style="width: auto; background: #64748b; padding: 8px 16px; font-size: 14px;">Logout</button>
-        </div>
+    <header>
+        <h1>Fleet Management System</h1>
+        <div id="headerUserControl"></div>
+    </header>
 
-        <div class="nav-tabs">
-            <button id="tabBtnAdmins" class="active" onclick="switchSuperTab('admins')">Manage Admins</button>
-            <button id="tabBtnSuperLogs" onclick="switchSuperTab('logs')">Fleet Shift Logs</button>
-        </div>
+    <div class="container">
 
-        <!-- Admins Management Sub-tab -->
-        <div id="superAdminTab">
-            <h3>Create New Admin Account</h3>
+        <!-- LOGIN SECTION -->
+        <div id="loginSection" class="card" style="max-width: 400px; margin: 4rem auto;">
+            <h2 style="margin-bottom: 1.5rem; text-align: center;">Portal Login</h2>
             <div class="form-group">
-                <label>Admin Username / ID *</label>
-                <input type="text" id="newAdminUser" placeholder="e.g., saroj">
+                <label>Login ID / Phone</label>
+                <input type="text" id="loginId" placeholder="Enter ID or Phone Number">
             </div>
             <div class="form-group">
-                <label>Admin Password *</label>
-                <input type="text" id="newAdminPass" placeholder="e.g., 1234">
+                <label>Password</label>
+                <input type="password" id="loginPass" placeholder="Enter Password">
             </div>
-            <button onclick="createNewAdmin()">Create Admin Account in Cloud</button>
+            <button onclick="handleLogin()">Login to Portal</button>
+        </div>
 
-            <h3 style="margin-top: 25px;">Active Administrators List</h3>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Username</th>
-                            <th>Role</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adminTableBody">
-                        <tr><td colspan="4" style="text-align: center;">Loading from cloud...</td></tr>
-                    </tbody>
-                </table>
+        <!-- SUPER ADMIN DASHBOARD -->
+        <div id="superAdminDashboard" class="hidden">
+            <div class="card">
+                <h2>Super Admin Control Panel</h2>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Manage system administrators and inspect database operations.</p>
+                
+                <div class="tabs">
+                    <button id="tabBtnAdmins" class="tab-btn active" onclick="switchSuperTab('admins')">Manage Admins</button>
+                    <button id="tabBtnSuperLogs" class="tab-btn" onclick="switchSuperTab('logs')">All Fleet Logs</button>
+                </div>
+
+                <!-- Manage Admins Tab -->
+                <div id="superAdminTab">
+                    <div style="background: #f8fafc; padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem;">
+                        <h3 style="font-size: 1rem; margin-bottom: 1rem;">Create New Admin</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 1rem;">
+                            <input type="text" id="newAdminUser" placeholder="Username">
+                            <input type="password" id="newAdminPass" placeholder="Password">
+                            <button onclick="createNewAdmin()" style="width: auto;">Add Admin</button>
+                        </div>
+                    </div>
+
+                    <h3>Existing Administrators</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminTableBody"></tbody>
+                    </table>
+                </div>
+
+                <!-- Super Logs Tab -->
+                <div id="superLogsTab" class="hidden">
+                    <h3>Master Shift Logs Archive</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Driver</th>
+                                <th>Car Plate</th>
+                                <th>Start ODO</th>
+                                <th>Close ODO</th>
+                                <th>Driven</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody id="superLogTableBody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <!-- Super Admin Logs Sub-tab -->
-        <div id="superLogsTab" class="hidden">
-            <h3>All Fleet Shift Logs</h3>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Driver</th>
-                            <th>Car Plate</th>
-                            <th>Start ODO</th>
-                            <th>Close ODO</th>
-                            <th>Driven</th>
-                            <th>Time</th>
-                        </tr>
-                    </thead>
-                    <tbody id="superLogTableBody">
-                        <tr><td colspan="6" style="text-align: center; color: #64748b;">Loading logs...</td></tr>
-                    </tbody>
-                </table>
+        <!-- ADMIN DASHBOARD -->
+        <div id="adminDashboard" class="hidden">
+            <div class="card">
+                <h2>Admin Dashboard <span id="adminNameDisplay" style="font-size: 1rem; color: var(--primary);"></span></h2>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Manage fleet drivers and view shift logs.</p>
+
+                <div class="tabs">
+                    <button id="tabBtnDrivers" class="tab-btn active" onclick="switchAdminTab('drivers')">Manage Drivers</button>
+                    <button id="tabBtnLogs" class="tab-btn" onclick="switchAdminTab('logs')">Shift Reports</button>
+                </div>
+
+                <!-- Manage Drivers Tab -->
+                <div id="adminDriverTab">
+                    <div style="background: #f8fafc; padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem;">
+                        <h3 style="font-size: 1rem; margin-bottom: 1rem;">Register New Driver</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 1rem;">
+                            <input type="text" id="driverName" placeholder="Driver Full Name">
+                            <input type="text" id="driverPhone" placeholder="Phone Number (Login ID)">
+                            <button onclick="addNewDriver()" style="width: auto;">Register Driver</button>
+                        </div>
+                        <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">Password is automatically set to the last 4 digits of their phone number.</small>
+                    </div>
+
+                    <h3>Registered Drivers</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Driver Name</th>
+                                <th>Login ID / Phone</th>
+                                <th>Password Key</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="driverTableBody"></tbody>
+                    </table>
+                </div>
+
+                <!-- Admin Logs Tab -->
+                <div id="adminLogsTab" class="hidden">
+                    <h3>Fleet Duty Reports</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Driver</th>
+                                <th>Car Plate</th>
+                                <th>Start ODO</th>
+                                <th>Close ODO</th>
+                                <th>Driven</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logTableBody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
+
+        <!-- DRIVER DASHBOARD -->
+        <div id="driverDashboard" class="hidden">
+            <div class="card" style="max-width: 600px; margin: 0 auto;">
+                <h2>Driver Portal <span id="driverPhoneDisplay" style="font-size: 1rem; color: var(--text-muted);"></span></h2>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Submit your daily shift metrics and odometer proofs.</p>
+                
+                <div id="feedbackMsg"></div>
+
+                <div class="form-group">
+                    <label>Car Number / Plate</label>
+                    <input type="text" id="carPlate" placeholder="e.g. KA-01-AB-1234">
+                </div>
+                <div class="form-group">
+                    <label>Opening Odometer (km)</label>
+                    <input type="number" id="openingOdo" placeholder="e.g. 45000">
+                </div>
+                <div class="form-group">
+                    <label>Closing Odometer (km)</label>
+                    <input type="number" id="closingOdo" placeholder="e.g. 45320">
+                </div>
+                <div class="form-group">
+                    <label>Driver Selfie Proof</label>
+                    <input type="file" id="selfieUpload" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label>Duty / Odometer Screenshot Proof</label>
+                    <input type="file" id="dutyScreenshots" accept="image/*">
+                </div>
+
+                <button onclick="submitShiftData()">Submit & Close Shift</button>
+            </div>
+        </div>
+
     </div>
 
-    <!-- ADMIN DASHBOARD -->
-    <div id="adminDashboard" class="hidden">
-        <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <strong>Role: Fleet Admin (<span id="adminNameDisplay"></span>)</strong>
-                <p style="margin: 4px 0 0 0; font-size: 13px; color: #64748b;">Manage drivers and view live fleet telematics.</p>
-            </div>
-            <button onclick="logout()" style="width: auto; background: #64748b; padding: 8px 16px; font-size: 14px;">Logout</button>
-        </div>
+    <script>
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz8NtfBtfrSsgd5zrmHY_hjslq9-tEFkZQPpntcxgQiBxd7yifLRZzTnxm1g71MMYuM/exec";
 
-        <div class="nav-tabs">
-            <button id="tabBtnDrivers" class="active" onclick="switchAdminTab('drivers')">Manage Drivers</button>
-            <button id="tabBtnLogs" onclick="switchAdminTab('logs')">Live Fleet Logs</button>
-        </div>
+        let db = { users: [], logs: [] };
+        let currentUser = null;
+        let sessionCheckInterval = null;
 
-        <!-- Driver Management Sub-tab -->
-        <div id="adminDriverTab">
-            <h3>Add New Driver</h3>
-            <div class="form-group">
-                <label>Driver Name *</label>
-                <input type="text" id="driverName" placeholder="e.g., Ramesh Kumar">
-            </div>
-            <div class="form-group">
-                <label>Driver Phone Number (Login ID) *</label>
-                <input type="text" id="driverPhone" placeholder="e.g., 9876543210 (Password = last 4 digits)">
-            </div>
-            <button onclick="addNewDriver()">Register Driver in Cloud</button>
+        window.onload = function() {
+            fetchDatabase();
+        };
 
-            <h3 style="margin-top: 25px;">Registered Drivers Directory</h3>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Phone (Login ID)</th>
-                            <th>Password (Last 4 digits)</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="driverTableBody">
-                        <tr><td colspan="4" style="text-align: center; color: #64748b;">Loading drivers...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        function fetchDatabase(callback) {
+            const loadingEl = document.getElementById('loadingOverlay');
+            if (loadingEl) {
+                loadingEl.innerText = "Connecting to Cloud Database...";
+                loadingEl.style.display = 'block';
+            }
 
-        <!-- Fleet Logs Sub-tab -->
-        <div id="adminLogsTab" class="hidden">
-            <h3>Live Fleet Logs (Google Sheets Connected)</h3>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Driver</th>
-                            <th>Car Plate</th>
-                            <th>Start ODO</th>
-                            <th>Close ODO</th>
-                            <th>Driven</th>
-                        </tr>
-                    </thead>
-                    <tbody id="logTableBody">
-                        <tr><td colspan="5" style="text-align: center; color: #64748b;">Loading logs...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+            fetch(WEB_APP_URL)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        db.users = data.users.slice(1);
+                        db.logs = data.logs.slice(1);
+                        
+                        if (loadingEl) {
+                            loadingEl.innerText = "Connected to Google Sheets successfully!";
+                            setTimeout(() => { loadingEl.style.display = 'none'; }, 1000);
+                        }
 
-    <!-- DRIVER DASHBOARD -->
-    <div id="driverDashboard" class="hidden">
-        <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <strong>Welcome, Driver!</strong> <span id="driverPhoneDisplay" style="color: #64748b;"></span>
-                <div style="margin-top: 4px;"><span class="badge badge-active">On Duty</span></div>
-            </div>
-            <button onclick="logout()" style="width: auto; background: #64748b; padding: 8px 16px; font-size: 14px;">Logout</button>
-        </div>
+                        if (currentUser && currentUser.role !== 'superadmin') {
+                            let activeCheck = db.users.find(u => u[0] === currentUser.identifier);
+                            if (!activeCheck || activeCheck[3] !== 'Active') {
+                                alert('Your account has been deactivated or removed by Super Admin.');
+                                logout();
+                                return;
+                            }
+                        }
 
-        <div id="feedbackMsg"></div>
-
-        <div class="form-group">
-            <label>Car Number Plate *</label>
-            <input type="text" id="carPlate" placeholder="e.g., KA01AB1234">
-        </div>
-        <div class="form-group">
-            <label>1. Selfie with Number Plate (Upload) *</label>
-            <input type="file" id="selfieUpload" accept="image/*">
-        </div>
-        <div class="form-group">
-            <label>2. Opening ODO Meter Reading (km) *</label>
-            <input type="number" id="openingOdo" placeholder="e.g., 45000">
-        </div>
-        <div class="form-group">
-            <label>3. Closing ODO Meter Reading (km) * Required to close shift</label>
-            <input type="number" id="closingOdo" placeholder="e.g., 45250">
-        </div>
-        <div class="form-group">
-            <label>4. Upload Duty Screenshots *</label>
-            <input type="file" id="dutyScreenshots" accept="image/*" multiple>
-        </div>
-
-        <button onclick="submitShiftData()">Submit & Sync to Google Sheet</button>
-    </div>
-</div>
-
-<script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz8NtfBtfrSsgd5zrmHY_hjslq9-tEFkZQPpntcxgQiBxd7yifLRZzTnxm1g71MMYuM/exec";
-
-    let db = { users: [], logs: [] };
-    let currentUser = null;
-    let sessionCheckInterval = null;
-
-    window.onload = function() {
-        fetchDatabase();
-    };
-
-    function fetchDatabase(callback) {
-        const loadingEl = document.getElementById('loadingOverlay');
-        if (loadingEl) {
-            loadingEl.innerText = "Connecting to Cloud Database...";
-            loadingEl.style.display = 'block';
+                        if (callback) callback();
+                    } else {
+                        if (loadingEl) loadingEl.innerText = "Error loading cloud database.";
+                    }
+                })
+                .catch(err => {
+                    console.error("Cloud sync error:", err);
+                    if (loadingEl) loadingEl.innerText = "Failed to connect to cloud. Check internet connection.";
+                });
         }
 
-        fetch(WEB_APP_URL)
+        function handleLogin() {
+            if (db.users.length === 0) {
+                alert('Still connecting to cloud database. Please wait 2 seconds and try logging in again.');
+                fetchDatabase();
+                return;
+            }
+
+            const id = document.getElementById('loginId').value.trim();
+            const pass = document.getElementById('loginPass').value.trim();
+
+            if (!id || !pass) {
+                alert('Please enter both Login ID and Password.');
+                return;
+            }
+
+            if (id === 'superadmin' && pass === 'superadmin') {
+                currentUser = { role: 'superadmin', name: 'Super Admin', identifier: 'superadmin' };
+                startSessionWatcher();
+                showDashboard('superAdmin');
+                renderAdminsList();
+                renderSuperLogs();
+                updateHeaderLogout();
+                return;
+            }
+
+            let foundUser = db.users.find(u => u[0] === id && u[1] === pass);
+            
+            if (foundUser) {
+                let role = foundUser[2];
+                let status = foundUser[3];
+
+                if (status && status !== 'Active') {
+                    alert('Account is inactive or blocked.');
+                    return;
+                }
+
+                if (role === 'admin' || role === 'superadmin') {
+                    currentUser = { role: 'admin', name: foundUser[0], identifier: foundUser[0] };
+                    startSessionWatcher();
+                    showDashboard('admin');
+                    document.getElementById('adminNameDisplay').innerText = foundUser[0];
+                    renderDriversList();
+                    renderAdminLogs();
+                    updateHeaderLogout();
+                    return;
+                }
+            }
+
+            let foundDriverByPhone = db.users.find(u => u[0] === id && u[2] === 'driver');
+            if (foundDriverByPhone) {
+                let status = foundDriverByPhone[3];
+                if (status && status !== 'Active') {
+                    alert('Driver account is inactive.');
+                    return;
+                }
+                if (id.length >= 4 && pass === id.slice(-4)) {
+                    currentUser = { role: 'driver', phone: id, name: foundDriverByPhone[1], identifier: id };
+                    startSessionWatcher();
+                    showDashboard('driver');
+                    document.getElementById('driverPhoneDisplay').innerText = `(${id})`;
+                    updateHeaderLogout();
+                    return;
+                }
+            }
+
+            alert('Invalid login credentials or account not found in cloud.');
+        }
+
+        function updateHeaderLogout() {
+            const control = document.getElementById('headerUserControl');
+            control.innerHTML = `<button onclick="logout()" class="action-btn btn-danger" style="width: auto;">Logout</button>`;
+        }
+
+        function startSessionWatcher() {
+            if (sessionCheckInterval) clearInterval(sessionCheckInterval);
+            sessionCheckInterval = setInterval(() => {
+                if (currentUser) {
+                    fetchDatabase();
+                }
+            }, 10000);
+        }
+
+        function showDashboard(type) {
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('superAdminDashboard').classList.add('hidden');
+            document.getElementById('adminDashboard').classList.add('hidden');
+            document.getElementById('driverDashboard').classList.add('hidden');
+
+            if (type === 'login') document.getElementById('loginSection').classList.remove('hidden');
+            if (type === 'superAdmin') document.getElementById('superAdminDashboard').classList.remove('hidden');
+            if (type === 'admin') document.getElementById('adminDashboard').classList.remove('hidden');
+            if (type === 'driver') document.getElementById('driverDashboard').classList.remove('hidden');
+        }
+
+        function createNewAdmin() {
+            const user = document.getElementById('newAdminUser').value.trim();
+            const pass = document.getElementById('newAdminPass').value.trim();
+
+            if (!user || !pass) {
+                alert('Please enter username and password.');
+                return;
+            }
+
+            if (db.users.some(u => u[0] === user)) {
+                alert('Username already exists in cloud database.');
+                return;
+            }
+
+            document.getElementById('loadingOverlay').innerText = "Saving admin to Google Sheet...";
+            document.getElementById('loadingOverlay').style.display = 'block';
+
+            fetch(WEB_APP_URL, {
+                method: 'POST',
+                body: JSON.stringify({ sheet: 'Users', action: 'addUser', username: user, password: pass, role: 'admin', status: 'Active' })
+            })
             .then(res => res.json())
             .then(data => {
-                if (data.status === "success") {
-                    db.users = data.users.slice(1);
-                    db.logs = data.logs.slice(1);
-                    
-                    if (loadingEl) {
-                        loadingEl.innerText = "Connected to Google Sheets successfully!";
-                        setTimeout(() => { loadingEl.style.display = 'none'; }, 1000);
-                    }
-
-                    if (currentUser && currentUser.role !== 'superadmin') {
-                        let activeCheck = db.users.find(u => u[0] === currentUser.identifier);
-                        if (!activeCheck || activeCheck[3] !== 'Active') {
-                            alert('Your account has been deactivated or removed by Super Admin.');
-                            logout();
-                            return;
-                        }
-                    }
-
-                    if (callback) callback();
+                if (data.status === 'success') {
+                    alert('Admin created successfully in Google Sheets!');
+                    document.getElementById('newAdminUser').value = '';
+                    document.getElementById('newAdminPass').value = '';
+                    fetchDatabase(() => renderAdminsList());
                 } else {
-                    if (loadingEl) loadingEl.innerText = "Error loading cloud database.";
+                    alert('Error saving admin.');
                 }
+                document.getElementById('loadingOverlay').style.display = 'none';
             })
             .catch(err => {
-                console.error("Cloud sync error:", err);
-                if (loadingEl) loadingEl.innerText = "Failed to connect to cloud. Check internet connection.";
+                alert('Network error.');
+                document.getElementById('loadingOverlay').style.display = 'none';
             });
-    }
-
-    function handleLogin() {
-        if (db.users.length === 0) {
-            alert('Still connecting to cloud database. Please wait 2 seconds and try logging in again.');
-            fetchDatabase();
-            return;
         }
 
-        const id = document.getElementById('loginId').value.trim();
-        const pass = document.getElementById('loginPass').value.trim();
-
-        if (!id || !pass) {
-            alert('Please enter both Login ID and Password.');
-            return;
-        }
-
-        if (id === 'superadmin' && pass === 'superadmin') {
-            currentUser = { role: 'superadmin', name: 'Super Admin', identifier: 'superadmin' };
-            startSessionWatcher();
-            showDashboard('superAdmin');
-            renderAdminsList();
-            renderSuperLogs();
-            return;
-        }
-
-        let foundUser = db.users.find(u => u[0] === id && u[1] === pass);
-        
-        if (foundUser) {
-            let role = foundUser[2];
-            let status = foundUser[3];
-
-            if (status && status !== 'Active') {
-                alert('Account is inactive or blocked.');
+        function renderAdminsList() {
+            const tbody = document.getElementById('adminTableBody');
+            tbody.innerHTML = '';
+            const admins = db.users.filter(u => u[2] === 'admin' || u[2] === 'superadmin');
+            
+            if (admins.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center;">No admins found.</td></tr>`;
                 return;
             }
 
-            if (role === 'admin' || role === 'superadmin') {
-                currentUser = { role: 'admin', name: foundUser[0], identifier: foundUser[0] };
-                startSessionWatcher();
-                showDashboard('admin');
-                document.getElementById('adminNameDisplay').innerText = foundUser[0];
-                renderDriversList();
-                renderAdminLogs();
-                return;
-            }
+            admins.forEach(a => {
+                let statusBadge = (a[3] === 'Active' || !a[3]) ? '<span class="badge badge-active">Active</span>' : '<span class="badge badge-inactive">Inactive</span>';
+                let toggleStatusText = (a[3] === 'Active' || !a[3]) ? 'Make Inactive' : 'Make Active';
+                let nextStatus = (a[3] === 'Active' || !a[3]) ? 'Inactive' : 'Active';
+
+                let actionButtons = a[0] === 'superadmin' ? '<em>Master Account</em>' : `
+                    <button class="action-btn btn-warning" onclick="toggleAdminStatus('${a[0]}', '${nextStatus}')">${toggleStatusText}</button>
+                    <button class="action-btn btn-danger" onclick="deleteAdmin('${a[0]}')">Delete</button>
+                `;
+
+                tbody.innerHTML += `<tr>
+                    <td>${a[0]}</td>
+                    <td>${a[2]}</td>
+                    <td>${statusBadge}</td>
+                    <td>${actionButtons}</td>
+                </tr>`;
+            });
         }
 
-        let foundDriverByPhone = db.users.find(u => u[0] === id && u[2] === 'driver');
-        if (foundDriverByPhone) {
-            let status = foundDriverByPhone[3];
-            if (status && status !== 'Active') {
-                alert('Driver account is inactive.');
-                return;
-            }
-            if (id.length >= 4 && pass === id.slice(-4)) {
-                currentUser = { role: 'driver', phone: id, name: foundDriverByPhone[1], identifier: id };
-                startSessionWatcher();
-                showDashboard('driver');
-                document.getElementById('driverPhoneDisplay').innerText = `(${id})`;
-                return;
-            }
-        }
+        function toggleAdminStatus(username, newStatus) {
+            document.getElementById('loadingOverlay').innerText = "Updating admin status...";
+            document.getElementById('loadingOverlay').style.display = 'block';
 
-        alert('Invalid login credentials or account not found in cloud.');
-    }
-
-    function startSessionWatcher() {
-        if (sessionCheckInterval) clearInterval(sessionCheckInterval);
-        sessionCheckInterval = setInterval(() => {
-            if (currentUser) {
-                fetchDatabase();
-            }
-        }, 10000);
-    }
-
-    function showDashboard(type) {
-        document.getElementById('loginSection').classList.add('hidden');
-        document.getElementById('superAdminDashboard').classList.add('hidden');
-        document.getElementById('adminDashboard').classList.add('hidden');
-        document.getElementById('driverDashboard').classList.add('hidden');
-
-        if (type === 'login') document.getElementById('loginSection').classList.remove('hidden');
-        if (type === 'superAdmin') document.getElementById('superAdminDashboard').classList.remove('hidden');
-        if (type === 'admin') document.getElementById('adminDashboard').classList.remove('hidden');
-        if (type === 'driver') document.getElementById('driverDashboard').classList.remove('hidden');
-    }
-
-    function createNewAdmin() {
-        const user = document.getElementById('newAdminUser').value.trim();
-        const pass = document.getElementById('newAdminPass').value.trim();
-
-        if (!user || !pass) {
-            alert('Please enter username and password.');
-            return;
-        }
-
-        if (db.users.some(u => u[0] === user)) {
-            alert('Username already exists in cloud database.');
-            return;
-        }
-
-        document.getElementById('loadingOverlay').innerText = "Saving admin to Google Sheet...";
-        document.getElementById('loadingOverlay').style.display = 'block';
-
-        fetch(WEB_APP_URL, {
-            method: 'POST',
-            body: JSON.stringify({ sheet: 'Users', action: 'addUser', username: user, password: pass, role: 'admin', status: 'Active' })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === 'success') {
-                alert('Admin created successfully in Google Sheets!');
-                document.getElementById('newAdminUser').value = '';
-                document.getElementById('newAdminPass').value = '';
-                fetchDatabase(() => renderAdminsList());
-            } else {
-                alert('Error saving admin.');
-            }
-            document.getElementById('loadingOverlay').style.display = 'none';
-        })
-        .catch(err => {
-            alert('Network error.');
-            document.getElementById('loadingOverlay').style.display = 'none';
-        });
-    }
-
-    function renderAdminsList() {
-        const tbody = document.getElementById('adminTableBody');
-        tbody.innerHTML = '';
-        const admins = db.users.filter(u => u[2] === 'admin' || u[2] === 'superadmin');
-        
-        if (admins.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center;">No admins found.</td></tr>`;
-            return;
-        }
-
-        admins.forEach(a => {
-            let statusBadge = (a[3] === 'Active' || !a[3]) ? '<span class="badge badge-active">Active</span>' : '<span class="badge badge-inactive">Inactive</span>';
-            let toggleStatusText = (a[3] === 'Active' || !a[3]) ? 'Make Inactive' : 'Make Active';
-            let nextStatus = (a[3] === 'Active' || !a[3]) ? 'Inactive' : 'Active';
-
-            let actionButtons = a[0] === 'superadmin' ? '<em>Master Account</em>' : `
-                <button class="action-btn btn-warning" onclick="toggleAdminStatus('${a[0]}', '${nextStatus}')">${toggleStatusText}</button>
-                <button class="action-btn btn-danger" onclick="deleteAdmin('${a[0]}')">Delete</button>
-            `;
-
-            tbody.innerHTML += `<tr>
-                <td>${a[0]}</td>
-                <td>${a[2]}</td>
-                <td>${statusBadge}</td>
-                <td>${actionButtons}</td>
-            </tr>`;
-        });
-    }
-
-    function toggleAdminStatus(username, newStatus) {
-        document.getElementById('loadingOverlay').innerText = "Updating admin status...";
-        document.getElementById('loadingOverlay').style.display = 'block';
-
-        fetch(WEB_APP_URL, {
-            method: 'POST',
-            body: JSON.stringify({ sheet: 'Users', action: 'updateStatus', username: username, status: newStatus })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === 'success') {
-                fetchDatabase(() => {
-                    if (currentUser && currentUser.role === 'superadmin') renderAdminsList();
-                });
-            } else {
-                alert('Failed to update status.');
-            }
-            document.getElementById('loadingOverlay').style.display = 'none';
-        })
-        .catch(err => {
-            alert('Network error.');
-            document.getElementById('loadingOverlay').style.display = 'none';
-        });
-    }
-
-    function deleteAdmin(username) {
-        if (!confirm(`Are you sure you want to permanently delete admin "${username}"?`)) return;
-
-        document.getElementById('loadingOverlay').innerText = "Deleting admin from cloud...";
-        document.getElementById('loadingOverlay').style.display = 'block';
-
-        fetch(WEB_APP_URL, {
-            method: 'POST',
-            body: JSON.stringify({ sheet: 'Users', action: 'deleteUser', username: username })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === 'success') {
-                alert('Admin deleted successfully.');
-                fetchDatabase(() => {
-                    if (currentUser && currentUser.role === 'superadmin') renderAdminsList();
-                });
-            } else {
-                alert('Failed to delete admin.');
-            }
-            document.getElementById('loadingOverlay').style.display = 'none';
-        })
-        .catch(err => {
-            alert('Network error.');
-            document.getElementById('loadingOverlay').style.display = 'none';
-        });
-    }
-
-    function addNewDriver() {
-        const name = document.getElementById('driverName').value.trim();
-        const phone = document.getElementById('driverPhone').value.trim();
-
-        if (!name || !phone) {
-            alert('Please fill in driver name and phone number.');
-            return;
-        }
-
-        if (db.users.some(u => u[0] === phone)) {
-            alert('Driver with this phone number already exists.');
-            return;
-        }
-
-        const pass = phone.length >= 4 ? phone.slice(-4) : '1234';
-
-        document.getElementById('loadingOverlay').innerText = "Registering driver in Google Sheet...";
-        document.getElementById('loadingOverlay').style.display = 'block';
-
-        fetch(WEB_APP_URL, {
-            method: 'POST',
-            body: JSON.stringify({ sheet: 'Users', action: 'addUser', username: phone, password: pass, role: 'driver', status: 'Active' })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === 'success') {
-                alert(`Driver registered! Login ID: ${phone}, Password (last 4 digits): ${pass}`);
-                document.getElementById('driverName').value = '';
-                document.getElementById('driverPhone').value = '';
-                fetchDatabase(() => renderDriversList());
-            } else {
-                alert('Error registering driver.');
-            }
-            document.getElementById('loadingOverlay').style.display = 'none';
-        })
-        .catch(err => {
-            alert('Network error.');
-            document.getElementById('loadingOverlay').style.display = 'none';
-        });
-    }
-
-    function renderDriversList() {
-        const tbody = document.getElementById('driverTableBody');
-        const drivers = db.users.filter(u => u[2] === 'driver');
-        
-        if (drivers.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #64748b;">No drivers registered yet.</td></tr>`;
-            return;
-        }
-
-        tbody.innerHTML = '';
-        drivers.forEach(d => {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${d[0]}</td>
-                    <td>${d[0]}</td>
-                    <td>****${d[1] ? d[1].slice(-4) : ''}</td>
-                    <td><span class="badge badge-active">${d[3] || 'Active'}</span></td>
-                </tr>
-            `;
-        });
-    }
-
-    function renderAdminLogs() {
-        const tbody = document.getElementById('logTableBody');
-        renderLogsTable(tbody);
-    }
-
-    function renderSuperLogs() {
-        const tbody = document.getElementById('superLogTableBody');
-        renderLogsTable(tbody, true);
-    }
-
-    function renderLogsTable(tbody, includeTimestamp = false) {
-        if (db.logs.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="${includeTimestamp ? 6 : 5}" style="text-align: center; color: #64748b;">No shift logs found.</td></tr>`;
-            return;
-        }
-        tbody.innerHTML = '';
-        db.logs.forEach(log => {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${log[0]}</td>
-                    <td>${log[1]}</td>
-                    <td>${log[2]}</td>
-                    <td>${log[3]}</td>
-                    <td style="font-weight: 600; color: var(--success);">${log[4]} km</td>
-                    ${includeTimestamp ? `<td>${log[5]}</td>` : ''}
-                </tr>
-            `;
-        });
-    }
-
-    function switchSuperTab(tab) {
-        if (tab === 'admins') {
-            document.getElementById('superAdminTab').classList.remove('hidden');
-            document.getElementById('superLogsTab').classList.add('hidden');
-            document.getElementById('tabBtnAdmins').classList.add('active');
-            document.getElementById('tabBtnSuperLogs').classList.remove('active');
-        } else {
-            document.getElementById('superAdminTab').classList.add('hidden');
-            document.getElementById('superLogsTab').classList.remove('hidden');
-            document.getElementById('tabBtnAdmins').classList.remove('active');
-            document.getElementById('tabBtnSuperLogs').classList.add('active');
-            renderSuperLogs();
-        }
-    }
-
-    function switchAdminTab(tab) {
-        if (tab === 'drivers') {
-            document.getElementById('adminDriverTab').classList.remove('hidden');
-            document.getElementById('adminLogsTab').classList.add('hidden');
-            document.getElementById('tabBtnDrivers').classList.add('active');
-            document.getElementById('tabBtnLogs').classList.remove('active');
-        } else {
-            document.getElementById('adminDriverTab').classList.add('hidden');
-            document.getElementById('adminLogsTab').classList.remove('hidden');
-            document.getElementById('tabBtnDrivers').classList.remove('active');
-            document.getElementById('tabBtnLogs').classList.add('active');
-            renderAdminLogs();
-        }
-    }
-
-    function submitShiftData() {
-        const carPlate = document.getElementById('carPlate').value.trim();
-        const openingOdo = parseFloat(document.getElementById('openingOdo').value);
-        const closingOdo = parseFloat(document.getElementById('closingOdo').value);
-        const selfie = document.getElementById('selfieUpload').files[0];
-        const duty = document.getElementById('dutyScreenshots').files[0];
-
-        const feedback = document.getElementById('feedbackMsg');
-        feedback.innerHTML = '';
-
-        if (!carPlate || isNaN(openingOdo) || isNaN(closingOdo) || !selfie || !duty) {
-            feedback.innerHTML = '<div class="alert alert-error">Please fill in all mandatory fields and upload proofs.</div>';
-            return;
-        }
-
-        if (closingOdo <= openingOdo) {
-            feedback.innerHTML = '<div class="alert alert-error">Closing ODO reading must be greater than Opening ODO reading.</div>';
-            return;
-        }
-
-        const kmDriven = closingOdo - openingOdo;
-        const timestamp = new Date().toLocaleString();
-        const driverName = currentUser.name || currentUser.phone;
-
-        document.getElementById('loadingOverlay').innerText = "Syncing shift log to Google Sheet...";
-        document.getElementById('loadingOverlay').style.display = 'block';
-
-        fetch(WEB_APP_URL, {
-            method: 'POST',
-            body: JSON.stringify({
-                sheet: 'Logs',
-                action: 'addLog',
-                driver: driverName,
-                car: carPlate,
-                startOdo: openingOdo,
-                closeOdo: closingOdo,
-                driven: kmDriven,
-                timestamp: timestamp
+            fetch(WEB_APP_URL, {
+                method: 'POST',
+                body: JSON.stringify({ sheet: 'Users', action: 'updateStatus', username: username, status: newStatus })
             })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === 'success') {
-                feedback.innerHTML = `<div class="alert alert-success">Shift successfully closed and synced to Google Sheet! Total KM: <strong>${kmDriven} km</strong></div>`;
-                document.getElementById('closingOdo').value = '';
-                document.getElementById('openingOdo').value = '';
-                document.getElementById('carPlate').value = '';
-                fetchDatabase();
-            } else {
-                feedback.innerHTML = `<div class="alert alert-error">Failed to sync shift log.</div>`;
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    fetchDatabase(() => {
+                        if (currentUser && currentUser.role === 'superadmin') renderAdminsList();
+                    });
+                } else {
+                    alert('Failed to update status.');
+                }
+                document.getElementById('loadingOverlay').style.display = 'none';
+            })
+            .catch(err => {
+                alert('Network error.');
+                document.getElementById('loadingOverlay').style.display = 'none';
+            });
+        }
+
+        function deleteAdmin(username) {
+            if (!confirm(`Are you sure you want to permanently delete admin "${username}"?`)) return;
+
+            document.getElementById('loadingOverlay').innerText = "Deleting admin from cloud...";
+            document.getElementById('loadingOverlay').style.display = 'block';
+
+            fetch(WEB_APP_URL, {
+                method: 'POST',
+                body: JSON.stringify({ sheet: 'Users', action: 'deleteUser', username: username })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Admin deleted successfully.');
+                    fetchDatabase(() => {
+                        if (currentUser && currentUser.role === 'superadmin') renderAdminsList();
+                    });
+                } else {
+                    alert('Failed to delete admin.');
+                }
+                document.getElementById('loadingOverlay').style.display = 'none';
+            })
+            .catch(err => {
+                alert('Network error.');
+                document.getElementById('loadingOverlay').style.display = 'none';
+            });
+        }
+
+        function addNewDriver() {
+            const name = document.getElementById('driverName').value.trim();
+            const phone = document.getElementById('driverPhone').value.trim();
+
+            if (!name || !phone) {
+                alert('Please fill in driver name and phone number.');
+                return;
             }
-            document.getElementById('loadingOverlay').style.display = 'none';
-        })
-        .catch(err => {
-            feedback.innerHTML = `<div class="alert alert-error">Network error during sync.</div>`;
-            document.getElementById('loadingOverlay').style.display = 'none';
-        });
-    }
 
-    function logout() {
-        currentUser = null;
-        if (sessionCheckInterval) clearInterval(sessionCheckInterval);
-        document.getElementById('loginId').value = '';
-        document.getElementById('loginPass').value = '';
-        showDashboard('login');
-        fetchDatabase();
-    }
-</script>
+            if (db.users.some(u => u[0] === phone)) {
+                alert('Driver with this phone number already exists.');
+                return;
+            }
 
+            const pass = phone.length >= 4 ? phone.slice(-4) : '1234';
+
+            document.getElementById('loadingOverlay').innerText = "Registering driver in Google Sheet...";
+            document.getElementById('loadingOverlay').style.display = 'block';
+
+            fetch(WEB_APP_URL, {
+                method: 'POST',
+                body: JSON.stringify({ sheet: 'Users', action: 'addUser', username: phone, password: pass, role: 'driver', status: 'Active' })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert(`Driver registered! Login ID: ${phone}, Password (last 4 digits): ${pass}`);
+                    document.getElementById('driverName').value = '';
+                    document.getElementById('driverPhone').value = '';
+                    fetchDatabase(() => renderDriversList());
+                } else {
+                    alert('Error registering driver.');
+                }
+                document.getElementById('loadingOverlay').style.display = 'none';
+            })
+            .catch(err => {
+                alert('Network error.');
+                document.getElementById('loadingOverlay').style.display = 'none';
+            });
+        }
+
+        function renderDriversList() {
+            const tbody = document.getElementById('driverTableBody');
+            const drivers = db.users.filter(u => u[2] === 'driver');
+            
+            if (drivers.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #64748b;">No drivers registered yet.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = '';
+            drivers.forEach(d => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${d[0]}</td>
+                        <td>${d[0]}</td>
+                        <td>****${d[1] ? d[1].slice(-4) : ''}</td>
+                        <td><span class="badge badge-active">${d[3] || 'Active'}</span></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderAdminLogs() {
+            const tbody = document.getElementById('logTableBody');
+            renderLogsTable(tbody);
+        }
+
+        function renderSuperLogs() {
+            const tbody = document.getElementById('superLogTableBody');
+            renderLogsTable(tbody, true);
+        }
+
+        function renderLogsTable(tbody, includeTimestamp = false) {
+            if (db.logs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="${includeTimestamp ? 6 : 5}" style="text-align: center; color: #64748b;">No shift logs found.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = '';
+            db.logs.forEach(log => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${log[0]}</td>
+                        <td>${log[1]}</td>
+                        <td>${log[2]}</td>
+                        <td>${log[3]}</td>
+                        <td style="font-weight: 600; color: var(--success);">${log[4]} km</td>
+                        ${includeTimestamp ? `<td>${log[5]}</td>` : ''}
+                    </tr>
+                `;
+            });
+        }
+
+        function switchSuperTab(tab) {
+            if (tab === 'admins') {
+                document.getElementById('superAdminTab').classList.remove('hidden');
+                document.getElementById('superLogsTab').classList.add('hidden');
+                document.getElementById('tabBtnAdmins').classList.add('active');
+                document.getElementById('tabBtnSuperLogs').classList.remove('active');
+            } else {
+                document.getElementById('superAdminTab').classList.add('hidden');
+                document.getElementById('superLogsTab').classList.remove('hidden');
+                document.getElementById('tabBtnAdmins').classList.remove('active');
+                document.getElementById('tabBtnSuperLogs').classList.add('active');
+                renderSuperLogs();
+            }
+        }
+
+        function switchAdminTab(tab) {
+            if (tab === 'drivers') {
+                document.getElementById('adminDriverTab').classList.remove('hidden');
+                document.getElementById('adminLogsTab').classList.add('hidden');
+                document.getElementById('tabBtnDrivers').classList.add('active');
+                document.getElementById('tabBtnLogs').classList.remove('active');
+            } else {
+                document.getElementById('adminDriverTab').classList.add('hidden');
+                document.getElementById('adminLogsTab').classList.remove('hidden');
+                document.getElementById('tabBtnDrivers').classList.remove('active');
+                document.getElementById('tabBtnLogs').classList.add('active');
+                renderAdminLogs();
+            }
+        }
+
+        function submitShiftData() {
+            const carPlate = document.getElementById('carPlate').value.trim();
+            const openingOdo = parseFloat(document.getElementById('openingOdo').value);
+            const closingOdo = parseFloat(document.getElementById('closingOdo').value);
+            const selfie = document.getElementById('selfieUpload').files[0];
+            const duty = document.getElementById('dutyScreenshots').files[0];
+
+            const feedback = document.getElementById('feedbackMsg');
+            feedback.innerHTML = '';
+
+            if (!carPlate || isNaN(openingOdo) || isNaN(closingOdo) || !selfie || !duty) {
+                feedback.innerHTML = '<div class="alert alert-error">Please fill in all mandatory fields and upload proofs.</div>';
+                return;
+            }
+
+            if (closingOdo <= openingOdo) {
+                feedback.innerHTML = '<div class="alert alert-error">Closing ODO reading must be greater than Opening ODO reading.</div>';
+                return;
+            }
+
+            const kmDriven = closingOdo - openingOdo;
+            const timestamp = new Date().toLocaleString();
+            const driverName = currentUser.name || currentUser.phone;
+
+            document.getElementById('loadingOverlay').innerText = "Syncing shift log to Google Sheet...";
+            document.getElementById('loadingOverlay').style.display = 'block';
+
+            fetch(WEB_APP_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    sheet: 'Logs',
+                    action: 'addLog',
+                    driver: driverName,
+                    car: carPlate,
+                    startOdo: openingOdo,
+                    closeOdo: closingOdo,
+                    driven: kmDriven,
+                    timestamp: timestamp
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    feedback.innerHTML = `<div class="alert alert-success">Shift successfully closed and synced to Google Sheet! Total KM: <strong>${kmDriven} km</strong></div>`;
+                    document.getElementById('closingOdo').value = '';
+                    document.getElementById('openingOdo').value = '';
+                    document.getElementById('carPlate').value = '';
+                    fetchDatabase();
+                } else {
+                    feedback.innerHTML = `<div class="alert alert-error">Failed to sync shift log.</div>`;
+                }
+                document.getElementById('loadingOverlay').style.display = 'none';
+            })
+            .catch(err => {
+                feedback.innerHTML = `<div class="alert alert-error">Network error during sync.</div>`;
+                document.getElementById('loadingOverlay').style.display = 'none';
+            });
+        }
+
+        function logout() {
+            currentUser = null;
+            if (sessionCheckInterval) clearInterval(sessionCheckInterval);
+            document.getElementById('loginId').value = '';
+            document.getElementById('loginPass').value = '';
+            document.getElementById('headerUserControl').innerHTML = '';
+            showDashboard('login');
+            fetchDatabase();
+        }
+    </script>
 </body>
 </html>
