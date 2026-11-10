@@ -37,7 +37,7 @@
         </div>
 
         <!-- DASHBOARD VIEW (Hidden by default) -->
-        <div id="dashboard-section" class="hidden bg-white p-8 rounded-xl shadow-md w-full max-w-4xl border border-gray-100">
+        <div id="dashboard-section" class="hidden bg-white p-8 rounded-xl shadow-md w-full max-w-5xl border border-gray-100">
             <div class="flex justify-between items-center mb-6 border-b pb-4">
                 <div>
                     <h1 id="welcome-title" class="text-2xl font-bold text-gray-800">Dashboard</h1>
@@ -48,26 +48,101 @@
                 </button>
             </div>
 
-            <!-- Management Panel: Create User (Visible to Superadmin & Admin) -->
-            <div id="management-panel" class="hidden mb-8 bg-gray-50 p-6 rounded-lg border border-gray-200">
-                <h3 id="panel-title" class="text-lg font-semibold text-gray-800 mb-4">Create New User</h3>
-                <form id="create-user-form" onsubmit="handleCreateUser(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <input type="text" id="new-username" placeholder="Username" required class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <input type="password" id="new-password" placeholder="Password" required class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <select id="new-role" class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <!-- Options will be filtered dynamically based on logged-in role -->
-                    </select>
-                    <button type="submit" class="bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">
-                        Add User
-                    </button>
-                </form>
-                <div id="create-msg" class="text-sm mt-2 hidden"></div>
+            <!-- Navigation Sub-Tabs -->
+            <div class="flex space-x-2 mb-6 border-b pb-4">
+                <button onclick="switchTab('users')" id="tab-users-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition">User Management</button>
+                <button onclick="switchTab('cars')" id="tab-cars-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition">Car Fleet Management</button>
             </div>
 
-            <!-- General Content Area -->
-            <div class="text-gray-600">
-                <p>Welcome to the Fleet Management System portal. Your session is active and securely connected to Google Sheets.</p>
+            <!-- TAB 1: USER MANAGEMENT -->
+            <div id="subtab-users" class="space-y-6">
+                <!-- Management Panel: Create User -->
+                <div id="management-panel" class="hidden bg-gray-50 p-6 rounded-lg border border-gray-200">
+                    <h3 id="panel-title" class="text-lg font-semibold text-gray-800 mb-4">Create New User</h3>
+                    <form id="create-user-form" onsubmit="handleCreateUser(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <input type="text" id="new-username" placeholder="Username" required class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                        <input type="password" id="new-password" placeholder="Password" required class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                        <select id="new-role" class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            <!-- Options will be filtered dynamically based on logged-in role -->
+                        </select>
+                        <button type="submit" class="bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">
+                            Add User
+                        </button>
+                    </form>
+                    <div id="create-msg" class="text-sm mt-2 hidden"></div>
+                </div>
+
+                <!-- Users List View -->
+                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                    <h3 class="text-md font-semibold text-gray-800 p-4 bg-gray-50 border-b">Active System Users</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-100 text-gray-600 text-xs uppercase font-semibold">
+                                    <th class="p-3">Username</th>
+                                    <th class="p-3">Role</th>
+                                    <th class="p-3">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body" class="text-sm text-gray-700 divide-y divide-gray-200">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
+
+            <!-- TAB 2: CAR FLEET MANAGEMENT -->
+            <div id="subtab-cars" class="hidden space-y-6">
+                <!-- Create Car Panel -->
+                <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Add New Car to Fleet</h3>
+                    <form id="create-car-form" onsubmit="handleCreateCar(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <input type="text" id="car-reg" placeholder="Reg Number (e.g. WB19M0360)" required class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                        <input type="text" id="car-model" placeholder="Model (e.g. Dzire / Nexon EV)" required class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                        <select id="car-fuel" class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            <option value="Petrol">Petrol</option>
+                            <option value="Diesel">Diesel</option>
+                            <option value="EV">EV (Electric)</option>
+                        </select>
+                        <select id="car-status" class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            <option value="Active">Active</option>
+                            <option value="Maintenance">Maintenance</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                        <input type="hidden" id="car-owner" value="Company">
+                        <input type="hidden" id="car-leasetype" value="monthly_lease">
+                        <input type="hidden" id="car-monthly" value="0">
+                        <input type="hidden" id="car-start" value="">
+                        <input type="hidden" id="car-end" value="">
+                        <button type="submit" class="md:col-span-4 bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">
+                            Register Car
+                        </button>
+                    </form>
+                    <div id="create-car-msg" class="text-sm mt-2 hidden"></div>
+                </div>
+
+                <!-- Cars List View -->
+                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                    <h3 class="text-md font-semibold text-gray-800 p-4 bg-gray-50 border-b">Fleet Vehicle Directory</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-100 text-gray-600 text-xs uppercase font-semibold">
+                                    <th class="p-3">Registration</th>
+                                    <th class="p-3">Model</th>
+                                    <th class="p-3">Fuel Type</th>
+                                    <th class="p-3">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cars-table-body" class="text-sm text-gray-700 divide-y divide-gray-200">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
     </main>
@@ -81,12 +156,13 @@
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxEqYLpD2NjelmB3z73neQXA096CuApC4YeG48DW1qmQHJWjaNVxvWgJ61HHfBb-esD/exec";
 
         let dbUsers = [];
+        let dbCars = [];
 
         window.onload = function() {
             fetchDatabase();
         };
 
-        // Fetch users dynamically from Google Sheets via Apps Script
+        // Fetch users & cars dynamically from Google Sheets via Apps Script
         function fetchDatabase() {
             const banner = document.getElementById('status-banner');
             fetch(WEB_APP_URL)
@@ -94,6 +170,9 @@
                 .then(data => {
                     if (data.users) {
                         dbUsers = data.users;
+                        dbCars = data.cars || [];
+                        renderUsersTable();
+                        renderCarsTable();
                         banner.textContent = "Connected to Google Sheets successfully!";
                         banner.className = "w-full text-center py-2 text-sm font-medium text-white bg-green-600";
                         setTimeout(() => banner.classList.add('hidden'), 3000);
@@ -106,6 +185,55 @@
                     banner.className = "w-full text-center py-2 text-sm font-medium text-white bg-red-600";
                     console.error(err);
                 });
+        }
+
+        // Switch between dashboard tabs
+        function switchTab(tab) {
+            const usersBtn = document.getElementById('tab-users-btn');
+            const carsBtn = document.getElementById('tab-cars-btn');
+            const usersDiv = document.getElementById('subtab-users');
+            const carsDiv = document.getElementById('subtab-cars');
+
+            if (tab === 'users') {
+                usersBtn.className = "px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition";
+                carsBtn.className = "px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition";
+                usersDiv.classList.remove('hidden');
+                carsDiv.classList.add('hidden');
+            } else {
+                carsBtn.className = "px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition";
+                usersBtn.className = "px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition";
+                carsDiv.classList.remove('hidden');
+                usersDiv.classList.add('hidden');
+            }
+        }
+
+        // Render Users Table
+        function renderUsersTable() {
+            const tbody = document.getElementById('users-table-body');
+            tbody.innerHTML = dbUsers.map(u => `
+                <tr class="hover:bg-gray-50">
+                    <td class="p-3 font-medium text-gray-900">${u.username}</td>
+                    <td class="p-3 capitalize">${u.role}</td>
+                    <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full ${u.status.toLowerCase() === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${u.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        // Render Cars Table
+        function renderCarsTable() {
+            const tbody = document.getElementById('cars-table-body');
+            if (dbCars.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-500">No cars registered yet. Add one above or directly in Google Sheets.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = dbCars.map(c => `
+                <tr class="hover:bg-gray-50">
+                    <td class="p-3 font-medium text-gray-900">${c.reg}</td>
+                    <td class="p-3">${c.desc}</td>
+                    <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded bg-blue-50 text-blue-700">${c.fuelType}</span></td>
+                    <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full ${c.status.toLowerCase() === 'active' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}">${c.status}</span></td>
+                </tr>
+            `).join('');
         }
 
         // Handle Login Authentication against dynamic Sheet data
@@ -161,7 +289,7 @@
                     <option value="driver">Driver</option>
                 `;
             } else {
-                managementPanel.classList.add('hidden'); // Drivers see no creation panel
+                managementPanel.classList.add('hidden'); // Drivers see no user creation panel
             }
         }
 
@@ -195,7 +323,54 @@
                     msgDiv.textContent = "User created successfully!";
                     msgDiv.className = "text-sm mt-2 text-green-600";
                     document.getElementById('create-user-form').reset();
-                    fetchDatabase(); // Refresh local user database array
+                    fetchDatabase(); // Refresh database array
+                } else {
+                    throw new Error(res.message);
+                }
+            })
+            .catch(err => {
+                msgDiv.textContent = "Error: " + err.message;
+                msgDiv.className = "text-sm mt-2 text-red-600";
+            });
+        }
+
+        // Handle creating a new car
+        function handleCreateCar(event) {
+            event.preventDefault();
+            const reg = document.getElementById('car-reg').value.trim().toUpperCase();
+            const desc = document.getElementById('car-model').value.trim();
+            const fuelType = document.getElementById('car-fuel').value;
+            const status = document.getElementById('car-status').value;
+            const msgDiv = document.getElementById('create-car-msg');
+
+            const payload = {
+                action: "addCar",
+                reg: reg,
+                desc: desc,
+                fuelType: fuelType,
+                status: status,
+                owner: "Company",
+                leaseType: "monthly_lease",
+                leaseMonthly: 0,
+                leaseStart: "",
+                leaseEnd: ""
+            };
+
+            msgDiv.textContent = "Registering car to fleet...";
+            msgDiv.className = "text-sm mt-2 text-blue-600";
+            msgDiv.classList.remove('hidden');
+
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(res => {
+                if (res.status === "success") {
+                    msgDiv.textContent = "Car registered successfully!";
+                    msgDiv.className = "text-sm mt-2 text-green-600";
+                    document.getElementById('create-car-form').reset();
+                    fetchDatabase(); // Refresh database array
                 } else {
                     throw new Error(res.message);
                 }
