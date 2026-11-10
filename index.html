@@ -36,7 +36,7 @@
             <div id="login-error" class="text-red-500 text-sm text-center mt-3 hidden"></div>
         </div>
 
-        <!-- DASHBOARD VIEW (Hidden by default) -->
+        <!-- DASHBOARD VIEW -->
         <div id="dashboard-section" class="hidden bg-white p-8 rounded-xl shadow-md w-full max-w-5xl border border-gray-100">
             <div class="flex justify-between items-center mb-6 border-b pb-4">
                 <div>
@@ -49,102 +49,161 @@
             </div>
 
             <!-- Navigation Sub-Tabs -->
-            <div class="flex space-x-2 mb-6 border-b pb-4">
-                <button onclick="switchTab('users')" id="tab-users-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition">User Management</button>
-                <button onclick="switchTab('cars')" id="tab-cars-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition">Car Fleet Management</button>
+            <div id="nav-tabs" class="flex space-x-2 mb-6 border-b pb-4 overflow-x-auto">
+                <!-- Dynamically populated based on role -->
             </div>
 
-            <!-- TAB 1: USER MANAGEMENT -->
-            <div id="subtab-users" class="space-y-6">
-                <!-- Management Panel: Create User -->
-                <div id="management-panel" class="hidden bg-gray-50 p-6 rounded-lg border border-gray-200">
-                    <h3 id="panel-title" class="text-lg font-semibold text-gray-800 mb-4">Create New User</h3>
+            <!-- TAB: USER MANAGEMENT (Admin/SuperAdmin) -->
+            <div id="subtab-users" class="hidden space-y-6">
+                <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Create New User</h3>
                     <form id="create-user-form" onsubmit="handleCreateUser(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <input type="text" id="new-username" placeholder="Username" required class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                        <input type="password" id="new-password" placeholder="Password" required class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                        <select id="new-role" class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                            <!-- Options will be filtered dynamically based on logged-in role -->
+                        <input type="text" id="new-username" placeholder="Username" required class="px-3 py-2 border rounded-lg bg-white">
+                        <input type="password" id="new-password" placeholder="Password" required class="px-3 py-2 border rounded-lg bg-white">
+                        <select id="new-role" class="px-3 py-2 border rounded-lg bg-white">
+                            <option value="driver">Driver</option>
+                            <option value="admin">Admin</option>
+                            <option value="superadmin">Super Admin</option>
                         </select>
-                        <button type="submit" class="bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">
-                            Add User
-                        </button>
+                        <button type="submit" class="bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">Add User</button>
                     </form>
-                    <div id="create-msg" class="text-sm mt-2 hidden"></div>
                 </div>
-
-                <!-- Users List View -->
                 <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
                     <h3 class="text-md font-semibold text-gray-800 p-4 bg-gray-50 border-b">Active System Users</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-gray-100 text-gray-600 text-xs uppercase font-semibold">
-                                    <th class="p-3">Username</th>
-                                    <th class="p-3">Role</th>
-                                    <th class="p-3">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="users-table-body" class="text-sm text-gray-700 divide-y divide-gray-200">
-                                <!-- Populated dynamically -->
-                            </tbody>
-                        </table>
-                    </div>
+                    <table class="w-full text-left border-collapse">
+                        <thead><tr class="bg-gray-100 text-gray-600 text-xs uppercase font-semibold"><th class="p-3">Username</th><th class="p-3">Role</th><th class="p-3">Status</th></tr></thead>
+                        <tbody id="users-table-body" class="text-sm text-gray-700 divide-y divide-gray-200"></tbody>
+                    </table>
                 </div>
             </div>
 
-            <!-- TAB 2: CAR FLEET MANAGEMENT -->
+            <!-- TAB: CAR FLEET MANAGEMENT (Admin/SuperAdmin) -->
             <div id="subtab-cars" class="hidden space-y-6">
-                <!-- Create Car Panel -->
                 <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">Add New Car to Fleet</h3>
                     <form id="create-car-form" onsubmit="handleCreateCar(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <input type="text" id="car-reg" placeholder="Reg Number (e.g. WB19M0360)" required class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                        <input type="text" id="car-model" placeholder="Model (e.g. Dzire / Nexon EV)" required class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                        <select id="car-fuel" class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                        <input type="text" id="car-reg" placeholder="Reg Number (e.g. WB01BC2723)" required class="px-3 py-2 border rounded-lg bg-white">
+                        <input type="text" id="car-model" placeholder="Model (e.g. Crysta)" required class="px-3 py-2 border rounded-lg bg-white">
+                        <select id="car-fuel" class="px-3 py-2 border rounded-lg bg-white">
                             <option value="Petrol">Petrol</option>
                             <option value="Diesel">Diesel</option>
-                            <option value="EV">EV (Electric)</option>
+                            <option value="EV">EV</option>
                         </select>
-                        <select id="car-status" class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                        <select id="car-status" class="px-3 py-2 border rounded-lg bg-white">
                             <option value="Active">Active</option>
                             <option value="Maintenance">Maintenance</option>
                             <option value="Inactive">Inactive</option>
                         </select>
-                        <input type="hidden" id="car-owner" value="Company">
-                        <input type="hidden" id="car-leasetype" value="monthly_lease">
-                        <input type="hidden" id="car-monthly" value="0">
-                        <input type="hidden" id="car-start" value="">
-                        <input type="hidden" id="car-end" value="">
-                        <button type="submit" class="md:col-span-4 bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">
-                            Register Car
-                        </button>
+                        <button type="submit" class="md:col-span-4 bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">Register Car</button>
                     </form>
-                    <div id="create-car-msg" class="text-sm mt-2 hidden"></div>
                 </div>
-
-                <!-- Cars List View -->
                 <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
                     <h3 class="text-md font-semibold text-gray-800 p-4 bg-gray-50 border-b">Fleet Vehicle Directory</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-gray-100 text-gray-600 text-xs uppercase font-semibold">
-                                    <th class="p-3">Registration</th>
-                                    <th class="p-3">Model</th>
-                                    <th class="p-3">Fuel Type</th>
-                                    <th class="p-3">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="cars-table-body" class="text-sm text-gray-700 divide-y divide-gray-200">
-                                <!-- Populated dynamically -->
-                            </tbody>
-                        </table>
+                    <table class="w-full text-left border-collapse">
+                        <thead><tr class="bg-gray-100 text-gray-600 text-xs uppercase font-semibold"><th class="p-3">Registration</th><th class="p-3">Model</th><th class="p-3">Fuel Type</th><th class="p-3">Status</th></tr></thead>
+                        <tbody id="cars-table-body" class="text-sm text-gray-700 divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: ACTIVE SHIFTS MONITOR (Admin/SuperAdmin Live View) -->
+            <div id="subtab-active-shifts" class="hidden space-y-6">
+                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                    <div class="p-4 bg-gray-50 border-b flex justify-between items-center">
+                        <h3 class="text-md font-semibold text-gray-800">Live Active Shifts & Fleet Status</h3>
+                        <button onclick="fetchDatabase()" class="text-xs bg-blue-100 text-blue-700 px-3 py-1.5 rounded font-medium hover:bg-blue-200 transition">Refresh Status</button>
                     </div>
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-600 text-xs uppercase font-semibold">
+                                <th class="p-3">Driver Name</th>
+                                <th class="p-3">Car Registration</th>
+                                <th class="p-3">Shift State</th>
+                                <th class="p-3">Status</th>
+                                <th class="p-3">Admin Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="active-shifts-table-body" class="text-sm text-gray-700 divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: DRIVER SHIFT & OPERATIONS (Driver View) -->
+            <div id="subtab-driver-portal" class="hidden space-y-6">
+                <div id="shift-container" class="bg-blue-50 p-6 rounded-lg border border-blue-200">
+                    <!-- START SHIFT VIEW -->
+                    <div id="start-shift-view">
+                        <h3 class="text-lg font-bold text-gray-800 mb-2">Start Daily Shift</h3>
+                        <p class="text-sm text-gray-600 mb-4">Select your vehicle and upload verification photos with timestamps.</p>
+                        
+                        <form onsubmit="handleStartShift(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Select Car</label>
+                                <select id="active-car-select" required class="w-full px-3 py-2 border rounded-lg bg-white"></select>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Driver + Car Selfie</label>
+                                    <input type="file" id="start-selfie-file" accept="image/*" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Start Odometer Dashboard Photo</label>
+                                    <input type="file" id="start-odo-file" accept="image/*" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Start Odometer Reading (km)</label>
+                                <input type="number" id="start-odo-reading" placeholder="e.g. 45230" required class="w-full px-3 py-2 border rounded-lg bg-white">
+                            </div>
+                            <button type="submit" class="w-full bg-green-600 text-white py-2.5 rounded-lg font-semibold hover:bg-green-700 transition">
+                                Clock In & Start Shift
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- END SHIFT VIEW (Shown when shift is active) -->
+                    <div id="end-shift-view" class="hidden">
+                        <h3 class="text-lg font-bold text-gray-800 mb-2">Active Shift in Progress</h3>
+                        <p id="active-shift-info" class="text-sm text-blue-800 mb-4 font-medium"></p>
+                        
+                        <form onsubmit="handleEndShift(event)" class="space-y-4 border-t pt-4">
+                            <h4 class="font-semibold text-gray-700">End Shift Closing</h4>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Closing Odometer Dashboard Photo</label>
+                                <input type="file" id="end-odo-file" accept="image/*" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Closing Odometer Reading (km)</label>
+                                <input type="number" id="end-odo-reading" placeholder="e.g. 45410" required class="w-full px-3 py-2 border rounded-lg bg-white">
+                            </div>
+                            <button type="submit" class="w-full bg-red-600 text-white py-2.5 rounded-lg font-semibold hover:bg-red-700 transition">
+                                Submit Closing & End Shift
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- EXPENSE LOGGER (Only active during shift) -->
+                <div id="expense-container" class="hidden bg-gray-50 p-6 rounded-lg border border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Log Daily Expense (Fuel / EV / Parking)</h3>
+                    <p class="text-xs text-gray-500 mb-4">Automatically tied to your active vehicle registration.</p>
+                    <form onsubmit="handleLogExpense(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <select id="expense-category" class="px-3 py-2 border rounded-lg bg-white">
+                            <option value="Fuel">Fuel</option>
+                            <option value="EV Charging">EV Charging</option>
+                            <option value="Parking Slip">Parking Slip</option>
+                        </select>
+                        <input type="number" step="0.01" id="expense-amount" placeholder="Amount (e.g. 1200)" required class="px-3 py-2 border rounded-lg bg-white">
+                        <input type="file" id="expense-receipt" accept="image/*" required class="text-sm text-gray-500 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white">
+                        <button type="submit" class="md:col-span-3 bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
+                            Upload & Record Expense
+                        </button>
+                    </form>
+                    <div id="expense-msg" class="text-sm mt-2 hidden"></div>
                 </div>
             </div>
 
         </div>
-
     </main>
 
     <footer class="text-center py-4 text-xs text-gray-400">
@@ -157,12 +216,13 @@
 
         let dbUsers = [];
         let dbCars = [];
+        let dbShifts = [];
+        let currentUser = null;
 
         window.onload = function() {
             fetchDatabase();
         };
 
-        // Fetch users & cars dynamically from Google Sheets via Apps Script
         function fetchDatabase() {
             const banner = document.getElementById('status-banner');
             fetch(WEB_APP_URL)
@@ -171,72 +231,25 @@
                     if (data.users) {
                         dbUsers = data.users;
                         dbCars = data.cars || [];
-                        renderUsersTable();
-                        renderCarsTable();
+                        dbShifts = data.shifts || [];
                         banner.textContent = "Connected to Google Sheets successfully!";
                         banner.className = "w-full text-center py-2 text-sm font-medium text-white bg-green-600";
                         setTimeout(() => banner.classList.add('hidden'), 3000);
+
+                        if (currentUser) {
+                            loadDashboard(currentUser);
+                        }
                     } else {
                         throw new Error("Invalid database response structure.");
                     }
                 })
                 .catch(err => {
-                    banner.textContent = "Failed to connect to cloud database. Check internet connection.";
+                    banner.textContent = "Failed to connect to cloud database.";
                     banner.className = "w-full text-center py-2 text-sm font-medium text-white bg-red-600";
                     console.error(err);
                 });
         }
 
-        // Switch between dashboard tabs
-        function switchTab(tab) {
-            const usersBtn = document.getElementById('tab-users-btn');
-            const carsBtn = document.getElementById('tab-cars-btn');
-            const usersDiv = document.getElementById('subtab-users');
-            const carsDiv = document.getElementById('subtab-cars');
-
-            if (tab === 'users') {
-                usersBtn.className = "px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition";
-                carsBtn.className = "px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition";
-                usersDiv.classList.remove('hidden');
-                carsDiv.classList.add('hidden');
-            } else {
-                carsBtn.className = "px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition";
-                usersBtn.className = "px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition";
-                carsDiv.classList.remove('hidden');
-                usersDiv.classList.add('hidden');
-            }
-        }
-
-        // Render Users Table
-        function renderUsersTable() {
-            const tbody = document.getElementById('users-table-body');
-            tbody.innerHTML = dbUsers.map(u => `
-                <tr class="hover:bg-gray-50">
-                    <td class="p-3 font-medium text-gray-900">${u.username}</td>
-                    <td class="p-3 capitalize">${u.role}</td>
-                    <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full ${u.status.toLowerCase() === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${u.status}</span></td>
-                </tr>
-            `).join('');
-        }
-
-        // Render Cars Table
-        function renderCarsTable() {
-            const tbody = document.getElementById('cars-table-body');
-            if (dbCars.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-500">No cars registered yet. Add one above or directly in Google Sheets.</td></tr>`;
-                return;
-            }
-            tbody.innerHTML = dbCars.map(c => `
-                <tr class="hover:bg-gray-50">
-                    <td class="p-3 font-medium text-gray-900">${c.reg}</td>
-                    <td class="p-3">${c.desc}</td>
-                    <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded bg-blue-50 text-blue-700">${c.fuelType}</span></td>
-                    <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full ${c.status.toLowerCase() === 'active' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}">${c.status}</span></td>
-                </tr>
-            `).join('');
-        }
-
-        // Handle Login Authentication against dynamic Sheet data
         function handleLogin(event) {
             event.preventDefault();
             const usernameInput = document.getElementById('login-username').value.trim();
@@ -251,8 +264,8 @@
                     errorDiv.classList.remove('hidden');
                     return;
                 }
-
                 errorDiv.classList.add('hidden');
+                currentUser = matchedUser;
                 sessionStorage.setItem('currentUser', JSON.stringify(matchedUser));
                 loadDashboard(matchedUser);
             } else {
@@ -261,127 +274,287 @@
             }
         }
 
-        // Load Dashboard based on Role
         function loadDashboard(user) {
             document.getElementById('login-section').classList.add('hidden');
             document.getElementById('dashboard-section').classList.remove('hidden');
             document.getElementById('welcome-title').textContent = `Welcome, ${user.username}`;
             document.getElementById('user-role-display').textContent = `Role: ${user.role}`;
 
-            const managementPanel = document.getElementById('management-panel');
-            const roleSelect = document.getElementById('new-role');
-            const panelTitle = document.getElementById('panel-title');
-            roleSelect.innerHTML = '';
+            const role = user.role.toLowerCase();
+            const navTabs = document.getElementById('nav-tabs');
+            navTabs.innerHTML = '';
 
-            const userRole = user.role.toLowerCase();
-
-            if (userRole === 'superadmin') {
-                managementPanel.classList.remove('hidden');
-                panelTitle.textContent = "Create New User (Admin / Driver)";
-                roleSelect.innerHTML = `
-                    <option value="admin">Admin</option>
-                    <option value="driver">Driver</option>
+            if (role === 'superadmin' || role === 'admin') {
+                navTabs.innerHTML = `
+                    <button onclick="switchTab('users')" id="tab-users-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition">User Management</button>
+                    <button onclick="switchTab('cars')" id="tab-cars-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition">Car Fleet</button>
+                    <button onclick="switchTab('active-shifts')" id="tab-shifts-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition">Live Shifts</button>
                 `;
-            } else if (userRole === 'admin') {
-                managementPanel.classList.remove('hidden');
-                panelTitle.textContent = "Create New Driver";
-                roleSelect.innerHTML = `
-                    <option value="driver">Driver</option>
-                `;
+                document.getElementById('subtab-users').classList.remove('hidden');
+                document.getElementById('subtab-cars').classList.add('hidden');
+                document.getElementById('subtab-driver-portal').classList.add('hidden');
+                document.getElementById('subtab-active-shifts').classList.add('hidden');
+                renderUsersTable();
+                renderCarsTable();
             } else {
-                managementPanel.classList.add('hidden'); // Drivers see no user creation panel
+                navTabs.innerHTML = `
+                    <button onclick="switchTab('driver-portal')" id="tab-driver-portal-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition">My Shift & Expenses</button>
+                `;
+                document.getElementById('subtab-users').classList.add('hidden');
+                document.getElementById('subtab-cars').classList.add('hidden');
+                document.getElementById('subtab-active-shifts').classList.add('hidden');
+                document.getElementById('subtab-driver-portal').classList.remove('hidden');
+                renderDriverPortal(user.username);
             }
         }
 
-        // Handle creating a new user
-        function handleCreateUser(event) {
-            event.preventDefault();
-            const username = document.getElementById('new-username').value.trim();
-            const password = document.getElementById('new-password').value.trim();
-            const role = document.getElementById('new-role').value;
-            const msgDiv = document.getElementById('create-msg');
+        function switchTab(tab) {
+            document.getElementById('subtab-users').classList.add('hidden');
+            document.getElementById('subtab-cars').classList.add('hidden');
+            document.getElementById('subtab-driver-portal').classList.add('hidden');
+            document.getElementById('subtab-active-shifts').classList.add('hidden');
 
-            const payload = {
-                action: "addUser",
-                username: username,
-                password: password,
-                role: role,
-                status: "Active"
-            };
-
-            msgDiv.textContent = "Adding user to database...";
-            msgDiv.className = "text-sm mt-2 text-blue-600";
-            msgDiv.classList.remove('hidden');
-
-            fetch(WEB_APP_URL, {
-                method: "POST",
-                body: JSON.stringify(payload)
-            })
-            .then(res => res.json())
-            .then(res => {
-                if (res.status === "success") {
-                    msgDiv.textContent = "User created successfully!";
-                    msgDiv.className = "text-sm mt-2 text-green-600";
-                    document.getElementById('create-user-form').reset();
-                    fetchDatabase(); // Refresh database array
-                } else {
-                    throw new Error(res.message);
-                }
-            })
-            .catch(err => {
-                msgDiv.textContent = "Error: " + err.message;
-                msgDiv.className = "text-sm mt-2 text-red-600";
+            ['tab-users-btn', 'tab-cars-btn', 'tab-shifts-btn'].forEach(id => {
+                const btn = document.getElementById(id);
+                if(btn) btn.className = "px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition";
             });
+
+            if (tab === 'users') {
+                document.getElementById('subtab-users').classList.remove('hidden');
+                document.getElementById('tab-users-btn').className = "px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition";
+            } else if (tab === 'cars') {
+                document.getElementById('subtab-cars').classList.remove('hidden');
+                document.getElementById('tab-cars-btn').className = "px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition";
+            } else if (tab === 'active-shifts') {
+                document.getElementById('subtab-active-shifts').classList.remove('hidden');
+                document.getElementById('tab-shifts-btn').className = "px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition";
+                renderActiveShiftsTable();
+            } else if (tab === 'driver-portal') {
+                document.getElementById('subtab-driver-portal').classList.remove('hidden');
+            }
         }
 
-        // Handle creating a new car
-        function handleCreateCar(event) {
+        function renderDriverPortal(username) {
+            const activeShift = dbShifts.find(s => s.driver.toLowerCase() === username.toLowerCase() && s.status.toLowerCase() === 'active');
+            const startView = document.getElementById('start-shift-view');
+            const endView = document.getElementById('end-shift-view');
+            const expenseContainer = document.getElementById('expense-container');
+
+            if (activeShift) {
+                startView.classList.add('hidden');
+                endView.classList.remove('hidden');
+                expenseContainer.classList.remove('hidden');
+                document.getElementById('active-shift-info').textContent = `Currently logged in with Car: ${activeShift.regNumber}`;
+            } else {
+                startView.classList.remove('hidden');
+                endView.classList.add('hidden');
+                expenseContainer.classList.add('hidden');
+
+                const activeCarsInUse = dbShifts.filter(s => s.status.toLowerCase() === 'active').map(s => s.regNumber);
+                const availableCars = dbCars.filter(c => c.status.toLowerCase() === 'active' && !activeCarsInUse.includes(c.reg));
+
+                const select = document.getElementById('active-car-select');
+                if (availableCars.length === 0) {
+                    select.innerHTML = `<option value="">No active cars available</option>`;
+                } else {
+                    select.innerHTML = availableCars.map(c => `<option value="${c.reg}">${c.reg} - ${c.desc} (${c.fuelType})</option>`).join('');
+                }
+            }
+        }
+
+        function handleStartShift(event) {
             event.preventDefault();
-            const reg = document.getElementById('car-reg').value.trim().toUpperCase();
-            const desc = document.getElementById('car-model').value.trim();
-            const fuelType = document.getElementById('car-fuel').value;
-            const status = document.getElementById('car-status').value;
-            const msgDiv = document.getElementById('create-car-msg');
+            const carReg = document.getElementById('active-car-select').value;
+            const startOdo = document.getElementById('start-odo-reading').value;
+            const now = new Date();
+
+            if (!carReg) {
+                alert("Please select a valid car.");
+                return;
+            }
 
             const payload = {
-                action: "addCar",
-                reg: reg,
-                desc: desc,
-                fuelType: fuelType,
-                status: status,
-                owner: "Company",
-                leaseType: "monthly_lease",
-                leaseMonthly: 0,
-                leaseStart: "",
-                leaseEnd: ""
+                action: "startShift",
+                driver: currentUser.username,
+                regNumber: carReg,
+                date: now.toLocaleDateString(),
+                startTime: now.toLocaleTimeString(),
+                startTimestamp: now.toISOString(),
+                startOdometer: startOdo,
+                startSelfieUrl: "Uploaded_Selfie_Mock_URL",
+                startOdoPhotoUrl: "Uploaded_Start_Odo_Mock_URL"
             };
 
-            msgDiv.textContent = "Registering car to fleet...";
+            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.status === "success") {
+                        alert("Shift started successfully!");
+                        fetchDatabase();
+                    } else {
+                        alert(res.message);
+                    }
+                })
+                .catch(err => alert("Error: " + err.message));
+        }
+
+        function handleEndShift(event) {
+            event.preventDefault();
+            const endOdo = document.getElementById('end-odo-reading').value;
+            const now = new Date();
+
+            const payload = {
+                action: "endShift",
+                driver: currentUser.username,
+                endTime: now.toLocaleTimeString(),
+                endTimestamp: now.toISOString(),
+                endOdometer: endOdo,
+                endOdoPhotoUrl: "Uploaded_End_Odo_Mock_URL"
+            };
+
+            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.status === "success") {
+                        alert("Shift closed successfully!");
+                        fetchDatabase();
+                    } else {
+                        alert(res.message);
+                    }
+                })
+                .catch(err => alert("Error: " + err.message));
+        }
+
+        function renderActiveShiftsTable() {
+            const tbody = document.getElementById('active-shifts-table-body');
+            const activeShifts = dbShifts.filter(s => s.status.toLowerCase() === 'active');
+
+            if (activeShifts.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500">No cars currently on active shift. All fleet vehicles are parked.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = activeShifts.map(s => `
+                <tr class="hover:bg-gray-50">
+                    <td class="p-3 font-medium text-gray-900">${s.driver}</td>
+                    <td class="p-3 font-semibold text-blue-600">${s.regNumber}</td>
+                    <td class="p-3 text-gray-600">Active Duty</td>
+                    <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 animate-pulse">Active On Shift</span></td>
+                    <td class="p-3">
+                        <button onclick="promptAdminForceClose('${s.driver}', '${s.regNumber}')" class="bg-red-600 text-white text-xs px-3 py-1.5 rounded font-medium hover:bg-red-700 transition">
+                            Force Close & Release Car
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function promptAdminForceClose(driverName, regNumber) {
+            const closingOdo = prompt(`Force closing shift for driver: ${driverName} (${regNumber}).\n\nEnter Closing Odometer Reading (km):`);
+            if (!closingOdo) return;
+
+            const fineInput = prompt(`Select Close Type:\n1. Enter Fine Amount in ₹ (e.g., 500 for negligence)\n2. Enter 0 for Genuine Cause (Phone issue/emergency, No Fine):`, "0");
+            const fineAmount = Number(fineInput) || 0;
+
+            const now = new Date();
+            const payload = {
+                action: "adminCloseShift",
+                driver: driverName,
+                regNumber: regNumber,
+                endTime: now.toLocaleTimeString(),
+                endTimestamp: now.toISOString(),
+                endOdometer: closingOdo,
+                fine: fineAmount
+            };
+
+            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.status === "success") {
+                        alert(`Shift successfully closed by Admin! Vehicle ${regNumber} is now released.${fineAmount > 0 ? ' Fine of ₹' + fineAmount + ' recorded.' : ''}`);
+                        fetchDatabase();
+                    } else {
+                        alert("Error: " + res.message);
+                    }
+                })
+                .catch(err => alert("Connection error: " + err.message));
+        }
+
+        function handleLogExpense(event) {
+            event.preventDefault();
+            const activeShift = dbShifts.find(s => s.driver.toLowerCase() === currentUser.username.toLowerCase() && s.status.toLowerCase() === 'active');
+            if (!activeShift) {
+                alert("No active shift found!");
+                return;
+            }
+
+            const category = document.getElementById('expense-category').value;
+            const amount = document.getElementById('expense-amount').value;
+            const msgDiv = document.getElementById('expense-msg');
+            const now = new Date();
+
+            const payload = {
+                action: "logDriverExpense",
+                driver: currentUser.username,
+                regNumber: activeShift.regNumber,
+                date: now.toLocaleDateString(),
+                category: category,
+                amount: amount,
+                receiptUrl: "Uploaded_Receipt_Mock_URL",
+                timestamp: now.toISOString()
+            };
+
+            msgDiv.textContent = "Logging expense...";
             msgDiv.className = "text-sm mt-2 text-blue-600";
             msgDiv.classList.remove('hidden');
 
-            fetch(WEB_APP_URL, {
-                method: "POST",
-                body: JSON.stringify(payload)
-            })
-            .then(res => res.json())
-            .then(res => {
-                if (res.status === "success") {
-                    msgDiv.textContent = "Car registered successfully!";
-                    msgDiv.className = "text-sm mt-2 text-green-600";
-                    document.getElementById('create-car-form').reset();
-                    fetchDatabase(); // Refresh database array
-                } else {
-                    throw new Error(res.message);
-                }
-            })
-            .catch(err => {
-                msgDiv.textContent = "Error: " + err.message;
-                msgDiv.className = "text-sm mt-2 text-red-600";
-            });
+            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.status === "success") {
+                        msgDiv.textContent = "Expense logged and linked to vehicle successfully!";
+                        msgDiv.className = "text-sm mt-2 text-green-600";
+                        document.getElementById('expense-amount').value = '';
+                        document.getElementById('expense-receipt').value = '';
+                    } else {
+                        throw new Error(res.message);
+                    }
+                })
+                .catch(err => {
+                    msgDiv.textContent = "Error: " + err.message;
+                    msgDiv.className = "text-sm mt-2 text-red-600";
+                });
+        }
+
+        function renderUsersTable() {
+            const tbody = document.getElementById('users-table-body');
+            tbody.innerHTML = dbUsers.map(u => `
+                <tr class="hover:bg-gray-50">
+                    <td class="p-3 font-medium text-gray-900">${u.username}</td>
+                    <td class="p-3 capitalize">${u.role}</td>
+                    <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full ${u.status.toLowerCase() === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${u.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        function renderCarsTable() {
+            const tbody = document.getElementById('cars-table-body');
+            if (dbCars.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-500">No cars registered yet.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = dbCars.map(c => `
+                <tr class="hover:bg-gray-50">
+                    <td class="p-3 font-medium text-gray-900">${c.reg}</td>
+                    <td class="p-3">${c.desc}</td>
+                    <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded bg-blue-50 text-blue-700">${c.fuelType}</span></td>
+                    <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full ${c.status.toLowerCase() === 'active' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}">${c.status}</span></td>
+                </tr>
+            `).join('');
         }
 
         function handleLogout() {
+            currentUser = null;
             sessionStorage.removeItem('currentUser');
             document.getElementById('dashboard-section').classList.add('hidden');
             document.getElementById('login-section').classList.remove('hidden');
