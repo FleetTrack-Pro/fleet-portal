@@ -425,6 +425,68 @@
                 .catch(err => alert("Error: " + err.message));
         }
 
+        function handleCreateCar(event) {
+            event.preventDefault();
+            const reg = document.getElementById('car-reg').value.trim();
+            const desc = document.getElementById('car-model').value.trim();
+            const fuelType = document.getElementById('car-fuel').value;
+            const status = document.getElementById('car-status').value;
+
+            const payload = {
+                action: "addCar",
+                reg: reg,
+                desc: desc,
+                fuelType: fuelType,
+                status: status,
+                owner: currentUser.username,
+                leaseType: "Standard",
+                leaseMonthly: 0,
+                leaseStart: "",
+                leaseEnd: ""
+            };
+
+            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.status === "success") {
+                        alert("Car registered successfully!");
+                        document.getElementById('create-car-form').reset();
+                        fetchDatabase();
+                    } else {
+                        alert("Error: " + res.message);
+                    }
+                })
+                .catch(err => alert("Connection error: " + err.message));
+        }
+
+        function handleCreateUser(event) {
+            event.preventDefault();
+            const username = document.getElementById('new-username').value.trim();
+            const password = document.getElementById('new-password').value.trim();
+            const role = document.getElementById('new-role').value;
+
+            const payload = {
+                action: "addUser",
+                username: username,
+                password: password,
+                role: role,
+                status: "Active"
+            };
+
+            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.status === "success") {
+                        alert("User created successfully!");
+                        document.getElementById('create-user-form').reset();
+                        fetchDatabase();
+                    } else {
+                        alert("Error: " + res.message);
+                    }
+                })
+                .catch(err => alert("Connection error: " + err.message));
+        }
+
         function renderActiveShiftsTable() {
             const tbody = document.getElementById('active-shifts-table-body');
             const activeShifts = dbShifts.filter(s => s.status.toLowerCase() === 'active');
