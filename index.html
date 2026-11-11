@@ -318,11 +318,11 @@
             banner.className = "w-full text-center py-2 text-sm font-medium text-white bg-blue-600";
             
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 4000);
+            const timeoutId = setTimeout(() => controller.abort(), 12000); // 12-second timeout limit for cloud redirects
 
             const liveUrl = WEB_APP_URL + "?v=" + new Date().getTime();
 
-            fetch(liveUrl, { signal: controller.signal })
+            fetch(liveUrl, { signal: controller.signal, redirect: 'follow' })
                 .then(response => {
                     clearTimeout(timeoutId);
                     if (!response.ok) throw new Error("Server error status: " + response.status);
@@ -353,6 +353,8 @@
                 })
                 .catch(err => {
                     clearTimeout(timeoutId);
+                    console.warn("Cloud connection error:", err);
+                    
                     const cachedData = localStorage.getItem('cached_db');
                     if (cachedData) {
                         const data = JSON.parse(cachedData);
