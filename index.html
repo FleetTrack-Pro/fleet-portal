@@ -51,23 +51,23 @@
             <!-- Dynamic Navigation Tabs -->
             <div id="nav-tabs" class="flex space-x-2 mb-6 border-b pb-4 overflow-x-auto"></div>
 
-            <!-- TAB: USER MANAGEMENT & RBAC (SuperAdmin Only) -->
+            <!-- TAB: USER MANAGEMENT & RBAC -->
             <div id="subtab-users" class="hidden space-y-6">
                 <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">Create User & Set Module Access</h3>
                     <form id="create-user-form" onsubmit="handleCreateUser(event)" class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                        <input type="text" id="new-username" placeholder="Username" required class="px-3 py-2 border rounded-lg bg-white">
-                        <input type="password" id="new-password" placeholder="Password" required class="px-3 py-2 border rounded-lg bg-white">
-                        <select id="new-role" class="px-3 py-2 border rounded-lg bg-white">
+                        <input type="text" id="new-username" placeholder="Username" required class="px-3 py-2 border rounded-lg bg-white text-sm">
+                        <input type="password" id="new-password" placeholder="Password" required class="px-3 py-2 border rounded-lg bg-white text-sm">
+                        <select id="new-role" class="px-3 py-2 border rounded-lg bg-white text-sm">
                             <option value="driver">Driver</option>
                             <option value="admin">Admin</option>
-                            <option value="superadmin">Super Admin</option>
+                            <option id="superadmin-option" value="superadmin">Super Admin</option>
                         </select>
-                        <select id="new-fms-access" class="px-3 py-2 border rounded-lg bg-white">
+                        <select id="new-fms-access" class="px-3 py-2 border rounded-lg bg-white text-sm">
                             <option value="false">FTS Only (No FMS)</option>
                             <option value="true">Full Access (FMS + FTS)</option>
                         </select>
-                        <button type="submit" class="bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">Add User</button>
+                        <button type="submit" class="bg-green-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-green-700 transition">Add User</button>
                     </form>
                 </div>
                 <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
@@ -144,7 +144,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1">Cash to Collect (₹)</label>
-                            <input type="number" id="b-cash-collect" placeholder="e.g. 1000 (or 0)" value="0" required class="w-full px-3 py-2 border rounded-lg bg-white text-sm">
+                            <input type="number" id="b-cash-collect" placeholder="e.g. 1000" value="0" required class="w-full px-3 py-2 border rounded-lg bg-white text-sm">
                         </div>
                         <div class="md:col-span-2 flex items-end">
                             <button type="submit" class="w-full bg-green-600 text-white py-2.5 rounded-lg font-semibold hover:bg-green-700 transition">Save Booking to Roster</button>
@@ -182,19 +182,19 @@
                 <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">Add New Car to Fleet</h3>
                     <form id="create-car-form" onsubmit="handleCreateCar(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <input type="text" id="car-reg" placeholder="Reg Number (e.g. WB01BC2723)" required class="px-3 py-2 border rounded-lg bg-white">
-                        <input type="text" id="car-model" placeholder="Model (e.g. Crysta)" required class="px-3 py-2 border rounded-lg bg-white">
-                        <select id="car-fuel" class="px-3 py-2 border rounded-lg bg-white">
+                        <input type="text" id="car-reg" placeholder="Reg Number (e.g. WB01BC2723)" required class="px-3 py-2 border rounded-lg bg-white text-sm">
+                        <input type="text" id="car-model" placeholder="Model (e.g. Crysta)" required class="px-3 py-2 border rounded-lg bg-white text-sm">
+                        <select id="car-fuel" class="px-3 py-2 border rounded-lg bg-white text-sm">
                             <option value="Petrol">Petrol</option>
                             <option value="Diesel">Diesel</option>
                             <option value="EV">EV</option>
                         </select>
-                        <select id="car-status" class="px-3 py-2 border rounded-lg bg-white">
+                        <select id="car-status" class="px-3 py-2 border rounded-lg bg-white text-sm">
                             <option value="Active">Active</option>
                             <option value="Maintenance">Maintenance</option>
                             <option value="Inactive">Inactive</option>
                         </select>
-                        <button type="submit" class="md:col-span-4 bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">Register Car</button>
+                        <button type="submit" class="md:col-span-4 bg-green-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-green-700 transition">Register Car</button>
                     </form>
                 </div>
                 <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
@@ -231,51 +231,59 @@
             <!-- TAB: DRIVER PORTAL -->
             <div id="subtab-driver-portal" class="hidden space-y-6">
                 <div id="shift-container" class="bg-blue-50 p-6 rounded-lg border border-blue-200">
+                    
+                    <!-- START SHIFT VIEW -->
                     <div id="start-shift-view">
                         <h3 class="text-lg font-bold text-gray-800 mb-2">Start Daily Shift</h3>
-                        <p class="text-sm text-gray-600 mb-4">Select your vehicle and start your shift.</p>
+                        <p class="text-sm text-gray-600 mb-4">Select your vehicle, enter odometer reading, and upload required verification photos at the end.</p>
+                        
                         <form onsubmit="handleStartShift(event)" class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Select Car</label>
-                                <select id="active-car-select" required class="w-full px-3 py-2 border rounded-lg bg-white"></select>
+                                <select id="active-car-select" required class="w-full px-3 py-2 border rounded-lg bg-white text-sm"></select>
                             </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Start Odometer Reading (km)</label>
+                                <input type="number" id="start-odo-reading" placeholder="e.g. 45230" required class="w-full px-3 py-2 border rounded-lg bg-white text-sm">
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-blue-200">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Driver + Car Selfie</label>
-                                    <input type="file" id="start-selfie-file" accept="image/*" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white">
+                                    <input type="file" id="start-selfie-file" accept="image/*" required class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Start Odometer Dashboard Photo</label>
-                                    <input type="file" id="start-odo-file" accept="image/*" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white">
+                                    <input type="file" id="start-odo-file" accept="image/*" required class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white">
                                 </div>
                             </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Start Odometer Reading (km)</label>
-                                <input type="number" id="start-odo-reading" placeholder="e.g. 45230" required class="w-full px-3 py-2 border rounded-lg bg-white">
-                            </div>
-                            <button type="submit" class="w-full bg-green-600 text-white py-2.5 rounded-lg font-semibold hover:bg-green-700 transition">Clock In & Start Shift</button>
+
+                            <button type="submit" class="w-full bg-green-600 text-white py-2.5 rounded-lg font-semibold hover:bg-green-700 transition mt-4">
+                                Clock In & Start Shift
+                            </button>
                         </form>
                     </div>
 
+                    <!-- END SHIFT VIEW -->
                     <div id="end-shift-view" class="hidden">
                         <h3 class="text-lg font-bold text-gray-800 mb-2">Active Shift in Progress</h3>
                         <p id="active-shift-info" class="text-sm text-blue-800 mb-4 font-medium"></p>
                         
-                        <!-- Driver Assigned Bookings Roster -->
                         <div class="mt-6 bg-white border border-gray-200 rounded-lg overflow-hidden p-4">
-                            <h4 class="font-bold text-gray-800 mb-3">Your Assigned Trip Roster (Fare Masked)</h4>
+                            <h4 class="font-bold text-gray-800 mb-3 text-sm">Your Assigned Trip Roster (Fare Masked)</h4>
                             <div id="driver-bookings-list" class="space-y-3"></div>
                         </div>
 
                         <form onsubmit="handleEndShift(event)" class="space-y-4 border-t pt-4 mt-6">
-                            <h4 class="font-semibold text-gray-700">End Shift Closing</h4>
+                            <h4 class="font-semibold text-gray-700 text-sm">End Shift Closing</h4>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Closing Odometer Dashboard Photo</label>
-                                <input type="file" id="end-odo-file" accept="image/*" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white">
+                                <input type="file" id="end-odo-file" accept="image/*" required class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Closing Odometer Reading (km)</label>
-                                <input type="number" id="end-odo-reading" placeholder="e.g. 45410" required class="w-full px-3 py-2 border rounded-lg bg-white">
+                                <input type="number" id="end-odo-reading" placeholder="e.g. 45410" required class="w-full px-3 py-2 border rounded-lg bg-white text-sm">
                             </div>
                             <button type="submit" class="w-full bg-red-600 text-white py-2.5 rounded-lg font-semibold hover:bg-red-700 transition">Submit Closing & End Shift</button>
                         </form>
@@ -310,7 +318,7 @@
             banner.className = "w-full text-center py-2 text-sm font-medium text-white bg-blue-600";
             
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 4000); // 4-second timeout limit
+            const timeoutId = setTimeout(() => controller.abort(), 4000);
 
             const liveUrl = WEB_APP_URL + "?v=" + new Date().getTime();
 
@@ -328,7 +336,6 @@
                         dbVendors = data.vendors || ["Gozo", "Savari", "Taxi Bazar", "Mojobox", "WTI", "Direct Booking"];
                         dbBookings = data.bookings || [];
 
-                        // Save snapshot locally so drivers can fallback if offline/slow
                         localStorage.setItem('cached_db', JSON.stringify(data));
 
                         banner.textContent = "Connected to Google Sheets successfully!";
@@ -346,8 +353,6 @@
                 })
                 .catch(err => {
                     clearTimeout(timeoutId);
-                    console.warn("Cloud timeout or network issue. Loading local cache...", err);
-                    
                     const cachedData = localStorage.getItem('cached_db');
                     if (cachedData) {
                         const data = JSON.parse(cachedData);
@@ -361,9 +366,7 @@
                         banner.className = "w-full text-center py-2 text-sm font-medium text-white bg-amber-600";
                         setTimeout(() => banner.classList.add('hidden'), 3000);
 
-                        if (currentUser) {
-                            loadDashboard(currentUser);
-                        }
+                        if (currentUser) { loadDashboard(currentUser); }
                     } else {
                         banner.textContent = "Connection failed. Please check internet and refresh.";
                         banner.className = "w-full text-center py-2 text-sm font-medium text-white bg-red-600";
@@ -399,7 +402,7 @@
             document.getElementById('login-section').classList.add('hidden');
             document.getElementById('dashboard-section').classList.remove('hidden');
             document.getElementById('welcome-title').textContent = `Welcome, ${user.username}`;
-            document.getElementById('user-role-display').textContent = `Role: ${user.role}`;
+            document.getElementById('user-role-display').textContent = `Role: ${user.role} \vert{} FMS Access:${user.accessFMS}`;
 
             const role = user.role.toLowerCase();
             const hasFmsAccess = String(user.accessFMS).toLowerCase() === 'true';
@@ -409,7 +412,8 @@
             let tabButtons = [];
 
             if (role === 'superadmin') {
-                tabButtons.push(`<button onclick="switchTab('users')" id="tab-users-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition">User & RBAC Management</button>`);
+                document.getElementById('superadmin-option').style.display = 'block';
+                tabButtons.push(`<button onclick="switchTab('users')" id="tab-users-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition">User & RBAC</button>`);
                 tabButtons.push(`<button onclick="switchTab('fms-roster')" id="tab-fms-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition">FMS Booking Roster</button>`);
                 tabButtons.push(`<button onclick="switchTab('cars')" id="tab-cars-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition">Car Fleet</button>`);
                 tabButtons.push(`<button onclick="switchTab('active-shifts')" id="tab-shifts-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition">Live Shifts</button>`);
@@ -419,15 +423,18 @@
                 renderUsersTable();
                 renderCarsTable();
             } else if (role === 'admin') {
+                document.getElementById('superadmin-option').style.display = 'none';
+                tabButtons.push(`<button onclick="switchTab('users')" id="tab-users-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition">User Management</button>`);
+                
                 if (hasFmsAccess) {
-                    tabButtons.push(`<button onclick="switchTab('fms-roster')" id="tab-fms-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition">FMS Booking Roster</button>`);
+                    tabButtons.push(`<button onclick="switchTab('fms-roster')" id="tab-fms-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition">FMS Booking Roster</button>`);
                 }
-                tabButtons.push(`<button onclick="switchTab('cars')" id="tab-cars-btn" class="px-4 py-2 rounded-lg font-medium text-sm ${hasFmsAccess ? 'bg-gray-100 text-gray-700' : 'bg-blue-600 text-white'} hover:bg-gray-200 transition">Car Fleet</button>`);
+                tabButtons.push(`<button onclick="switchTab('cars')" id="tab-cars-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition">Car Fleet</button>`);
                 tabButtons.push(`<button onclick="switchTab('active-shifts')" id="tab-shifts-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition">Live Shifts</button>`);
                 
                 navTabs.innerHTML = tabButtons.join('');
-                switchTab(hasFmsAccess ? 'fms-roster' : 'cars');
-                if(hasFmsAccess) renderBookingRoster();
+                switchTab('users');
+                renderUsersTable();
                 renderCarsTable();
             } else {
                 navTabs.innerHTML = `<button onclick="switchTab('driver-portal')" id="tab-driver-portal-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition">My Shift & Expenses</button>`;
@@ -484,7 +491,7 @@
                     </td>
                     <td class="p-3">
                         <div class="font-medium text-gray-800">${b.type}</div>
-                        <div class="text-gray-500 text-[11px]">${b.pickup} ➔ ${b.drop}</div>
+                        <div class="text-gray-500 text-[11px]">${b.pickup} ➔${b.drop}</div>
                     </td>
                     <td class="p-3 text-gray-600">${b.dateTime}</td>
                     <td class="p-3">
@@ -518,10 +525,8 @@
             fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
                 .then(res => res.json())
                 .then(res => {
-                    if (res.status === "success") {
-                        alert("Vendor added successfully!");
-                        fetchDatabase();
-                    } else { alert("Error: " + res.message); }
+                    if (res.status === "success") { alert("Vendor added successfully!"); fetchDatabase(); }
+                    else { alert("Error: " + res.message); }
                 });
         }
 
@@ -561,28 +566,17 @@
             const assignedCar = prompt(`Enter Car Registration Number:\n(${dbCars.map(c => c.reg).join(', ')})`);
             if (!assignedCar) return;
 
-            const payload = {
-                action: "assignBookingDriver",
-                bookingId: bookingId,
-                assignedDriver: assignedDriver.trim(),
-                assignedCar: assignedCar.trim()
-            };
-
+            const payload = { action: "assignBookingDriver", bookingId: bookingId, assignedDriver: assignedDriver.trim(), assignedCar: assignedCar.trim() };
             fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
                 .then(res => res.json())
                 .then(res => {
-                    if (res.status === "success") {
-                        alert("Driver assigned successfully!");
-                        fetchDatabase();
-                    } else { alert("Error: " + res.message); }
+                    if (res.status === "success") { alert("Driver assigned successfully!"); fetchDatabase(); }
+                    else { alert("Error: " + res.message); }
                 });
         }
 
         function toggleUserFmsAccess(username, currentAccess) {
-            if (currentUser.role.toLowerCase() !== 'superadmin') {
-                alert("Only Super Admin can change access rights!");
-                return;
-            }
+            if (currentUser.role.toLowerCase() === 'driver') { alert("Unauthorized action!"); return; }
             const newAccess = currentAccess === "true" ? "false" : "true";
             const payload = { action: "updateUserAccess", username: username, accessFMS: newAccess };
             fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
@@ -595,19 +589,23 @@
 
         function handleCreateUser(event) {
             event.preventDefault();
-            if (currentUser.role.toLowerCase() !== 'superadmin') { alert("Only Super Admin can create users!"); return; }
+            const newRole = document.getElementById('new-role').value;
+            if (currentUser.role.toLowerCase() === 'admin' && newRole === 'superadmin') {
+                alert("Admins cannot create Super Admin accounts!");
+                return;
+            }
             const payload = {
                 action: "addUser",
                 username: document.getElementById('new-username').value.trim(),
                 password: document.getElementById('new-password').value.trim(),
-                role: document.getElementById('new-role').value,
+                role: newRole,
                 status: "Active",
                 accessFMS: document.getElementById('new-fms-access').value
             };
             fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
                 .then(res => res.json())
                 .then(res => {
-                    if (res.status === "success") { alert("User created!"); document.getElementById('create-user-form').reset(); fetchDatabase(); }
+                    if (res.status === "success") { alert("User created successfully!"); document.getElementById('create-user-form').reset(); fetchDatabase(); }
                     else { alert("Error: " + res.message); }
                 });
         }
@@ -620,7 +618,7 @@
                     <td class="p-3 capitalize">${u.role}</td>
                     <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full ${u.accessFMS === 'true' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600'}">${u.accessFMS === 'true' ? 'Granted (FMS + FTS)' : 'Restricted (FTS Only)'}</span></td>
                     <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full ${u.status.toLowerCase() === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${u.status}</span></td>
-                    <td class="p-3">${u.role.toLowerCase() !== 'superadmin' ? `<button onclick="toggleUserFmsAccess('${u.username}', '${u.accessFMS}')" class="text-xs px-2.5 py-1 rounded font-medium bg-amber-100 text-amber-800 hover:bg-amber-200 transition">Toggle FMS</button>` : '<span class="text-xs text-gray-400">Full Access</span>'}</td>
+                    <td class="p-3">${u.role.toLowerCase() !== 'superadmin' || currentUser.role.toLowerCase() === 'superadmin' ? `<button onclick="toggleUserFmsAccess('${u.username}', '${u.accessFMS}')" class="text-xs px-2.5 py-1 rounded font-medium bg-amber-100 text-amber-800 hover:bg-amber-200 transition">Toggle FMS</button>` : '<span class="text-xs text-gray-400">Protected</span>'}</td>
                 </tr>
             `).join('');
         }
@@ -630,7 +628,7 @@
             const payload = { action: "addCar", reg: document.getElementById('car-reg').value.trim(), desc: document.getElementById('car-model').value.trim(), fuelType: document.getElementById('car-fuel').value, status: document.getElementById('car-status').value, owner: currentUser.username };
             fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
                 .then(res => res.json())
-                .then(res => { if (res.status === "success") { alert("Car registered!"); document.getElementById('create-car-form').reset(); fetchDatabase(); } });
+                .then(res => { if (res.status === "success") { alert("Car registered successfully!"); document.getElementById('create-car-form').reset(); fetchDatabase(); } });
         }
 
         function renderCarsTable() {
@@ -656,7 +654,6 @@
                 endView.classList.remove('hidden');
                 document.getElementById('active-shift-info').textContent = `Currently logged in with Car: ${activeShift.regNumber}`;
 
-                // Flexible case-insensitive and trimmed assignment matching
                 const driverBookings = dbBookings.filter(b => b.assignedDriver.toLowerCase().trim() === username.toLowerCase().trim());
                 const bookingsContainer = document.getElementById('driver-bookings-list');
                 
@@ -669,7 +666,7 @@
                                 <span>Booking ID: ${b.bookingId} (${b.vendor})</span>
                                 <span class="text-blue-600">${b.type}</span>
                             </div>
-                            <div class="text-gray-600">Route: <span class="font-medium text-gray-800">${b.pickup} ➔ ${b.drop}</span></div>
+                            <div class="text-gray-600">Route: <span class="font-medium text-gray-800">${b.pickup} ➔${b.drop}</span></div>
                             <div class="text-gray-600">Time: <span class="font-medium text-gray-800">${b.dateTime}</span></div>
                             <div class="pt-1 border-t border-blue-100 flex justify-between font-semibold">
                                 <span class="text-green-700">Driver Fare: ₹${b.driverFare}</span>
@@ -684,22 +681,72 @@
                 endView.classList.add('hidden');
                 const activeCarsInUse = dbShifts.filter(s => s.status.toLowerCase() === 'active').map(s => s.regNumber);
                 const availableCars = dbCars.filter(c => c.status.toLowerCase() === 'active' && !activeCarsInUse.includes(c.reg));
-                document.getElementById('active-car-select').innerHTML = availableCars.length === 0 ? `<option value="">No cars available</option>` : availableCars.map(c => `<option value="${c.reg}">${c.reg} - ${c.desc}</option>`).join('');
+                document.getElementById('active-car-select').innerHTML = availableCars.length === 0 ? `<option value="">No cars available</option>` : availableCars.map(c => `<option value="${c.reg}">${c.reg} -${c.desc}</option>`).join('');
             }
         }
 
         function handleStartShift(event) {
             event.preventDefault();
             const now = new Date();
-            const payload = { action: "startShift", driver: currentUser.username, regNumber: document.getElementById('active-car-select').value, date: now.toLocaleDateString(), startTime: now.toLocaleTimeString(), startTimestamp: now.toISOString(), startOdometer: document.getElementById('start-odo-reading').value };
-            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) }).then(res => res.json()).then(res => { alert(res.message); fetchDatabase(); });
+            const selfieFile = document.getElementById('start-selfie-file').files[0];
+            const odoFile = document.getElementById('start-odo-file').files[0];
+
+            if (!selfieFile || !odoFile) { alert("Please select both pictures!"); return; }
+
+            const reader1 = new FileReader();
+            reader1.onload = function(e1) {
+                const selfieData = e1.target.result;
+                const reader2 = new FileReader();
+                reader2.onload = function(e2) {
+                    const odoPhotoData = e2.target.result;
+
+                    const payload = {
+                        action: "startShift",
+                        driver: currentUser.username,
+                        regNumber: document.getElementById('active-car-select').value,
+                        date: now.toLocaleDateString(),
+                        startTime: now.toLocaleTimeString(),
+                        startTimestamp: now.toISOString(),
+                        startOdometer: document.getElementById('start-odo-reading').value,
+                        selfieData: selfieData,
+                        odoPhotoData: odoPhotoData
+                    };
+
+                    const banner = document.getElementById('status-banner');
+                    banner.textContent = "Uploading shift data & photos...";
+                    banner.className = "w-full text-center py-2 text-sm font-medium text-white bg-blue-600";
+
+                    fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
+                        .then(res => res.json())
+                        .then(res => { alert(res.message); fetchDatabase(); })
+                        .catch(err => { alert("Error uploading shift: " + err.message); fetchDatabase(); });
+                };
+                reader2.readAsDataURL(odoFile);
+            };
+            reader1.readAsDataURL(selfieFile);
         }
 
         function handleEndShift(event) {
             event.preventDefault();
             const now = new Date();
-            const payload = { action: "endShift", driver: currentUser.username, endTime: now.toLocaleTimeString(), endTimestamp: now.toISOString(), endOdometer: document.getElementById('end-odo-reading').value };
-            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) }).then(res => res.json()).then(res => { alert(res.message); fetchDatabase(); });
+            const endOdoFile = document.getElementById('end-odo-file').files[0];
+            if (!endOdoFile) { alert("Please upload closing odometer photo!"); return; }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const payload = {
+                    action: "endShift",
+                    driver: currentUser.username,
+                    endTime: now.toLocaleTimeString(),
+                    endTimestamp: now.toISOString(),
+                    endOdometer: document.getElementById('end-odo-reading').value,
+                    endOdoPhotoData: e.target.result
+                };
+                fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
+                    .then(res => res.json())
+                    .then(res => { alert(res.message); fetchDatabase(); });
+            };
+            reader.readAsDataURL(endOdoFile);
         }
 
         function renderActiveShiftsTable() {
@@ -712,26 +759,4 @@
                     <td class="p-3 font-semibold text-blue-600">${s.regNumber}</td>
                     <td class="p-3 text-gray-600">Active Duty</td>
                     <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span></td>
-                    <td class="p-3"><button onclick="promptAdminForceClose('${s.driver}', '${s.regNumber}')" class="bg-red-600 text-white text-xs px-3 py-1 rounded">Force Close</button></td>
-                </tr>
-            `).join('');
-        }
-
-        function promptAdminForceClose(driverName, regNumber) {
-            const closingOdo = prompt(`Force closing shift for ${driverName}.\nEnter Closing Odometer:`);
-            if (!closingOdo) return;
-            const payload = { action: "adminCloseShift", driver: driverName, regNumber: regNumber, endOdometer: closingOdo };
-            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) }).then(res => res.json()).then(res => { alert(res.message); fetchDatabase(); });
-        }
-
-        function handleLogout() {
-            currentUser = null;
-            sessionStorage.removeItem('currentUser');
-            document.getElementById('dashboard-section').classList.add('hidden');
-            document.getElementById('login-section').classList.remove('hidden');
-            document.getElementById('login-form').reset();
-            fetchDatabase();
-        }
-    </script>
-</body>
-</html>
+                    <td class="p-3"><button onclick="promptAdmin
