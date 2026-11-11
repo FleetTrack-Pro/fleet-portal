@@ -309,21 +309,18 @@
             banner.textContent = "Connecting to cloud database...";
             banner.className = "w-full text-center py-2 text-sm font-medium text-white bg-blue-600";
             
-            fetch(WEB_APP_URL)
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 4000); // 4-second timeout limit
+
+            const liveUrl = WEB_APP_URL + "?v=" + new Date().getTime();
+
+            fetch(liveUrl, { signal: controller.signal })
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-                    return response.text();
+                    clearTimeout(timeoutId);
+                    if (!response.ok) throw new Error("Server error status: " + response.status);
+                    return response.json();
                 })
-                .then(text => {
-                    let data;
-                    try {
-                        data = JSON.parse(text);
-                    } catch (e) {
-                        throw new Error("Script returned non-JSON (Check Apps Script deployment permissions).");
-                    }
-                    
+                .then(data => {
                     if (data.users) {
                         dbUsers = data.users;
                         dbCars = data.cars || [];
@@ -331,9 +328,12 @@
                         dbVendors = data.vendors || ["Gozo", "Savari", "Taxi Bazar", "Mojobox", "WTI", "Direct Booking"];
                         dbBookings = data.bookings || [];
 
+                        // Save snapshot locally so drivers can fallback if offline/slow
+                        localStorage.setItem('cached_db', JSON.stringify(data));
+
                         banner.textContent = "Connected to Google Sheets successfully!";
                         banner.className = "w-full text-center py-2 text-sm font-medium text-white bg-green-600";
-                        setTimeout(() => banner.classList.add('hidden'), 3000);
+                        setTimeout(() => banner.classList.add('hidden'), 2500);
 
                         if (currentUser) {
                             const verifiedUser = dbUsers.find(u => u.username.toLowerCase() === currentUser.username.toLowerCase());
@@ -342,8 +342,396 @@
                                 loadDashboard(currentUser);
                             }
                         }
-                    } else {
-                        throw new Error("Invalid database schema returned.");
                     }
                 })
-                .catch(
+                .catch(err => {
+                    clearTimeout(timeoutId);
+                    console.warn("Cloud timeout or network issue. Loading local cache...", err);
+                    
+                    const cachedData = localStorage.getItem('cached_db');
+                    if (cachedData) {
+                        const data = JSON.parse(cachedData);
+                        dbUsers = data.users;
+                        dbCars = data.cars || [];
+                        dbShifts = data.shifts || [];
+                        dbVendors = data.vendors || [];
+                        dbBookings = data.bookings || [];
+
+                        banner.textContent = "Cloud connection slow. Running on local cached session.";
+                        banner.className = "w-full text-center py-2 text-sm font-medium text-white bg-amber-600";
+                        setTimeout(() => banner.classList.add('hidden'), 3000);
+
+                        if (currentUser) {
+                            loadDashboard(currentUser);
+                        }
+                    } else {
+                        banner.textContent = "Connection failed. Please check internet and refresh.";
+                        banner.className = "w-full text-center py-2 text-sm font-medium text-white bg-red-600";
+                    }
+                });
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const usernameInput = document.getElementById('login-username').value.trim();
+            const passwordInput = document.getElementById('login-password').value.trim();
+            const errorDiv = document.getElementById('login-error');
+
+            const matchedUser = dbUsers.find(u => u.username.toLowerCase() === usernameInput.toLowerCase() && u.password === passwordInput);
+
+            if (matchedUser) {
+                if (matchedUser.status.toLowerCase() !== 'active') {
+                    errorDiv.textContent = "Account is inactive. Contact Administrator.";
+                    errorDiv.classList.remove('hidden');
+                    return;
+                }
+                errorDiv.classList.add('hidden');
+                currentUser = matchedUser;
+                sessionStorage.setItem('currentUser', JSON.stringify(matchedUser));
+                loadDashboard(matchedUser);
+            } else {
+                errorDiv.textContent = "Invalid username or password.";
+                errorDiv.classList.remove('hidden');
+            }
+        }
+
+        function loadDashboard(user) {
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('dashboard-section').classList.remove('hidden');
+            document.getElementById('welcome-title').textContent = `Welcome, ${user.username}`;
+            document.getElementById('user-role-display').textContent = `Role: ${user.role}`;
+
+            const role = user.role.toLowerCase();
+            const hasFmsAccess = String(user.accessFMS).toLowerCase() === 'true';
+            const navTabs = document.getElementById('nav-tabs');
+            navTabs.innerHTML = '';
+
+            let tabButtons = [];
+
+            if (role === 'superadmin') {
+                tabButtons.push(`<button onclick="switchTab('users')" id="tab-users-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition">User & RBAC Management</button>`);
+                tabButtons.push(`<button onclick="switchTab('fms-roster')" id="tab-fms-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition">FMS Booking Roster</button>`);
+                tabButtons.push(`<button onclick="switchTab('cars')" id="tab-cars-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition">Car Fleet</button>`);
+                tabButtons.push(`<button onclick="switchTab('active-shifts')" id="tab-shifts-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition">Live Shifts</button>`);
+                
+                navTabs.innerHTML = tabButtons.join('');
+                switchTab('users');
+                renderUsersTable();
+                renderCarsTable();
+            } else if (role === 'admin') {
+                if (hasFmsAccess) {
+                    tabButtons.push(`<button onclick="switchTab('fms-roster')" id="tab-fms-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition">FMS Booking Roster</button>`);
+                }
+                tabButtons.push(`<button onclick="switchTab('cars')" id="tab-cars-btn" class="px-4 py-2 rounded-lg font-medium text-sm ${hasFmsAccess ? 'bg-gray-100 text-gray-700' : 'bg-blue-600 text-white'} hover:bg-gray-200 transition">Car Fleet</button>`);
+                tabButtons.push(`<button onclick="switchTab('active-shifts')" id="tab-shifts-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition">Live Shifts</button>`);
+                
+                navTabs.innerHTML = tabButtons.join('');
+                switchTab(hasFmsAccess ? 'fms-roster' : 'cars');
+                if(hasFmsAccess) renderBookingRoster();
+                renderCarsTable();
+            } else {
+                navTabs.innerHTML = `<button onclick="switchTab('driver-portal')" id="tab-driver-portal-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition">My Shift & Expenses</button>`;
+                switchTab('driver-portal');
+                renderDriverPortal(user.username);
+            }
+        }
+
+        function switchTab(tab) {
+            ['subtab-users', 'subtab-fms-roster', 'subtab-cars', 'subtab-active-shifts', 'subtab-driver-portal'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.classList.add('hidden');
+            });
+
+            ['tab-users-btn', 'tab-fms-btn', 'tab-cars-btn', 'tab-shifts-btn', 'tab-driver-portal-btn'].forEach(id => {
+                const btn = document.getElementById(id);
+                if(btn) btn.className = "px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition";
+            });
+
+            if (tab === 'users') {
+                document.getElementById('subtab-users').classList.remove('hidden');
+                if(document.getElementById('tab-users-btn')) document.getElementById('tab-users-btn').className = "px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition";
+            } else if (tab === 'fms-roster') {
+                document.getElementById('subtab-fms-roster').classList.remove('hidden');
+                if(document.getElementById('tab-fms-btn')) document.getElementById('tab-fms-btn').className = "px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition";
+                renderBookingRoster();
+            } else if (tab === 'cars') {
+                document.getElementById('subtab-cars').classList.remove('hidden');
+                if(document.getElementById('tab-cars-btn')) document.getElementById('tab-cars-btn').className = "px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition";
+            } else if (tab === 'active-shifts') {
+                document.getElementById('subtab-active-shifts').classList.remove('hidden');
+                if(document.getElementById('tab-shifts-btn')) document.getElementById('tab-shifts-btn').className = "px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition";
+                renderActiveShiftsTable();
+            } else if (tab === 'driver-portal') {
+                document.getElementById('subtab-driver-portal').classList.remove('hidden');
+            }
+        }
+
+        function renderBookingRoster() {
+            const vendorSelect = document.getElementById('b-vendor');
+            vendorSelect.innerHTML = dbVendors.map(v => `<option value="${v}">${v}</option>`).join('');
+
+            const tbody = document.getElementById('bookings-table-body');
+            if (dbBookings.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-gray-500">No bookings loaded in the roster yet. Add one above!</td></tr>`;
+                return;
+            }
+            
+            tbody.innerHTML = dbBookings.map(b => `
+                <tr class="hover:bg-gray-50">
+                    <td class="p-3">
+                        <div class="font-bold text-gray-900">${b.bookingId}</div>
+                        <span class="px-2 py-0.5 text-[10px] font-semibold bg-purple-50 text-purple-700 rounded">${b.vendor}</span>
+                    </td>
+                    <td class="p-3">
+                        <div class="font-medium text-gray-800">${b.type}</div>
+                        <div class="text-gray-500 text-[11px]">${b.pickup} ➔ ${b.drop}</div>
+                    </td>
+                    <td class="p-3 text-gray-600">${b.dateTime}</td>
+                    <td class="p-3">
+                        <div class="text-gray-900 font-semibold">Actual: ₹${b.companyFare}</div>
+                        <div class="text-green-600 font-medium">Driver Masked: ₹${b.driverFare}</div>
+                    </td>
+                    <td class="p-3">
+                        <div class="text-gray-800 font-medium">${b.paymentMode}</div>
+                        <div class="text-amber-600 font-semibold">Collect: ₹${b.cashToCollect}</div>
+                    </td>
+                    <td class="p-3">
+                        <div class="font-medium text-blue-600">${b.assignedDriver}</div>
+                        <div class="text-gray-500 text-[11px]">Car: ${b.assignedCar}</div>
+                    </td>
+                    <td class="p-3">
+                        <span class="px-2 py-1 text-[10px] font-semibold rounded-full ${b.status.toLowerCase() === 'assigned' ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800'}">${b.status}</span>
+                    </td>
+                    <td class="p-3">
+                        <button onclick="openAssignModal('${b.bookingId}')" class="bg-blue-600 text-white text-[11px] px-2.5 py-1 rounded hover:bg-blue-700 transition">
+                            Assign Driver
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function promptAddVendor() {
+            const newVendor = prompt("Enter new Vendor / Client name:");
+            if (!newVendor) return;
+            const payload = { action: "addVendor", vendorName: newVendor.trim() };
+            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.status === "success") {
+                        alert("Vendor added successfully!");
+                        fetchDatabase();
+                    } else { alert("Error: " + res.message); }
+                });
+        }
+
+        function handleAddBooking(event) {
+            event.preventDefault();
+            const payload = {
+                action: "addBooking",
+                bookingId: document.getElementById('b-id').value.trim(),
+                vendor: document.getElementById('b-vendor').value,
+                type: document.getElementById('b-type').value,
+                dateTime: document.getElementById('b-datetime').value.trim(),
+                pickup: document.getElementById('b-pickup').value.trim(),
+                drop: document.getElementById('b-drop').value.trim(),
+                companyFare: document.getElementById('b-company-fare').value,
+                driverFare: document.getElementById('b-driver-fare').value,
+                paymentMode: document.getElementById('b-payment-mode').value,
+                cashToCollect: document.getElementById('b-cash-collect').value,
+                status: "Pending"
+            };
+
+            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.status === "success") {
+                        alert("Booking recorded successfully!");
+                        document.getElementById('add-booking-form').reset();
+                        fetchDatabase();
+                    } else { alert("Error: " + res.message); }
+                });
+        }
+
+        function openAssignModal(bookingId) {
+            const activeDrivers = dbUsers.filter(u => u.role.toLowerCase() === 'driver');
+            const driverListStr = activeDrivers.map(d => `${d.username}`).join(', ');
+            const assignedDriver = prompt(`Assign Driver for ${bookingId}\nEnter exact Driver Username:\n(${driverListStr})`);
+            if (!assignedDriver) return;
+            const assignedCar = prompt(`Enter Car Registration Number:\n(${dbCars.map(c => c.reg).join(', ')})`);
+            if (!assignedCar) return;
+
+            const payload = {
+                action: "assignBookingDriver",
+                bookingId: bookingId,
+                assignedDriver: assignedDriver.trim(),
+                assignedCar: assignedCar.trim()
+            };
+
+            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.status === "success") {
+                        alert("Driver assigned successfully!");
+                        fetchDatabase();
+                    } else { alert("Error: " + res.message); }
+                });
+        }
+
+        function toggleUserFmsAccess(username, currentAccess) {
+            if (currentUser.role.toLowerCase() !== 'superadmin') {
+                alert("Only Super Admin can change access rights!");
+                return;
+            }
+            const newAccess = currentAccess === "true" ? "false" : "true";
+            const payload = { action: "updateUserAccess", username: username, accessFMS: newAccess };
+            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.status === "success") { alert(`FMS Access updated for ${username}!`); fetchDatabase(); }
+                    else { alert("Error: " + res.message); }
+                });
+        }
+
+        function handleCreateUser(event) {
+            event.preventDefault();
+            if (currentUser.role.toLowerCase() !== 'superadmin') { alert("Only Super Admin can create users!"); return; }
+            const payload = {
+                action: "addUser",
+                username: document.getElementById('new-username').value.trim(),
+                password: document.getElementById('new-password').value.trim(),
+                role: document.getElementById('new-role').value,
+                status: "Active",
+                accessFMS: document.getElementById('new-fms-access').value
+            };
+            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.status === "success") { alert("User created!"); document.getElementById('create-user-form').reset(); fetchDatabase(); }
+                    else { alert("Error: " + res.message); }
+                });
+        }
+
+        function renderUsersTable() {
+            const tbody = document.getElementById('users-table-body');
+            tbody.innerHTML = dbUsers.map(u => `
+                <tr class="hover:bg-gray-50">
+                    <td class="p-3 font-medium text-gray-900">${u.username}</td>
+                    <td class="p-3 capitalize">${u.role}</td>
+                    <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full ${u.accessFMS === 'true' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600'}">${u.accessFMS === 'true' ? 'Granted (FMS + FTS)' : 'Restricted (FTS Only)'}</span></td>
+                    <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full ${u.status.toLowerCase() === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${u.status}</span></td>
+                    <td class="p-3">${u.role.toLowerCase() !== 'superadmin' ? `<button onclick="toggleUserFmsAccess('${u.username}', '${u.accessFMS}')" class="text-xs px-2.5 py-1 rounded font-medium bg-amber-100 text-amber-800 hover:bg-amber-200 transition">Toggle FMS</button>` : '<span class="text-xs text-gray-400">Full Access</span>'}</td>
+                </tr>
+            `).join('');
+        }
+
+        function handleCreateCar(event) {
+            event.preventDefault();
+            const payload = { action: "addCar", reg: document.getElementById('car-reg').value.trim(), desc: document.getElementById('car-model').value.trim(), fuelType: document.getElementById('car-fuel').value, status: document.getElementById('car-status').value, owner: currentUser.username };
+            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
+                .then(res => res.json())
+                .then(res => { if (res.status === "success") { alert("Car registered!"); document.getElementById('create-car-form').reset(); fetchDatabase(); } });
+        }
+
+        function renderCarsTable() {
+            const tbody = document.getElementById('cars-table-body');
+            if (dbCars.length === 0) { tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-500">No cars registered.</td></tr>`; return; }
+            tbody.innerHTML = dbCars.map(c => `
+                <tr class="hover:bg-gray-50">
+                    <td class="p-3 font-medium text-gray-900">${c.reg}</td>
+                    <td class="p-3">${c.desc}</td>
+                    <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded bg-blue-50 text-blue-700">${c.fuelType}</span></td>
+                    <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full ${c.status.toLowerCase() === 'active' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}">${c.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        function renderDriverPortal(username) {
+            const activeShift = dbShifts.find(s => s.driver.toLowerCase() === username.toLowerCase() && s.status.toLowerCase() === 'active');
+            const startView = document.getElementById('start-shift-view');
+            const endView = document.getElementById('end-shift-view');
+            
+            if (activeShift) {
+                startView.classList.add('hidden'); 
+                endView.classList.remove('hidden');
+                document.getElementById('active-shift-info').textContent = `Currently logged in with Car: ${activeShift.regNumber}`;
+
+                // Flexible case-insensitive and trimmed assignment matching
+                const driverBookings = dbBookings.filter(b => b.assignedDriver.toLowerCase().trim() === username.toLowerCase().trim());
+                const bookingsContainer = document.getElementById('driver-bookings-list');
+                
+                if (driverBookings.length === 0) {
+                    bookingsContainer.innerHTML = `<p class="text-xs text-gray-500 italic">No bookings assigned to you yet.</p>`;
+                } else {
+                    bookingsContainer.innerHTML = driverBookings.map(b => `
+                        <div class="border border-blue-100 bg-blue-50/50 p-3 rounded-lg text-xs space-y-1">
+                            <div class="flex justify-between font-bold text-gray-900">
+                                <span>Booking ID: ${b.bookingId} (${b.vendor})</span>
+                                <span class="text-blue-600">${b.type}</span>
+                            </div>
+                            <div class="text-gray-600">Route: <span class="font-medium text-gray-800">${b.pickup} ➔ ${b.drop}</span></div>
+                            <div class="text-gray-600">Time: <span class="font-medium text-gray-800">${b.dateTime}</span></div>
+                            <div class="pt-1 border-t border-blue-100 flex justify-between font-semibold">
+                                <span class="text-green-700">Driver Fare: ₹${b.driverFare}</span>
+                                <span class="text-amber-700">Cash to Collect: ₹${b.cashToCollect} (${b.paymentMode})</span>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+            } else {
+                startView.classList.remove('hidden'); 
+                endView.classList.add('hidden');
+                const activeCarsInUse = dbShifts.filter(s => s.status.toLowerCase() === 'active').map(s => s.regNumber);
+                const availableCars = dbCars.filter(c => c.status.toLowerCase() === 'active' && !activeCarsInUse.includes(c.reg));
+                document.getElementById('active-car-select').innerHTML = availableCars.length === 0 ? `<option value="">No cars available</option>` : availableCars.map(c => `<option value="${c.reg}">${c.reg} - ${c.desc}</option>`).join('');
+            }
+        }
+
+        function handleStartShift(event) {
+            event.preventDefault();
+            const now = new Date();
+            const payload = { action: "startShift", driver: currentUser.username, regNumber: document.getElementById('active-car-select').value, date: now.toLocaleDateString(), startTime: now.toLocaleTimeString(), startTimestamp: now.toISOString(), startOdometer: document.getElementById('start-odo-reading').value };
+            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) }).then(res => res.json()).then(res => { alert(res.message); fetchDatabase(); });
+        }
+
+        function handleEndShift(event) {
+            event.preventDefault();
+            const now = new Date();
+            const payload = { action: "endShift", driver: currentUser.username, endTime: now.toLocaleTimeString(), endTimestamp: now.toISOString(), endOdometer: document.getElementById('end-odo-reading').value };
+            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) }).then(res => res.json()).then(res => { alert(res.message); fetchDatabase(); });
+        }
+
+        function renderActiveShiftsTable() {
+            const tbody = document.getElementById('active-shifts-table-body');
+            const activeShifts = dbShifts.filter(s => s.status.toLowerCase() === 'active');
+            if (activeShifts.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500">No active shifts.</td></tr>`; return; }
+            tbody.innerHTML = activeShifts.map(s => `
+                <tr class="hover:bg-gray-50">
+                    <td class="p-3 font-medium text-gray-900">${s.driver}</td>
+                    <td class="p-3 font-semibold text-blue-600">${s.regNumber}</td>
+                    <td class="p-3 text-gray-600">Active Duty</td>
+                    <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span></td>
+                    <td class="p-3"><button onclick="promptAdminForceClose('${s.driver}', '${s.regNumber}')" class="bg-red-600 text-white text-xs px-3 py-1 rounded">Force Close</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function promptAdminForceClose(driverName, regNumber) {
+            const closingOdo = prompt(`Force closing shift for ${driverName}.\nEnter Closing Odometer:`);
+            if (!closingOdo) return;
+            const payload = { action: "adminCloseShift", driver: driverName, regNumber: regNumber, endOdometer: closingOdo };
+            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) }).then(res => res.json()).then(res => { alert(res.message); fetchDatabase(); });
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            sessionStorage.removeItem('currentUser');
+            document.getElementById('dashboard-section').classList.add('hidden');
+            document.getElementById('login-section').classList.remove('hidden');
+            document.getElementById('login-form').reset();
+            fetchDatabase();
+        }
+    </script>
+</body>
+</html>
