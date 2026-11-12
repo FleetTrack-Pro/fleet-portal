@@ -292,7 +292,6 @@
     <!-- JavaScript Application Core -->
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxEqYLpD2NjelmB3z73neQXA096CuApC4YeG48DW1qmQHJWjaNVxvWgJ61HHfBb-esD/exec";
-        const GEMINI_API_KEY = "AQ.Ab8RN6JQjJf5np7GuZsjnPmgq_TxDMgM36FEkzydBblgP_Yv7g";
 
         let currentUser = null;
         let globalData = { users: [], cars: [], shifts: [], bookings: [], driverExpenses: [], adminExpenses: [], cashDeposits: [] };
@@ -410,45 +409,13 @@
         async function handleScanBookingScreenshot() {
             const fileInput = document.getElementById('scan-screenshot-file');
             if (!fileInput.files || !fileInput.files[0]) { alert("Select screenshot first."); return; }
-            showBanner("Scanning directly with AI...");
+            showBanner("Scanning with AI via server...");
             try {
                 const dataUrl = await compressImageFile(fileInput.files[0], 1000, 0.7);
-                const base64Clean = dataUrl.replace(/^data:image\/(png|jpeg|jpg);base64,/, "");
+                const res = await apiCall("scanBookingImage", { screenshotData: dataUrl });
 
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-                const payload = {
-                    contents: [{
-                        parts: [
-                            { text: "Analyze this booking screenshot. Extract the following details into a raw JSON object with these exact keys: bookingId, vendor, type, date (YYYY-MM-DD), startTime (HH:MM), pickup, drop, companyFare (number), driverFare (number), paymentMode (Online/Cash), cashToCollect (number). Return ONLY valid JSON with no extra commentary or markdown blocks." },
-                            { inline_data: { mime_type: "image/jpeg", data: base64Clean } }
-                        ]
-                    }]
-                };
-
-                const response = await fetch(url, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                });
-                const json = await response.json();
-
-                if (json.error) {
-                    alert("Gemini API Error: " + json.error.message);
-                    return;
-                }
-
-                if (json.candidates && json.candidates[0].content && json.candidates[0].content.parts[0].text) {
-                    let rawText = json.candidates[0].content.parts[0].text;
-                    
-                    rawText = rawText.replace(/```json/gi, "").replace(/```/g, "").trim();
-                    const firstBrace = rawText.indexOf('{');
-                    const lastBrace = rawText.lastIndexOf('}');
-                    if (firstBrace !== -1 && lastBrace !== -1) {
-                        rawText = rawText.substring(firstBrace, lastBrace + 1);
-                    }
-                    
-                    const d = JSON.parse(rawText);
-
+                if (res.status === "success" && res.data) {
+                    const d = res.data;
                     if (d.bookingId) document.getElementById('b-id').value = d.bookingId;
                     if (d.vendor) document.getElementById('b-vendor').value = d.vendor;
                     if (d.type) document.getElementById('b-type').value = d.type;
@@ -461,7 +428,7 @@
 
                     showBanner("Extracted successfully!");
                 } else {
-                    alert("Scan failed: Unexpected response format: " + JSON.stringify(json));
+                    alert("Scan failed: " + (res.message || "Unknown error"));
                 }
             } catch (err) {
                 alert("Scan Error: " + err.message);
