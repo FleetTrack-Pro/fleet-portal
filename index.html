@@ -9,8 +9,8 @@
 <body class="bg-gray-50 min-h-screen flex flex-col justify-between">
 
     <!-- Status Banner -->
-    <div id="status-banner" class="w-full text-center py-2 text-sm font-medium text-white bg-blue-600 transition-colors">
-        Connecting to cloud database...
+    <div id="status-banner" class="hidden w-full text-center py-2 text-sm font-medium text-white bg-blue-600 transition-colors">
+        Connecting...
     </div>
 
     <!-- Main Container -->
@@ -29,7 +29,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
                     <input type="password" id="login-password" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Enter password">
                 </div>
-                <button type="submit" class="w-full bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition">
+                <button type="submit" id="login-btn" class="w-full bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition">
                     Login to Portal
                 </button>
             </form>
@@ -37,15 +37,20 @@
         </div>
 
         <!-- DASHBOARD VIEW -->
-        <div id="dashboard-section" class="hidden bg-white p-8 rounded-xl shadow-md w-full max-w-6xl border border-gray-100">
-            <div class="flex justify-between items-center mb-6 border-b pb-4">
+        <div id="dashboard-section" class="hidden bg-white p-6 md:p-8 rounded-xl shadow-md w-full max-w-6xl border border-gray-100">
+            <div class="flex flex-wrap justify-between items-center gap-4 mb-6 border-b pb-4">
                 <div>
                     <h1 id="welcome-title" class="text-2xl font-bold text-gray-800">Dashboard</h1>
                     <p id="user-role-display" class="text-sm text-gray-500 uppercase tracking-wide"></p>
                 </div>
-                <button onclick="handleLogout()" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600 transition">
-                    Logout
-                </button>
+                <div class="flex items-center gap-2">
+                    <button onclick="fetchDatabase()" class="bg-blue-50 text-blue-700 border border-blue-200 px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-100 transition">
+                        Sync Data
+                    </button>
+                    <button onclick="handleLogout()" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600 transition">
+                        Logout
+                    </button>
+                </div>
             </div>
 
             <!-- Dynamic Navigation Tabs -->
@@ -70,7 +75,7 @@
                         <button type="submit" class="bg-green-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-green-700 transition">Add User</button>
                     </form>
                 </div>
-                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                <div class="bg-white border border-gray-200 rounded-lg overflow-x-auto">
                     <h3 class="text-md font-semibold text-gray-800 p-4 bg-gray-50 border-b">System Users & Access Rights</h3>
                     <table class="w-full text-left border-collapse">
                         <thead>
@@ -197,7 +202,7 @@
                         <button type="submit" class="md:col-span-4 bg-green-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-green-700 transition">Register Car</button>
                     </form>
                 </div>
-                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                <div class="bg-white border border-gray-200 rounded-lg overflow-x-auto">
                     <h3 class="text-md font-semibold text-gray-800 p-4 bg-gray-50 border-b">Fleet Vehicle Directory</h3>
                     <table class="w-full text-left border-collapse">
                         <thead><tr class="bg-gray-100 text-gray-600 text-xs uppercase font-semibold"><th class="p-3">Registration</th><th class="p-3">Model</th><th class="p-3">Fuel Type</th><th class="p-3">Status</th></tr></thead>
@@ -208,7 +213,7 @@
 
             <!-- TAB: ACTIVE SHIFTS (FTS Monitor) -->
             <div id="subtab-active-shifts" class="hidden space-y-6">
-                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                <div class="bg-white border border-gray-200 rounded-lg overflow-x-auto shadow-sm">
                     <div class="p-4 bg-gray-50 border-b flex justify-between items-center">
                         <h3 class="text-md font-semibold text-gray-800">Live Active Shifts & Fleet Status</h3>
                         <button onclick="fetchDatabase()" class="text-xs bg-blue-100 text-blue-700 px-3 py-1.5 rounded font-medium hover:bg-blue-200 transition">Refresh Status</button>
@@ -218,7 +223,7 @@
                             <tr class="bg-gray-100 text-gray-600 text-xs uppercase font-semibold">
                                 <th class="p-3">Driver Name</th>
                                 <th class="p-3">Car Registration</th>
-                                <th class="p-3">Shift State</th>
+                                <th class="p-3">Start Odometer</th>
                                 <th class="p-3">Status</th>
                                 <th class="p-3">Admin Action</th>
                             </tr>
@@ -232,10 +237,15 @@
             <div id="subtab-driver-portal" class="hidden space-y-6">
                 <div id="shift-container" class="bg-blue-50 p-6 rounded-lg border border-blue-200">
                     
+                    <!-- LOADING STATE -->
+                    <div id="driver-loading-view" class="text-center py-6 text-sm text-blue-800 font-medium">
+                        Loading your shift and vehicle roster...
+                    </div>
+
                     <!-- START SHIFT VIEW -->
-                    <div id="start-shift-view">
+                    <div id="start-shift-view" class="hidden">
                         <h3 class="text-lg font-bold text-gray-800 mb-2">Start Daily Shift</h3>
-                        <p class="text-sm text-gray-600 mb-4">Select your vehicle, enter odometer reading, and upload required verification photos at the end.</p>
+                        <p class="text-sm text-gray-600 mb-4">Select your vehicle, enter odometer reading, and upload verification photos.</p>
                         
                         <form onsubmit="handleStartShift(event)" class="space-y-4">
                             <div>
@@ -251,15 +261,15 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-blue-200">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Driver + Car Selfie</label>
-                                    <input type="file" id="start-selfie-file" accept="image/*" required class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white">
+                                    <input type="file" id="start-selfie-file" accept="image/*" capture="user" required class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Start Odometer Dashboard Photo</label>
-                                    <input type="file" id="start-odo-file" accept="image/*" required class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white">
+                                    <input type="file" id="start-odo-file" accept="image/*" capture="environment" required class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white">
                                 </div>
                             </div>
 
-                            <button type="submit" class="w-full bg-green-600 text-white py-2.5 rounded-lg font-semibold hover:bg-green-700 transition mt-4">
+                            <button type="submit" id="start-shift-btn" class="w-full bg-green-600 text-white py-2.5 rounded-lg font-semibold hover:bg-green-700 transition mt-4">
                                 Clock In & Start Shift
                             </button>
                         </form>
@@ -279,13 +289,13 @@
                             <h4 class="font-semibold text-gray-700 text-sm">End Shift Closing</h4>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Closing Odometer Dashboard Photo</label>
-                                <input type="file" id="end-odo-file" accept="image/*" required class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white">
+                                <input type="file" id="end-odo-file" accept="image/*" capture="environment" required class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Closing Odometer Reading (km)</label>
                                 <input type="number" id="end-odo-reading" placeholder="e.g. 45410" required class="w-full px-3 py-2 border rounded-lg bg-white text-sm">
                             </div>
-                            <button type="submit" class="w-full bg-red-600 text-white py-2.5 rounded-lg font-semibold hover:bg-red-700 transition">Submit Closing & End Shift</button>
+                            <button type="submit" id="end-shift-btn" class="w-full bg-red-600 text-white py-2.5 rounded-lg font-semibold hover:bg-red-700 transition">Submit Closing & End Shift</button>
                         </form>
                     </div>
                 </div>
@@ -306,97 +316,140 @@
         let dbShifts = [];
         let dbVendors = [];
         let dbBookings = [];
+        let isDbLoaded = false;
         let currentUser = JSON.parse(sessionStorage.getItem('currentUser')) || null;
 
         window.onload = function() {
-            fetchDatabase();
+            if (currentUser) {
+                loadDashboard(currentUser);
+                fetchDatabase();
+            }
         };
 
-        function fetchDatabase() {
+        function showBanner(text, colorClass, autoHideMs = 0) {
             const banner = document.getElementById('status-banner');
-            banner.textContent = "Connecting to cloud database...";
-            banner.className = "w-full text-center py-2 text-sm font-medium text-white bg-blue-600";
-            
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 12000); // 12-second timeout limit for cloud redirects
-
-            const liveUrl = WEB_APP_URL + "?v=" + new Date().getTime();
-
-            fetch(liveUrl, { signal: controller.signal, redirect: 'follow' })
-                .then(response => {
-                    clearTimeout(timeoutId);
-                    if (!response.ok) throw new Error("Server error status: " + response.status);
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.users) {
-                        dbUsers = data.users;
-                        dbCars = data.cars || [];
-                        dbShifts = data.shifts || [];
-                        dbVendors = data.vendors || ["Gozo", "Savari", "Taxi Bazar", "Mojobox", "WTI", "Direct Booking"];
-                        dbBookings = data.bookings || [];
-
-                        localStorage.setItem('cached_db', JSON.stringify(data));
-
-                        banner.textContent = "Connected to Google Sheets successfully!";
-                        banner.className = "w-full text-center py-2 text-sm font-medium text-white bg-green-600";
-                        setTimeout(() => banner.classList.add('hidden'), 2500);
-
-                        if (currentUser) {
-                            const verifiedUser = dbUsers.find(u => u.username.toLowerCase() === currentUser.username.toLowerCase());
-                            if (verifiedUser) {
-                                currentUser = verifiedUser;
-                                loadDashboard(currentUser);
-                            }
-                        }
-                    }
-                })
-                .catch(err => {
-                    clearTimeout(timeoutId);
-                    console.warn("Cloud connection error:", err);
-                    
-                    const cachedData = localStorage.getItem('cached_db');
-                    if (cachedData) {
-                        const data = JSON.parse(cachedData);
-                        dbUsers = data.users;
-                        dbCars = data.cars || [];
-                        dbShifts = data.shifts || [];
-                        dbVendors = data.vendors || [];
-                        dbBookings = data.bookings || [];
-
-                        banner.textContent = "Cloud connection slow. Running on local cached session.";
-                        banner.className = "w-full text-center py-2 text-sm font-medium text-white bg-amber-600";
-                        setTimeout(() => banner.classList.add('hidden'), 3000);
-
-                        if (currentUser) { loadDashboard(currentUser); }
-                    } else {
-                        banner.textContent = "Connection failed. Please check internet and refresh.";
-                        banner.className = "w-full text-center py-2 text-sm font-medium text-white bg-red-600";
-                    }
-                });
+            banner.textContent = text;
+            banner.className = `w-full text-center py-2 text-sm font-medium text-white transition-colors ${colorClass}`;
+            banner.classList.remove('hidden');
+            if (autoHideMs > 0) {
+                setTimeout(() => banner.classList.add('hidden'), autoHideMs);
+            }
         }
 
+        // 1. FAST DIRECT LOGIN (Bypasses full DB download)
         function handleLogin(event) {
             event.preventDefault();
             const usernameInput = document.getElementById('login-username').value.trim();
             const passwordInput = document.getElementById('login-password').value.trim();
             const errorDiv = document.getElementById('login-error');
+            const loginBtn = document.getElementById('login-btn');
 
-            const matchedUser = dbUsers.find(u => u.username.toLowerCase() === usernameInput.toLowerCase() && u.password === passwordInput);
+            errorDiv.classList.add('hidden');
+            loginBtn.disabled = true;
+            loginBtn.textContent = "Verifying...";
+            showBanner("Authenticating credentials...", "bg-blue-600");
 
-            if (matchedUser) {
-                if (matchedUser.status.toLowerCase() !== 'active') {
-                    errorDiv.textContent = "Account is inactive. Contact Administrator.";
-                    errorDiv.classList.remove('hidden');
-                    return;
+            const loginUrl = `${WEB_APP_URL}?action=login&username=${encodeURIComponent(usernameInput)}&password=${encodeURIComponent(passwordInput)}&v=${Date.now()}`;
+
+            fetch(loginUrl, { redirect: 'follow' })
+                .then(res => {
+                    if (!res.ok) throw new Error("Server status " + res.status);
+                    return res.json();
+                })
+                .then(res => {
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = "Login to Portal";
+
+                    if (res.status === "success" && res.user) {
+                        currentUser = res.user;
+                        sessionStorage.setItem('currentUser', JSON.stringify(res.user));
+                        showBanner("Login successful! Loading workspace...", "bg-green-600", 2000);
+                        loadDashboard(currentUser);
+                        fetchDatabase();
+                    } else if (res.status === "inactive") {
+                        document.getElementById('status-banner').classList.add('hidden');
+                        errorDiv.textContent = "Account is inactive. Contact Administrator.";
+                        errorDiv.classList.remove('hidden');
+                    } else {
+                        document.getElementById('status-banner').classList.add('hidden');
+                        errorDiv.textContent = "Invalid username or password.";
+                        errorDiv.classList.remove('hidden');
+                    }
+                })
+                .catch(err => {
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = "Login to Portal";
+                    
+                    // Offline fallback check against previously cached database
+                    const cachedData = localStorage.getItem('cached_db');
+                    if (cachedData) {
+                        const data = JSON.parse(cachedData);
+                        const cachedUser = (data.users || []).find(
+                            u => u.username.toLowerCase() === usernameInput.toLowerCase() && u.password === passwordInput
+                        );
+                        if (cachedUser && cachedUser.status.toLowerCase() === 'active') {
+                            currentUser = cachedUser;
+                            sessionStorage.setItem('currentUser', JSON.stringify(cachedUser));
+                            showBanner("Offline mode: Logged in using cached profile.", "bg-amber-600", 3500);
+                            applyDatabaseState(data);
+                            loadDashboard(currentUser);
+                            return;
+                        }
+                    }
+
+                    showBanner("Cloud connection failed. Check mobile data/Wi-Fi and retry.", "bg-red-600");
+                });
+        }
+
+        // 2. ASYNCHRONOUS BACKGROUND DATABASE SYNC
+        function fetchDatabase() {
+            showBanner("Syncing fleet data...", "bg-blue-600");
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
+            const liveUrl = `${WEB_APP_URL}?v=${Date.now()}`;
+
+            fetch(liveUrl, { signal: controller.signal, redirect: 'follow' })
+                .then(response => {
+                    clearTimeout(timeoutId);
+                    if (!response.ok) throw new Error("Server error: " + response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    localStorage.setItem('cached_db', JSON.stringify(data));
+                    applyDatabaseState(data);
+                    showBanner("Connected to cloud database!", "bg-green-600", 2000);
+                })
+                .catch(err => {
+                    clearTimeout(timeoutId);
+                    const cachedData = localStorage.getItem('cached_db');
+                    if (cachedData) {
+                        applyDatabaseState(JSON.parse(cachedData));
+                        showBanner("Network slow. Showing last cached data.", "bg-amber-600", 3500);
+                    } else {
+                        showBanner("Unable to sync fleet data. Tap 'Sync Data' to retry.", "bg-red-600");
+                    }
+                });
+        }
+
+        function applyDatabaseState(data) {
+            dbUsers = data.users || [];
+            dbCars = data.cars || [];
+            dbShifts = data.shifts || [];
+            dbVendors = data.vendors || ["Gozo", "Savari", "Taxi Bazar", "Mojobox", "WTI", "Direct Booking"];
+            dbBookings = data.bookings || [];
+            isDbLoaded = true;
+
+            if (currentUser) {
+                const role = currentUser.role.toLowerCase();
+                if (role === 'superadmin' || role === 'admin') {
+                    renderUsersTable();
+                    renderCarsTable();
+                    renderBookingRoster();
+                    renderActiveShiftsTable();
+                } else {
+                    renderDriverPortal(currentUser.username);
                 }
-                errorDiv.classList.add('hidden');
-                currentUser = matchedUser;
-                sessionStorage.setItem('currentUser', JSON.stringify(matchedUser));
-                loadDashboard(matchedUser);
-            } else {
-                errorDiv.textContent = "Invalid username or password.";
-                errorDiv.classList.remove('hidden');
             }
         }
 
@@ -422,8 +475,7 @@
                 
                 navTabs.innerHTML = tabButtons.join('');
                 switchTab('users');
-                renderUsersTable();
-                renderCarsTable();
+                if (isDbLoaded) { renderUsersTable(); renderCarsTable(); }
             } else if (role === 'admin') {
                 document.getElementById('superadmin-option').style.display = 'none';
                 tabButtons.push(`<button onclick="switchTab('users')" id="tab-users-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition">User Management</button>`);
@@ -436,39 +488,38 @@
                 
                 navTabs.innerHTML = tabButtons.join('');
                 switchTab('users');
-                renderUsersTable();
-                renderCarsTable();
+                if (isDbLoaded) { renderUsersTable(); renderCarsTable(); }
             } else {
-                navTabs.innerHTML = `<button onclick="switchTab('driver-portal')" id="tab-driver-portal-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition">My Shift & Expenses</button>`;
+                navTabs.innerHTML = `<button onclick="switchTab('driver-portal')" id="tab-driver-portal-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition">My Shift & Roster</button>`;
                 switchTab('driver-portal');
-                renderDriverPortal(user.username);
+                if (isDbLoaded) { renderDriverPortal(user.username); }
             }
         }
 
         function switchTab(tab) {
             ['subtab-users', 'subtab-fms-roster', 'subtab-cars', 'subtab-active-shifts', 'subtab-driver-portal'].forEach(id => {
                 const el = document.getElementById(id);
-                if(el) el.classList.add('hidden');
+                if (el) el.classList.add('hidden');
             });
 
             ['tab-users-btn', 'tab-fms-btn', 'tab-cars-btn', 'tab-shifts-btn', 'tab-driver-portal-btn'].forEach(id => {
                 const btn = document.getElementById(id);
-                if(btn) btn.className = "px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition";
+                if (btn) btn.className = "px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition";
             });
 
             if (tab === 'users') {
                 document.getElementById('subtab-users').classList.remove('hidden');
-                if(document.getElementById('tab-users-btn')) document.getElementById('tab-users-btn').className = "px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition";
+                if (document.getElementById('tab-users-btn')) document.getElementById('tab-users-btn').className = "px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition";
             } else if (tab === 'fms-roster') {
                 document.getElementById('subtab-fms-roster').classList.remove('hidden');
-                if(document.getElementById('tab-fms-btn')) document.getElementById('tab-fms-btn').className = "px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition";
+                if (document.getElementById('tab-fms-btn')) document.getElementById('tab-fms-btn').className = "px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition";
                 renderBookingRoster();
             } else if (tab === 'cars') {
                 document.getElementById('subtab-cars').classList.remove('hidden');
-                if(document.getElementById('tab-cars-btn')) document.getElementById('tab-cars-btn').className = "px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition";
+                if (document.getElementById('tab-cars-btn')) document.getElementById('tab-cars-btn').className = "px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition";
             } else if (tab === 'active-shifts') {
                 document.getElementById('subtab-active-shifts').classList.remove('hidden');
-                if(document.getElementById('tab-shifts-btn')) document.getElementById('tab-shifts-btn').className = "px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition";
+                if (document.getElementById('tab-shifts-btn')) document.getElementById('tab-shifts-btn').className = "px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white transition";
                 renderActiveShiftsTable();
             } else if (tab === 'driver-portal') {
                 document.getElementById('subtab-driver-portal').classList.remove('hidden');
@@ -520,16 +571,29 @@
             `).join('');
         }
 
-        function promptAddVendor() {
-            const newVendor = prompt("Enter new Vendor / Client name:");
-            if (!newVendor) return;
-            const payload = { action: "addVendor", vendorName: newVendor.trim() };
+        function postToBackend(payload, onSuccess) {
+            showBanner("Saving changes to cloud...", "bg-blue-600");
             fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
                 .then(res => res.json())
                 .then(res => {
-                    if (res.status === "success") { alert("Vendor added successfully!"); fetchDatabase(); }
-                    else { alert("Error: " + res.message); }
+                    if (res.status === "success") {
+                        if (onSuccess) onSuccess(res);
+                        fetchDatabase();
+                    } else {
+                        showBanner("Error: " + res.message, "bg-red-600", 4000);
+                        alert("Error: " + res.message);
+                    }
+                })
+                .catch(err => {
+                    showBanner("Network error while saving.", "bg-red-600", 4000);
+                    alert("Network error: " + err.message);
                 });
+        }
+
+        function promptAddVendor() {
+            const newVendor = prompt("Enter new Vendor / Client name:");
+            if (!newVendor) return;
+            postToBackend({ action: "addVendor", vendorName: newVendor.trim() }, () => alert("Vendor added successfully!"));
         }
 
         function handleAddBooking(event) {
@@ -548,45 +612,33 @@
                 cashToCollect: document.getElementById('b-cash-collect').value,
                 status: "Pending"
             };
-
-            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
-                .then(res => res.json())
-                .then(res => {
-                    if (res.status === "success") {
-                        alert("Booking recorded successfully!");
-                        document.getElementById('add-booking-form').reset();
-                        fetchDatabase();
-                    } else { alert("Error: " + res.message); }
-                });
+            postToBackend(payload, () => {
+                alert("Booking recorded successfully!");
+                document.getElementById('add-booking-form').reset();
+            });
         }
 
         function openAssignModal(bookingId) {
             const activeDrivers = dbUsers.filter(u => u.role.toLowerCase() === 'driver');
-            const driverListStr = activeDrivers.map(d => `${d.username}`).join(', ');
+            const driverListStr = activeDrivers.map(d => d.username).join(', ');
             const assignedDriver = prompt(`Assign Driver for ${bookingId}\nEnter exact Driver Username:\n(${driverListStr})`);
             if (!assignedDriver) return;
             const assignedCar = prompt(`Enter Car Registration Number:\n(${dbCars.map(c => c.reg).join(', ')})`);
             if (!assignedCar) return;
 
-            const payload = { action: "assignBookingDriver", bookingId: bookingId, assignedDriver: assignedDriver.trim(), assignedCar: assignedCar.trim() };
-            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
-                .then(res => res.json())
-                .then(res => {
-                    if (res.status === "success") { alert("Driver assigned successfully!"); fetchDatabase(); }
-                    else { alert("Error: " + res.message); }
-                });
+            postToBackend(
+                { action: "assignBookingDriver", bookingId: bookingId, assignedDriver: assignedDriver.trim(), assignedCar: assignedCar.trim() },
+                () => alert("Driver assigned successfully!")
+            );
         }
 
         function toggleUserFmsAccess(username, currentAccess) {
             if (currentUser.role.toLowerCase() === 'driver') { alert("Unauthorized action!"); return; }
-            const newAccess = currentAccess === "true" ? "false" : "true";
-            const payload = { action: "updateUserAccess", username: username, accessFMS: newAccess };
-            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
-                .then(res => res.json())
-                .then(res => {
-                    if (res.status === "success") { alert(`FMS Access updated for ${username}!`); fetchDatabase(); }
-                    else { alert("Error: " + res.message); }
-                });
+            const newAccess = String(currentAccess).toLowerCase() === "true" ? "false" : "true";
+            postToBackend(
+                { action: "updateUserAccess", username: username, accessFMS: newAccess },
+                () => alert(`FMS Access updated for ${username}!`)
+            );
         }
 
         function handleCreateUser(event) {
@@ -604,33 +656,41 @@
                 status: "Active",
                 accessFMS: document.getElementById('new-fms-access').value
             };
-            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
-                .then(res => res.json())
-                .then(res => {
-                    if (res.status === "success") { alert("User created successfully!"); document.getElementById('create-user-form').reset(); fetchDatabase(); }
-                    else { alert("Error: " + res.message); }
-                });
+            postToBackend(payload, () => {
+                alert("User created successfully!");
+                document.getElementById('create-user-form').reset();
+            });
         }
 
         function renderUsersTable() {
             const tbody = document.getElementById('users-table-body');
-            tbody.innerHTML = dbUsers.map(u => `
+            tbody.innerHTML = dbUsers.map(u => {
+                const hasFms = String(u.accessFMS).toLowerCase() === 'true';
+                return `
                 <tr class="hover:bg-gray-50">
                     <td class="p-3 font-medium text-gray-900">${u.username}</td>
                     <td class="p-3 capitalize">${u.role}</td>
-                    <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full ${u.accessFMS === 'true' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600'}">${u.accessFMS === 'true' ? 'Granted (FMS + FTS)' : 'Restricted (FTS Only)'}</span></td>
+                    <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full ${hasFms ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600'}">${hasFms ? 'Granted (FMS + FTS)' : 'Restricted (FTS Only)'}</span></td>
                     <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full ${u.status.toLowerCase() === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${u.status}</span></td>
                     <td class="p-3">${u.role.toLowerCase() !== 'superadmin' || currentUser.role.toLowerCase() === 'superadmin' ? `<button onclick="toggleUserFmsAccess('${u.username}', '${u.accessFMS}')" class="text-xs px-2.5 py-1 rounded font-medium bg-amber-100 text-amber-800 hover:bg-amber-200 transition">Toggle FMS</button>` : '<span class="text-xs text-gray-400">Protected</span>'}</td>
                 </tr>
-            `).join('');
+            `}).join('');
         }
 
         function handleCreateCar(event) {
             event.preventDefault();
-            const payload = { action: "addCar", reg: document.getElementById('car-reg').value.trim(), desc: document.getElementById('car-model').value.trim(), fuelType: document.getElementById('car-fuel').value, status: document.getElementById('car-status').value, owner: currentUser.username };
-            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
-                .then(res => res.json())
-                .then(res => { if (res.status === "success") { alert("Car registered successfully!"); document.getElementById('create-car-form').reset(); fetchDatabase(); } });
+            const payload = {
+                action: "addCar",
+                reg: document.getElementById('car-reg').value.trim(),
+                desc: document.getElementById('car-model').value.trim(),
+                fuelType: document.getElementById('car-fuel').value,
+                status: document.getElementById('car-status').value,
+                owner: currentUser.username
+            };
+            postToBackend(payload, () => {
+                alert("Car registered successfully!");
+                document.getElementById('create-car-form').reset();
+            });
         }
 
         function renderCarsTable() {
@@ -647,6 +707,7 @@
         }
 
         function renderDriverPortal(username) {
+            document.getElementById('driver-loading-view').classList.add('hidden');
             const activeShift = dbShifts.find(s => s.driver.toLowerCase() === username.toLowerCase() && s.status.toLowerCase() === 'active');
             const startView = document.getElementById('start-shift-view');
             const endView = document.getElementById('end-shift-view');
@@ -654,7 +715,7 @@
             if (activeShift) {
                 startView.classList.add('hidden'); 
                 endView.classList.remove('hidden');
-                document.getElementById('active-shift-info').textContent = `Currently logged in with Car: ${activeShift.regNumber}`;
+                document.getElementById('active-shift-info').textContent = `Currently logged in with Car: ${activeShift.regNumber} (Start Odo: ${activeShift.startOdometer} km)`;
 
                 const driverBookings = dbBookings.filter(b => b.assignedDriver.toLowerCase().trim() === username.toLowerCase().trim());
                 const bookingsContainer = document.getElementById('driver-bookings-list');
@@ -677,78 +738,123 @@
                         </div>
                     `).join('');
                 }
-
             } else {
                 startView.classList.remove('hidden'); 
                 endView.classList.add('hidden');
                 const activeCarsInUse = dbShifts.filter(s => s.status.toLowerCase() === 'active').map(s => s.regNumber);
                 const availableCars = dbCars.filter(c => c.status.toLowerCase() === 'active' && !activeCarsInUse.includes(c.reg));
-                document.getElementById('active-car-select').innerHTML = availableCars.length === 0 ? `<option value="">No cars available</option>` : availableCars.map(c => `<option value="${c.reg}">${c.reg} - ${c.desc}</option>`).join('');
+                document.getElementById('active-car-select').innerHTML = availableCars.length === 0 
+                    ? `<option value="">No cars available</option>` 
+                    : availableCars.map(c => `<option value="${c.reg}">${c.reg} - ${c.desc}</option>`).join('');
             }
         }
 
-        function handleStartShift(event) {
-            event.preventDefault();
-            const now = new Date();
-            const selfieFile = document.getElementById('start-selfie-file').files[0];
-            const odoFile = document.getElementById('start-odo-file').files[0];
-
-            if (!selfieFile || !odoFile) { alert("Please select both pictures!"); return; }
-
-            const reader1 = new FileReader();
-            reader1.onload = function(e1) {
-                const selfieData = e1.target.result;
-                const reader2 = new FileReader();
-                reader2.onload = function(e2) {
-                    const odoPhotoData = e2.target.result;
-
-                    const payload = {
-                        action: "startShift",
-                        driver: currentUser.username,
-                        regNumber: document.getElementById('active-car-select').value,
-                        date: now.toLocaleDateString(),
-                        startTime: now.toLocaleTimeString(),
-                        startTimestamp: now.toISOString(),
-                        startOdometer: document.getElementById('start-odo-reading').value,
-                        selfieData: selfieData,
-                        odoPhotoData: odoPhotoData
+        // Compresses mobile photos (4MB+ -> ~120KB) so cellular uploads never fail or time out
+        function compressImageFile(file, maxWidth = 800, quality = 0.65) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > maxWidth) {
+                            height = Math.round((height * maxWidth) / width);
+                            width = maxWidth;
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', quality));
                     };
-
-                    const banner = document.getElementById('status-banner');
-                    banner.textContent = "Uploading shift data & photos...";
-                    banner.className = "w-full text-center py-2 text-sm font-medium text-white bg-blue-600";
-
-                    fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
-                        .then(res => res.json())
-                        .then(res => { alert(res.message); fetchDatabase(); })
-                        .catch(err => { alert("Error uploading shift: " + err.message); fetchDatabase(); });
+                    img.onerror = reject;
+                    img.src = event.target.result;
                 };
-                reader2.readAsDataURL(odoFile);
-            };
-            reader1.readAsDataURL(selfieFile);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
         }
 
-        function handleEndShift(event) {
+        async function handleStartShift(event) {
             event.preventDefault();
-            const now = new Date();
+            const selfieFile = document.getElementById('start-selfie-file').files[0];
+            const odoFile = document.getElementById('start-odo-file').files[0];
+            const regNumber = document.getElementById('active-car-select').value;
+
+            if (!regNumber) { alert("Please select an available car!"); return; }
+            if (!selfieFile || !odoFile) { alert("Please select both pictures!"); return; }
+
+            const btn = document.getElementById('start-shift-btn');
+            btn.disabled = true;
+            btn.textContent = "Compressing & Uploading Photos...";
+            showBanner("Compressing photos for fast upload...", "bg-blue-600");
+
+            try {
+                const [selfieData, odoPhotoData] = await Promise.all([
+                    compressImageFile(selfieFile),
+                    compressImageFile(odoFile)
+                ]);
+
+                const now = new Date();
+                const payload = {
+                    action: "startShift",
+                    driver: currentUser.username,
+                    regNumber: regNumber,
+                    date: now.toLocaleDateString(),
+                    startTime: now.toLocaleTimeString(),
+                    startTimestamp: now.toISOString(),
+                    startOdometer: document.getElementById('start-odo-reading').value,
+                    selfieData: selfieData,
+                    odoPhotoData: odoPhotoData
+                };
+
+                showBanner("Uploading shift data to cloud...", "bg-blue-600");
+                const response = await fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) });
+                const res = await response.json();
+                alert(res.message);
+                fetchDatabase();
+            } catch (err) {
+                alert("Error uploading shift: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Clock In & Start Shift";
+            }
+        }
+
+        async function handleEndShift(event) {
+            event.preventDefault();
             const endOdoFile = document.getElementById('end-odo-file').files[0];
             if (!endOdoFile) { alert("Please upload closing odometer photo!"); return; }
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
+            const btn = document.getElementById('end-shift-btn');
+            btn.disabled = true;
+            btn.textContent = "Compressing & Closing Shift...";
+            showBanner("Uploading closing odometer photo...", "bg-blue-600");
+
+            try {
+                const endOdoPhotoData = await compressImageFile(endOdoFile);
+                const now = new Date();
                 const payload = {
                     action: "endShift",
                     driver: currentUser.username,
                     endTime: now.toLocaleTimeString(),
                     endTimestamp: now.toISOString(),
                     endOdometer: document.getElementById('end-odo-reading').value,
-                    endOdoPhotoData: e.target.result
+                    endOdoPhotoData: endOdoPhotoData
                 };
-                fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
-                    .then(res => res.json())
-                    .then(res => { alert(res.message); fetchDatabase(); });
-            };
-            reader.readAsDataURL(endOdoFile);
+
+                const response = await fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) });
+                const res = await response.json();
+                alert(res.message);
+                fetchDatabase();
+            } catch (err) {
+                alert("Error closing shift: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Submit Closing & End Shift";
+            }
         }
 
         function renderActiveShiftsTable() {
@@ -759,9 +865,9 @@
                 <tr class="hover:bg-gray-50">
                     <td class="p-3 font-medium text-gray-900">${s.driver}</td>
                     <td class="p-3 font-semibold text-blue-600">${s.regNumber}</td>
-                    <td class="p-3 text-gray-600">Active Duty</td>
+                    <td class="p-3 text-gray-600">${s.startOdometer} km</td>
                     <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span></td>
-                    <td class="p-3"><button onclick="promptAdminForceClose('${s.driver}', '${s.regNumber}')" class="bg-red-600 text-white text-xs px-3 py-1 rounded">Force Close</button></td>
+                    <td class="p-3"><button onclick="promptAdminForceClose('${s.driver}', '${s.regNumber}')" class="bg-red-600 text-white text-xs px-3 py-1 rounded hover:bg-red-700 transition">Force Close</button></td>
                 </tr>
             `).join('');
         }
@@ -769,17 +875,20 @@
         function promptAdminForceClose(driverName, regNumber) {
             const closingOdo = prompt(`Force closing shift for ${driverName}.\nEnter Closing Odometer:`);
             if (!closingOdo) return;
-            const payload = { action: "adminCloseShift", driver: driverName, regNumber: regNumber, endOdometer: closingOdo };
-            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) }).then(res => res.json()).then(res => { alert(res.message); fetchDatabase(); });
+            postToBackend(
+                { action: "adminCloseShift", driver: driverName, regNumber: regNumber, endOdometer: closingOdo },
+                () => alert(`Shift force closed for ${driverName}!`)
+            );
         }
 
         function handleLogout() {
             currentUser = null;
+            isDbLoaded = false;
             sessionStorage.removeItem('currentUser');
             document.getElementById('dashboard-section').classList.add('hidden');
             document.getElementById('login-section').classList.remove('hidden');
+            document.getElementById('status-banner').classList.add('hidden');
             document.getElementById('login-form').reset();
-            fetchDatabase();
         }
     </script>
 </body>
