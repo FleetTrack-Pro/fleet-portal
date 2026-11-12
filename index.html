@@ -4,270 +4,276 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fleet Management & Tracking System (FMS/FTS)</title>
-    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
 </head>
-<body class="bg-gray-100 text-gray-900 font-sans min-h-screen">
+<body>
 
     <!-- Global App Banner -->
-    <div id="app-banner" class="hidden fixed top-0 left-0 right-0 z-50 p-3 text-center text-white text-sm font-semibold shadow-md transition-all"></div>
+    <div id="app-banner" style="display:none; position:fixed; top:0; left:0; right:0; z-index:50; padding:10px; text-align:center; background:#333; color:#fff; font-weight:bold;"></div>
 
     <!-- Login Screen -->
-    <div id="login-view" class="flex items-center justify-center min-h-screen px-4">
-        <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md border border-gray-200">
-            <h1 class="text-2xl font-bold text-center text-indigo-700 mb-6">Fleet Portal Login</h1>
-            <form onsubmit="handleLogin(event)" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
-                    <input type="text" id="login-user" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500">
+    <div id="login-view" style="display:flex; justify-content:center; align-items:center; height:100vh;">
+        <div style="border:1px solid #ccc; padding:20px; width:300px;">
+            <h2>Fleet Portal Login</h2>
+            <form onsubmit="handleLogin(event)">
+                <div style="margin-bottom:10px;">
+                    <label>Username</label><br>
+                    <input type="text" id="login-user" required style="width:100%;">
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <input type="password" id="login-pass" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500">
+                <div style="margin-bottom:10px;">
+                    <label>Password</label><br>
+                    <input type="password" id="login-pass" required style="width:100%;">
                 </div>
-                <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition">Login</button>
+                <button type="submit" style="width:100%;">Login</button>
             </form>
         </div>
     </div>
 
     <!-- Main Dashboard Application -->
-    <div id="app-view" class="hidden flex flex-col min-h-screen">
-        <header class="bg-indigo-700 text-white shadow">
-            <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-                <h1 class="text-xl font-bold">Fleet Management & Tracking System</h1>
-                <div class="flex items-center gap-4">
-                    <span id="user-welcome" class="text-sm bg-indigo-800 px-3 py-1 rounded-full"></span>
-                    <button onclick="handleLogout()" class="bg-indigo-600 hover:bg-indigo-500 px-3 py-1 rounded text-sm font-medium">Logout</button>
+    <div id="app-view" style="display:none;">
+        <header style="background:#eee; padding:10px; border-bottom:1px solid #ccc;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h1>Fleet Management & Tracking System</h1>
+                <div>
+                    <span id="user-welcome" style="margin-right:10px; font-weight:bold;"></span>
+                    <button onclick="handleLogout()">Logout</button>
                 </div>
             </div>
             <!-- Navigation Tabs -->
-            <nav class="bg-indigo-800 border-t border-indigo-600 px-4 flex gap-2 overflow-x-auto" id="nav-tabs">
-                <button onclick="switchTab('fms')" id="tab-btn-fms" class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-white text-white" data-tab="fms">FMS Admin</button>
-                <button onclick="switchTab('fts')" id="tab-btn-fts" class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-indigo-200 hover:text-white" data-tab="fts">FTS Operations</button>
-                <button onclick="switchTab('roster')" id="tab-btn-roster" class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-indigo-200 hover:text-white" data-tab="roster">Booking Roster</button>
-                <button onclick="switchTab('expenses')" id="tab-btn-expenses" class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-indigo-200 hover:text-white" data-tab="expenses">Financials & Expenses</button>
+            <nav style="margin-top:10px;" id="nav-tabs">
+                <button onclick="switchTab('fms')" id="tab-btn-fms" class="tab-btn">FMS Admin</button>
+                <button onclick="switchTab('fts')" id="tab-btn-fts" class="tab-btn">FTS Operations</button>
+                <button onclick="switchTab('roster')" id="tab-btn-roster" class="tab-btn">Booking Roster</button>
+                <button onclick="switchTab('expenses')" id="tab-btn-expenses" class="tab-btn">Financials & Expenses</button>
             </nav>
         </header>
 
-        <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+        <main style="padding:20px;">
             
             <!-- TAB 1: FMS ADMIN -->
-            <section id="tab-fms" class="tab-content space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
-                        <h2 class="text-lg font-bold text-gray-800 mb-4">Register New Car</h2>
-                        <form onsubmit="handleRegisterCar(event)" class="space-y-3">
-                            <input type="text" id="car-reg" placeholder="Registration (e.g., KA01AB1234)" required class="w-full px-3 py-2 border rounded text-sm">
-                            <input type="text" id="car-desc" placeholder="Model / Description" required class="w-full px-3 py-2 border rounded text-sm">
-                            <select id="car-fuel" class="w-full px-3 py-2 border rounded text-sm">
-                                <option value="EV">EV (Electric)</option>
-                                <option value="Petrol">Petrol</option>
-                                <option value="Diesel">Diesel</option>
-                                <option value="CNG">CNG</option>
-                            </select>
-                            <input type="text" id="car-owner" placeholder="Owner Name" class="w-full px-3 py-2 border rounded text-sm">
-                            <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded text-sm font-semibold hover:bg-indigo-700">Add Car</button>
+            <section id="tab-fms" class="tab-content" style="margin-bottom:20px;">
+                <div style="display:flex; gap:20px;">
+                    <div style="border:1px solid #ccc; padding:15px; flex:1;">
+                        <h2>Register New Car</h2>
+                        <form onsubmit="handleRegisterCar(event)">
+                            <div style="margin-bottom:8px;"><input type="text" id="car-reg" placeholder="Registration (e.g., KA01AB1234)" required style="width:100%;"></div>
+                            <div style="margin-bottom:8px;"><input type="text" id="car-desc" placeholder="Model / Description" required style="width:100%;"></div>
+                            <div style="margin-bottom:8px;">
+                                <select id="car-fuel" style="width:100%;">
+                                    <option value="EV">EV (Electric)</option>
+                                    <option value="Petrol">Petrol</option>
+                                    <option value="Diesel">Diesel</option>
+                                    <option value="CNG">CNG</option>
+                                </select>
+                            </div>
+                            <div style="margin-bottom:8px;"><input type="text" id="car-owner" placeholder="Owner Name" style="width:100%;"></div>
+                            <button type="submit">Add Car</button>
                         </form>
                     </div>
 
-                    <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
-                        <h2 class="text-lg font-bold text-gray-800 mb-4">Create System User & Permissions</h2>
-                        <form onsubmit="handleCreateUser(event)" class="space-y-3">
-                            <input type="text" id="new-username" placeholder="Username" required class="w-full px-3 py-2 border rounded text-sm">
-                            <input type="password" id="new-password" placeholder="Password" required class="w-full px-3 py-2 border rounded text-sm">
-                            <select id="new-role" class="w-full px-3 py-2 border rounded text-sm">
-                                <option value="driver">Driver</option>
-                                <option value="admin">Admin</option>
-                            </select>
-                            <div class="grid grid-cols-3 gap-2 text-xs font-semibold text-gray-700 pt-1">
+                    <div style="border:1px solid #ccc; padding:15px; flex:1;">
+                        <h2>Create System User & Permissions</h2>
+                        <form onsubmit="handleCreateUser(event)">
+                            <div style="margin-bottom:8px;"><input type="text" id="new-username" placeholder="Username" required style="width:100%;"></div>
+                            <div style="margin-bottom:8px;"><input type="password" id="new-password" placeholder="Password" required style="width:100%;"></div>
+                            <div style="margin-bottom:8px;">
+                                <select id="new-role" style="width:100%;">
+                                    <option value="driver">Driver</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                            </div>
+                            <div style="margin-bottom:8px;">
                                 <label><input type="checkbox" id="new-fms"> Access FMS</label>
                                 <label><input type="checkbox" id="new-roster"> Access Roster</label>
                                 <label><input type="checkbox" id="new-expenses" checked> Access Expenses</label>
                             </div>
-                            <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded text-sm font-semibold hover:bg-indigo-700">Save User</button>
+                            <button type="submit">Save User</button>
                         </form>
                     </div>
                 </div>
             </section>
 
             <!-- TAB 2: FTS OPERATIONS -->
-            <section id="tab-fts" class="tab-content hidden space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
-                        <h2 class="text-lg font-bold text-gray-800 mb-4">Driver Shift Lifecycle</h2>
-                        <div id="shift-status-box" class="mb-4 p-3 bg-gray-50 border rounded text-sm">Checking shift state...</div>
+            <section id="tab-fts" class="tab-content" style="display:none; margin-bottom:20px;">
+                <div style="display:flex; gap:20px;">
+                    <div style="border:1px solid #ccc; padding:15px; flex:1;">
+                        <h2>Driver Shift Lifecycle</h2>
+                        <div id="shift-status-box" style="margin-bottom:10px; padding:8px; background:#f9f9f9; border:1px solid #ddd;">Checking shift state...</div>
                         
-                        <div id="start-shift-form" class="space-y-3">
-                            <select id="shift-car-select" required class="w-full px-3 py-2 border rounded text-sm"></select>
-                            <input type="number" id="shift-start-odo" placeholder="Start Odometer KM" required class="w-full px-3 py-2 border rounded text-sm">
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Odometer Photo Proof</label>
-                                <input type="file" id="shift-start-odo-img" accept="image/*" required class="w-full text-xs text-gray-500">
+                        <div id="start-shift-form">
+                            <div style="margin-bottom:8px;"><select id="shift-car-select" required style="width:100%;"></select></div>
+                            <div style="margin-bottom:8px;"><input type="number" id="shift-start-odo" placeholder="Start Odometer KM" required style="width:100%;"></div>
+                            <div style="margin-bottom:8px;">
+                                <label>Odometer Photo Proof</label><br>
+                                <input type="file" id="shift-start-odo-img" accept="image/*" required>
                             </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Driver Selfie Verification</label>
-                                <input type="file" id="shift-selfie-img" accept="image/*" required class="w-full text-xs text-gray-500">
+                            <div style="margin-bottom:8px;">
+                                <label>Driver Selfie Verification</label><br>
+                                <input type="file" id="shift-selfie-img" accept="image/*" required>
                             </div>
-                            <button type="button" onclick="handleStartShift()" class="w-full bg-green-600 text-white py-2 rounded text-sm font-semibold hover:bg-green-700">Start Shift</button>
+                            <button type="button" onclick="handleStartShift()">Start Shift</button>
                         </div>
 
-                        <div id="end-shift-form" class="space-y-3 hidden">
-                            <input type="number" id="shift-end-odo" placeholder="Closing Odometer KM" required class="w-full px-3 py-2 border rounded text-sm">
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Closing Odometer Photo Proof</label>
-                                <input type="file" id="shift-end-odo-img" accept="image/*" required class="w-full text-xs text-gray-500">
+                        <div id="end-shift-form" style="display:none;">
+                            <div style="margin-bottom:8px;"><input type="number" id="shift-end-odo" placeholder="Closing Odometer KM" required style="width:100%;"></div>
+                            <div style="margin-bottom:8px;">
+                                <label>Closing Odometer Photo Proof</label><br>
+                                <input type="file" id="shift-end-odo-img" accept="image/*" required>
                             </div>
-                            <button type="button" onclick="handleEndShift()" class="w-full bg-red-600 text-white py-2 rounded text-sm font-semibold hover:bg-red-700">End Active Shift</button>
+                            <button type="button" onclick="handleEndShift()">End Active Shift</button>
                         </div>
                     </div>
 
-                    <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
-                        <h2 class="text-lg font-bold text-gray-800 mb-4">Assigned Bookings & Trips</h2>
-                        <div id="driver-trips-container" class="space-y-3">
-                            <p class="text-sm text-gray-500">No active shift or assigned bookings.</p>
+                    <div style="border:1px solid #ccc; padding:15px; flex:1;">
+                        <h2>Assigned Bookings & Trips</h2>
+                        <div id="driver-trips-container">
+                            <p>No active shift or assigned bookings.</p>
                         </div>
                     </div>
                 </div>
             </section>
 
             <!-- TAB 3: BOOKING ROSTER -->
-            <section id="tab-roster" class="tab-content hidden space-y-6">
-                <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
-                    <h2 class="text-lg font-bold text-gray-800 mb-4">Create / Import Booking</h2>
-                    <form onsubmit="handleAddBooking(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="md:col-span-3 bg-amber-50 p-4 rounded-lg border border-amber-200 mb-2">
-                            <label class="block text-xs font-bold text-amber-900 mb-1">⚡ Quick Fill via Booking Screenshot (AI Scan)</label>
-                            <div class="flex gap-2">
-                                <input type="file" id="scan-screenshot-file" accept="image/*" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-amber-600 file:text-white">
-                                <button type="button" onclick="handleScanBookingScreenshot()" class="bg-amber-600 text-white px-4 py-2 rounded text-xs font-semibold whitespace-nowrap hover:bg-amber-700">Scan & Fill</button>
-                            </div>
+            <section id="tab-roster" class="tab-content" style="display:none; margin-bottom:20px;">
+                <div style="border:1px solid #ccc; padding:15px; margin-bottom:20px;">
+                    <h2>Create / Import Booking</h2>
+                    <form onsubmit="handleAddBooking(event)">
+                        <div style="background:#fff3cd; border:1px solid #ffeeba; padding:10px; margin-bottom:10px;">
+                            <label><strong>Quick Fill via Booking Screenshot (AI Scan)</strong></label><br>
+                            <input type="file" id="scan-screenshot-file" accept="image/*">
+                            <button type="button" onclick="handleScanBookingScreenshot()">Scan & Fill</button>
                         </div>
 
-                        <input type="text" id="b-id" placeholder="Booking ID" required class="px-3 py-2 border rounded text-sm">
-                        <input type="text" id="b-vendor" placeholder="Vendor (e.g., Gozo)" required class="px-3 py-2 border rounded text-sm">
-                        <input type="text" id="b-type" placeholder="Trip Type" required class="px-3 py-2 border rounded text-sm">
-                        <input type="date" id="b-date" required class="px-3 py-2 border rounded text-sm">
-                        <input type="time" id="b-time" required class="px-3 py-2 border rounded text-sm">
-                        <input type="text" id="b-pickup" placeholder="Pickup Location" required class="px-3 py-2 border rounded text-sm">
-                        <input type="text" id="b-drop" placeholder="Drop Location" required class="px-3 py-2 border rounded text-sm">
-                        <input type="number" id="b-company-fare" placeholder="Company Fare ($)" required class="px-3 py-2 border rounded text-sm">
-                        <input type="number" id="b-driver-fare" placeholder="Driver Payout ($)" required class="px-3 py-2 border rounded text-sm">
-                        <select id="b-payment-mode" class="px-3 py-2 border rounded text-sm">
-                            <option value="Online">Online / Pre-paid</option>
-                            <option value="Cash">Cash to Collect</option>
-                        </select>
-                        <input type="number" id="b-cash-collect" placeholder="Cash Amount" class="px-3 py-2 border rounded text-sm">
-                        
-                        <div class="md:col-span-3">
-                            <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded text-sm font-semibold hover:bg-indigo-700">Save Booking to Roster</button>
+                        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-bottom:10px;">
+                            <input type="text" id="b-id" placeholder="Booking ID" required>
+                            <input type="text" id="b-vendor" placeholder="Vendor (e.g., Gozo)" required>
+                            <input type="text" id="b-type" placeholder="Trip Type" required>
+                            <input type="date" id="b-date" required>
+                            <input type="time" id="b-time" required>
+                            <input type="text" id="b-pickup" placeholder="Pickup Location" required>
+                            <input type="text" id="b-drop" placeholder="Drop Location" required>
+                            <input type="number" id="b-company-fare" placeholder="Company Fare ($)" required>
+                            <input type="number" id="b-driver-fare" placeholder="Driver Payout ($)" required>
+                            <select id="b-payment-mode">
+                                <option value="Online">Online / Pre-paid</option>
+                                <option value="Cash">Cash to Collect</option>
+                            </select>
+                            <input type="number" id="b-cash-collect" placeholder="Cash Amount">
                         </div>
+                        <button type="submit">Save Booking to Roster</button>
                     </form>
                 </div>
 
-                <div class="bg-white p-6 rounded-xl shadow border border-gray-200 overflow-x-auto">
-                    <h2 class="text-lg font-bold text-gray-800 mb-4">Master Booking Roster & Assignment</h2>
-                    <table class="w-full text-left border-collapse text-sm">
+                <div style="border:1px solid #ccc; padding:15px; overflow-x:auto;">
+                    <h2>Master Booking Roster & Assignment</h2>
+                    <table border="1" cellpadding="8" cellspacing="0" style="width:100%; border-collapse:collapse;">
                         <thead>
-                            <tr class="bg-gray-100 border-b">
-                                <th class="p-2">ID</th>
-                                <th class="p-2">Date / Time</th>
-                                <th class="p-2">Route</th>
-                                <th class="p-2">Fares</th>
-                                <th class="p-2">Status</th>
-                                <th class="p-2">Assignment</th>
-                                <th class="p-2">Actions</th>
+                            <tr style="background:#f2f2f2;">
+                                <th>ID</th>
+                                <th>Date / Time</th>
+                                <th>Route</th>
+                                <th>Fares</th>
+                                <th>Status</th>
+                                <th>Assignment</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="roster-table-body">
-                            <tr><td colspan="7" class="p-4 text-center text-gray-500">Loading bookings...</td></tr>
+                            <tr><td colspan="7">Loading bookings...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </section>
 
             <!-- TAB 4: FINANCIALS & EXPENSES -->
-            <section id="tab-expenses" class="tab-content hidden space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <section id="tab-expenses" class="tab-content" style="display:none; margin-bottom:20px;">
+                <div style="display:flex; gap:20px; flex-wrap:wrap;">
                     
-                    <div id="driver-financial-forms" class="space-y-6">
-                        <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
-                            <h2 class="text-lg font-bold text-gray-800 mb-4">Submit Shift Expense</h2>
-                            <form onsubmit="handleLogDriverExpense(event)" class="space-y-3">
-                                <select id="d-exp-cat" class="w-full px-3 py-2 border rounded text-sm">
-                                    <option value="Fuel">Fuel (Receipt Mandatory)</option>
-                                    <option value="EV Charging">EV Charging (Receipt Mandatory)</option>
-                                    <option value="Toll">Toll Fee</option>
-                                    <option value="Parking">Parking</option>
-                                    <option value="Maintenance">Maintenance</option>
-                                </select>
-                                <input type="number" id="d-exp-amt" step="0.01" placeholder="Amount ($)" required class="w-full px-3 py-2 border rounded text-sm">
-                                <input type="date" id="d-exp-date" required class="w-full px-3 py-2 border rounded text-sm">
-                                <input type="file" id="d-exp-receipt" accept="image/*" class="w-full text-xs text-gray-500">
-                                <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded text-sm font-semibold">Submit Expense</button>
+                    <div id="driver-financial-forms" style="flex:1; display:flex; flex-direction:column; gap:20px;">
+                        <div style="border:1px solid #ccc; padding:15px;">
+                            <h2>Submit Shift Expense</h2>
+                            <form onsubmit="handleLogDriverExpense(event)">
+                                <div style="margin-bottom:8px;">
+                                    <select id="d-exp-cat" style="width:100%;">
+                                        <option value="Fuel">Fuel (Receipt Mandatory)</option>
+                                        <option value="EV Charging">EV Charging (Receipt Mandatory)</option>
+                                        <option value="Toll">Toll Fee</option>
+                                        <option value="Parking">Parking</option>
+                                        <option value="Maintenance">Maintenance</option>
+                                    </select>
+                                </div>
+                                <div style="margin-bottom:8px;"><input type="number" id="d-exp-amt" step="0.01" placeholder="Amount ($)" required style="width:100%;"></div>
+                                <div style="margin-bottom:8px;"><input type="date" id="d-exp-date" required style="width:100%;"></div>
+                                <div style="margin-bottom:8px;"><input type="file" id="d-exp-receipt" accept="image/*"></div>
+                                <button type="submit">Submit Expense</button>
                             </form>
                         </div>
 
-                        <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
-                            <h2 class="text-lg font-bold text-gray-800 mb-4">Submit Cash Deposit / Transfer</h2>
-                            <form onsubmit="handleLogCashDeposit(event)" class="space-y-3">
-                                <input type="number" id="dep-amt" step="0.01" placeholder="Amount ($)" required class="w-full px-3 py-2 border rounded text-sm">
-                                <input type="date" id="dep-date" required class="w-full px-3 py-2 border rounded text-sm">
-                                <select id="dep-mode" onchange="toggleDepositFields()" class="w-full px-3 py-2 border rounded text-sm">
-                                    <option value="Online Transfer">Online Transfer (UPI/Bank)</option>
-                                    <option value="Cash Handover">Cash Handover</option>
-                                </select>
-                                <div id="dep-recipient-wrap">
-                                    <input type="text" id="dep-paidto" placeholder="Paid To (Admin/Manager Name)" class="w-full px-3 py-2 border rounded text-sm">
+                        <div style="border:1px solid #ccc; padding:15px;">
+                            <h2>Submit Cash Deposit / Transfer</h2>
+                            <form onsubmit="handleLogCashDeposit(event)">
+                                <div style="margin-bottom:8px;"><input type="number" id="dep-amt" step="0.01" placeholder="Amount ($)" required style="width:100%;"></div>
+                                <div style="margin-bottom:8px;"><input type="date" id="dep-date" required style="width:100%;"></div>
+                                <div style="margin-bottom:8px;">
+                                    <select id="dep-mode" onchange="toggleDepositFields()" style="width:100%;">
+                                        <option value="Online Transfer">Online Transfer (UPI/Bank)</option>
+                                        <option value="Cash Handover">Cash Handover</option>
+                                    </select>
                                 </div>
-                                <div id="dep-screenshot-wrap" class="hidden">
-                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Transfer Screenshot</label>
-                                    <input type="file" id="dep-screenshot" accept="image/*" class="w-full text-xs text-gray-500">
+                                <div id="dep-recipient-wrap" style="margin-bottom:8px;">
+                                    <input type="text" id="dep-paidto" placeholder="Paid To (Admin/Manager Name)" style="width:100%;">
                                 </div>
-                                <button type="submit" class="w-full bg-green-600 text-white py-2 rounded text-sm font-semibold">Log Deposit</button>
+                                <div id="dep-screenshot-wrap" style="display:none; margin-bottom:8px;">
+                                    <label>Transfer Screenshot</label><br>
+                                    <input type="file" id="dep-screenshot" accept="image/*">
+                                </div>
+                                <button type="submit">Log Deposit</button>
                             </form>
                         </div>
                     </div>
 
-                    <div id="admin-expense-form-wrap" class="bg-white p-6 rounded-xl shadow border border-gray-200">
-                        <h2 class="text-lg font-bold text-gray-800 mb-4">Log Direct Company Expense</h2>
-                        <form onsubmit="handleLogAdminExpense(event)" class="space-y-3">
-                            <select id="adm-exp-cat" class="w-full px-3 py-2 border rounded text-sm" onchange="toggleAdminCarSelector()">
-                                <option value="Vehicle Specific">Vehicle Specific Maintenance / Repair</option>
-                                <option value="Office Overhead">Office Overhead</option>
-                                <option value="Insurance / Tax">Insurance / Tax</option>
-                                <option value="Miscellaneous">Miscellaneous</option>
-                            </select>
-                            <div id="adm-car-select-wrap">
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Target Car</label>
-                                <select id="adm-target-car" class="w-full px-3 py-2 border rounded text-sm"></select>
+                    <div id="admin-expense-form-wrap" style="border:1px solid #ccc; padding:15px; flex:1;">
+                        <h2>Log Direct Company Expense</h2>
+                        <form onsubmit="handleLogAdminExpense(event)">
+                            <div style="margin-bottom:8px;">
+                                <select id="adm-exp-cat" onchange="toggleAdminCarSelector()" style="width:100%;">
+                                    <option value="Vehicle Specific">Vehicle Specific Maintenance / Repair</option>
+                                    <option value="Office Overhead">Office Overhead</option>
+                                    <option value="Insurance / Tax">Insurance / Tax</option>
+                                    <option value="Miscellaneous">Miscellaneous</option>
+                                </select>
                             </div>
-                            <input type="number" id="adm-exp-amt" step="0.01" placeholder="Amount ($)" required class="w-full px-3 py-2 border rounded text-sm">
-                            <input type="date" id="adm-exp-date" required class="w-full px-3 py-2 border rounded text-sm">
-                            <select id="adm-payment-mode" class="w-full px-3 py-2 border rounded text-sm">
-                                <option value="Company Bank">Company Bank Transfer</option>
-                                <option value="Company Card">Company Credit/Debit Card</option>
-                                <option value="Cash">Cash Box</option>
-                            </select>
-                            <textarea id="adm-exp-notes" placeholder="Notes / Description" class="w-full px-3 py-2 border rounded text-sm"></textarea>
-                            <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded text-sm font-semibold">Record Company Expense</button>
+                            <div id="adm-car-select-wrap" style="margin-bottom:8px;">
+                                <label>Target Car</label><br>
+                                <select id="adm-target-car" style="width:100%;"></select>
+                            </div>
+                            <div style="margin-bottom:8px;"><input type="number" id="adm-exp-amt" step="0.01" placeholder="Amount ($)" required style="width:100%;"></div>
+                            <div style="margin-bottom:8px;"><input type="date" id="adm-exp-date" required style="width:100%;"></div>
+                            <div style="margin-bottom:8px;">
+                                <select id="adm-payment-mode" style="width:100%;">
+                                    <option value="Company Bank">Company Bank Transfer</option>
+                                    <option value="Company Card">Company Credit/Debit Card</option>
+                                    <option value="Cash">Cash Box</option>
+                                </select>
+                            </div>
+                            <div style="margin-bottom:8px;"><textarea id="adm-exp-notes" placeholder="Notes / Description" style="width:100%;"></textarea></div>
+                            <button type="submit">Record Company Expense</button>
                         </form>
                     </div>
 
-                    <div class="md:col-span-3 bg-white p-6 rounded-xl shadow border border-gray-200 overflow-x-auto">
-                        <h2 class="text-lg font-bold text-gray-800 mb-4">Financial Audit Ledger</h2>
-                        <div class="space-y-4">
-                            <h3 class="text-md font-semibold text-gray-700">Driver Shift Expenses</h3>
-                            <table class="w-full text-left border-collapse text-sm mb-4">
-                                <tbody id="driver-exp-table"></tbody>
-                            </table>
-                            <h3 class="text-md font-semibold text-gray-700">Admin Direct Company Expenses</h3>
-                            <table class="w-full text-left border-collapse text-sm mb-4">
-                                <tbody id="admin-exp-table"></tbody>
-                            </table>
-                            <h3 class="text-md font-semibold text-gray-700">Cash Deposits & Settlements</h3>
-                            <table class="w-full text-left border-collapse text-sm">
-                                <tbody id="cash-dep-table"></tbody>
-                            </table>
-                        </div>
+                    <div style="width:100%; border:1px solid #ccc; padding:15px;">
+                        <h2>Financial Audit Ledger</h2>
+                        <h3>Driver Shift Expenses</h3>
+                        <table border="1" cellpadding="6" cellspacing="0" style="width:100%; margin-bottom:15px;">
+                            <tbody id="driver-exp-table"></tbody>
+                        </table>
+                        <h3>Admin Direct Company Expenses</h3>
+                        <table border="1" cellpadding="6" cellspacing="0" style="width:100%; margin-bottom:15px;">
+                            <tbody id="admin-exp-table"></tbody>
+                        </table>
+                        <h3>Cash Deposits & Settlements</h3>
+                        <table border="1" cellpadding="6" cellspacing="0" style="width:100%;">
+                            <tbody id="cash-dep-table"></tbody>
+                        </table>
                     </div>
 
                 </div>
@@ -278,24 +284,23 @@
 
     <!-- JavaScript Application Core -->
     <script>
-        const WEB_APP_URL = "[https://script.google.com/macros/s/AKfycbxEqYLpD2NjelmB3z73neQXA096CuApC4YeG48DW1qmQHJWjaNVxvWgJ61HHfBb-esD/exec](https://script.google.com/macros/s/AKfycbxEqYLpD2NjelmB3z73neQXA096CuApC4YeG48DW1qmQHJWjaNVxvWgJ61HHfBb-esD/exec)";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxEqYLpD2NjelmB3z73neQXA096CuApC4YeG48DW1qmQHJWjaNVxvWgJ61HHfBb-esD/exec";
 
         let currentUser = null;
         let globalData = { users: [], cars: [], shifts: [], bookings: [], driverExpenses: [], adminExpenses: [], cashDeposits: [] };
 
-        function showBanner(message, bgColor = "bg-indigo-600", duration = 4000) {
+        function showBanner(message, duration = 4000) {
             const banner = document.getElementById("app-banner");
             banner.textContent = message;
-            banner.className = `fixed top-0 left-0 right-0 z-50 p-3 text-center text-white text-sm font-semibold shadow-md transition-all ${bgColor}`;
-            banner.classList.remove("hidden");
-            setTimeout(() => banner.classList.add("hidden"), duration);
+            banner.style.display = "block";
+            setTimeout(() => banner.style.display = "none", duration);
         }
 
         async function handleLogin(e) {
             e.preventDefault();
             const u = document.getElementById("login-user").value.trim();
             const p = document.getElementById("login-pass").value.trim();
-            showBanner("Authenticating...", "bg-blue-600", 2000);
+            showBanner("Authenticating...");
 
             try {
                 const res = await fetch(`${WEB_APP_URL}?action=login&username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}`);
@@ -317,8 +322,8 @@
         function handleLogout() {
             currentUser = null;
             localStorage.removeItem("fleet_user");
-            document.getElementById("app-view").classList.add("hidden");
-            document.getElementById("login-view").classList.remove("hidden");
+            document.getElementById("app-view").style.display = "none";
+            document.getElementById("login-view").style.display = "flex";
         }
 
         window.onload = function() {
@@ -330,20 +335,15 @@
         };
 
         function initApp() {
-            document.getElementById("login-view").classList.add("hidden");
-            document.getElementById("app-view").classList.remove("hidden");
+            document.getElementById("login-view").style.display = "none";
+            document.getElementById("app-view").style.display = "block";
             document.getElementById("user-welcome").textContent = `${currentUser.username} (${currentUser.role.toUpperCase()})`;
             
-            const fmsTab = document.getElementById("tab-btn-fms");
-            const rosterTab = document.getElementById("tab-btn-roster");
-            const expTab = document.getElementById("tab-btn-expenses");
+            document.getElementById("tab-btn-fms").style.display = currentUser.accessFMS ? "inline-block" : "none";
+            document.getElementById("tab-btn-roster").style.display = currentUser.accessRoster ? "inline-block" : "none";
+            document.getElementById("tab-btn-expenses").style.display = currentUser.accessExpenses ? "inline-block" : "none";
 
-            fmsTab.style.display = currentUser.accessFMS ? "block" : "none";
-            rosterTab.style.display = currentUser.accessRoster ? "block" : "none";
-            expTab.style.display = currentUser.accessExpenses ? "block" : "none";
-
-            const adminExpForm = document.getElementById("admin-expense-form-wrap");
-            adminExpForm.style.display = (currentUser.role.toLowerCase() === "driver") ? "none" : "block";
+            document.getElementById("admin-expense-form-wrap").style.display = (currentUser.role.toLowerCase() === "driver") ? "none" : "block";
 
             if (currentUser.role.toLowerCase() === "driver") {
                 switchTab('fts');
@@ -354,17 +354,8 @@
         }
 
         function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('border-white', 'text-white');
-                btn.classList.add('border-transparent', 'text-indigo-200');
-            });
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            const activeBtn = document.querySelector(`[onclick="switchTab('${tabId}')"]`);
-            if (activeBtn) {
-                activeBtn.classList.add('border-white', 'text-white');
-                activeBtn.classList.remove('border-transparent', 'text-indigo-200');
-            }
+            document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+            document.getElementById(`tab-${tabId}`).style.display = 'block';
         }
 
         async function apiCall(action, payload) {
@@ -411,7 +402,7 @@
         async function handleScanBookingScreenshot() {
             const fileInput = document.getElementById('scan-screenshot-file');
             if (!fileInput.files || !fileInput.files[0]) { alert("Select screenshot first."); return; }
-            showBanner("Scanning with AI...", "bg-amber-600", 10000);
+            showBanner("Scanning with AI...");
             try {
                 const base64 = await compressImageFile(fileInput.files[0], 1000, 0.7);
                 const res = await apiCall("scanBookingImage", { screenshotData: base64 });
@@ -426,7 +417,7 @@
                     if (d.drop) document.getElementById('b-drop').value = d.drop;
                     if (d.companyFare) document.getElementById('b-company-fare').value = d.companyFare;
                     if (d.driverFare) document.getElementById('b-driver-fare').value = d.driverFare;
-                    showBanner("Extracted successfully!", "bg-green-600", 3000);
+                    showBanner("Extracted successfully!");
                 } else { alert("Scan failed: " + (res.message || "Unknown error")); }
             } catch (err) { alert("Error: " + err.message); }
         }
@@ -465,7 +456,7 @@
             const selfieFile = document.getElementById("shift-selfie-img").files[0];
             if (!carReg || !startOdo || !odoFile || !selfieFile) { alert("Fill all shift details."); return; }
 
-            showBanner("Starting shift...", "bg-blue-600", 15000);
+            showBanner("Starting shift...");
             const now = new Date();
             const res = await apiCall("startShift", {
                 driver: currentUser.username, regNumber: carReg,
@@ -544,11 +535,11 @@
         function toggleDepositFields() {
             const mode = document.getElementById("dep-mode").value;
             if (mode === "Online Transfer") {
-                document.getElementById("dep-recipient-wrap").classList.add("hidden");
-                document.getElementById("dep-screenshot-wrap").classList.remove("hidden");
+                document.getElementById("dep-recipient-wrap").style.display = "none";
+                document.getElementById("dep-screenshot-wrap").style.display = "block";
             } else {
-                document.getElementById("dep-recipient-wrap").classList.remove("hidden");
-                document.getElementById("dep-screenshot-wrap").classList.add("hidden");
+                document.getElementById("dep-recipient-wrap").style.display = "block";
+                document.getElementById("dep-screenshot-wrap").style.display = "none";
             }
         }
 
@@ -602,30 +593,30 @@
             const activeShift = globalData.shifts.find(s => s.driver.toLowerCase() === currentUser.username.toLowerCase() && s.status.toLowerCase() === "active");
             const statusBox = document.getElementById("shift-status-box");
             if (activeShift) {
-                statusBox.innerHTML = `<span class="text-green-600 font-bold">● ACTIVE SHIFT</span><br>Car: ${activeShift.regNumber} | Start Odo: ${activeShift.startOdometer} km`;
-                document.getElementById("start-shift-form").classList.add("hidden");
-                document.getElementById("end-shift-form").classList.remove("hidden");
+                statusBox.innerHTML = `<strong>ACTIVE SHIFT</strong><br>Car: ${activeShift.regNumber} | Start Odo: ${activeShift.startOdometer} km`;
+                document.getElementById("start-shift-form").style.display = "none";
+                document.getElementById("end-shift-form").style.display = "block";
             } else {
-                statusBox.innerHTML = `<span class="text-gray-500 font-semibold">No active shift.</span>`;
-                document.getElementById("start-shift-form").classList.remove("hidden");
-                document.getElementById("end-shift-form").classList.add("hidden");
+                statusBox.innerHTML = `No active shift.`;
+                document.getElementById("start-shift-form").style.display = "block";
+                document.getElementById("end-shift-form").style.display = "none";
             }
 
             const tripsContainer = document.getElementById("driver-trips-container");
             tripsContainer.innerHTML = "";
             const myBookings = globalData.bookings.filter(b => b.assignedDriver.toLowerCase() === currentUser.username.toLowerCase() && b.status !== "Completed");
             if (myBookings.length === 0) {
-                tripsContainer.innerHTML = `<p class="text-sm text-gray-500">No active assigned trips.</p>`;
+                tripsContainer.innerHTML = `<p>No active assigned trips.</p>`;
             } else {
                 myBookings.forEach(b => {
                     tripsContainer.innerHTML += `
-                        <div class="p-3 border rounded bg-gray-50 space-y-2 text-sm">
-                            <div class="font-bold text-indigo-700">${b.bookingId} (${b.type})</div>
+                        <div style="border:1px solid #eee; padding:8px; margin-bottom:8px;">
+                            <div><strong>${b.bookingId} (${b.type})</strong></div>
                             <div>Route: ${b.pickup} ➔ ${b.drop}</div>
-                            <div>Status: <span class="font-semibold">${b.status}</span></div>
-                            <div class="flex gap-2 pt-1">
-                                ${b.status === "Assigned" ? `<button onclick="startTrip('${b.bookingId}')" class="bg-blue-600 text-white px-3 py-1 rounded text-xs">Start Trip</button>` : ""}
-                                ${b.status === "In Progress" ? `<button onclick="closeTrip('${b.bookingId}')" class="bg-green-600 text-white px-3 py-1 rounded text-xs">Complete Trip</button>` : ""}
+                            <div>Status: ${b.status}</div>
+                            <div style="margin-top:5px;">
+                                ${b.status === "Assigned" ? `<button onclick="startTrip('${b.bookingId}')">Start Trip</button>` : ""}
+                                ${b.status === "In Progress" ? `<button onclick="closeTrip('${b.bookingId}')">Complete Trip</button>` : ""}
                             </div>
                         </div>
                     `;
@@ -636,26 +627,26 @@
             rosterBody.innerHTML = "";
             globalData.bookings.forEach(b => {
                 rosterBody.innerHTML += `
-                    <tr class="border-b hover:bg-gray-50 text-xs">
-                        <td class="p-2 font-semibold">${b.bookingId}<br>${b.vendor}</td>
-                        <td class="p-2">${b.date}<br>${b.startTime}</td>
-                        <td class="p-2">${b.pickup} ➔ ${b.drop}</td>
-                        <td class="p-2">Comp: $${b.companyFare}<br>Driver: $${b.driverFare}</td>
-                        <td class="p-2"><span class="px-2 py-1 bg-blue-100 text-blue-800 rounded">${b.status}</span></td>
-                        <td class="p-2">Driver: ${b.assignedDriver || '-'}<br>Car: ${b.assignedCar || '-'}</td>
-                        <td class="p-2">${b.status === "Pending" ? `<button onclick="assignDriver('${b.bookingId}')" class="bg-indigo-600 text-white px-2 py-1 rounded">Assign</button>` : "-"}</td>
+                    <tr>
+                        <td>${b.bookingId}<br>${b.vendor}</td>
+                        <td>${b.date}<br>${b.startTime}</td>
+                        <td>${b.pickup} ➔ ${b.drop}</td>
+                        <td>Comp: $${b.companyFare}<br>Driver: $${b.driverFare}</td>
+                        <td>${b.status}</td>
+                        <td>Driver: ${b.assignedDriver || '-'}<br>Car: ${b.assignedCar || '-'}</td>
+                        <td>${b.status === "Pending" ? `<button onclick="assignDriver('${b.bookingId}')">Assign</button>` : "-"}</td>
                     </tr>
                 `;
             });
 
             const dExp = currentUser.role === "driver" ? globalData.driverExpenses.filter(e => e.DriverName.toLowerCase() === currentUser.username.toLowerCase()) : globalData.driverExpenses;
-            document.getElementById("driver-exp-table").innerHTML = dExp.length ? dExp.map(e => `<tr class="border-b"><td class="p-2">${e.DriverName}</td><td class="p-2">${e.Category}</td><td class="p-2 font-bold">$${e.Amount}</td><td class="p-2">${e.Status}</td></tr>`).join('') : `<tr><td class="p-2 text-gray-500">No records</td></tr>`;
+            document.getElementById("driver-exp-table").innerHTML = dExp.length ? dExp.map(e => `<tr><td>${e.DriverName}</td><td>${e.Category}</td><td>$${e.Amount}</td><td>${e.Status}</td></tr>`).join('') : `<tr><td>No records</td></tr>`;
 
             const aExp = globalData.adminExpenses;
-            document.getElementById("admin-exp-table").innerHTML = aExp.length ? aExp.map(e => `<tr class="border-b"><td class="p-2">${e.adminName}</td><td class="p-2">${e.category} (${e.targetCar})</td><td class="p-2 font-bold">$${e.amount}</td><td class="p-2 text-xs">${e.notes}</td></tr>`).join('') : `<tr><td class="p-2 text-gray-500">No records</td></tr>`;
+            document.getElementById("admin-exp-table").innerHTML = aExp.length ? aExp.map(e => `<tr><td>${e.adminName}</td><td>${e.category} (${e.targetCar})</td><td>$${e.amount}</td><td>${e.notes}</td></tr>`).join('') : `<tr><td>No records</td></tr>`;
 
             const cDep = currentUser.role === "driver" ? globalData.cashDeposits.filter(d => d.driverName.toLowerCase() === currentUser.username.toLowerCase()) : globalData.cashDeposits;
-            document.getElementById("cash-dep-table").innerHTML = cDep.length ? cDep.map(d => `<tr class="border-b"><td class="p-2">${d.driverName}</td><td class="p-2">$${d.amount} (${d.paymentMode})</td><td class="p-2 text-xs">Paid To: ${d.paidTo}</td><td class="p-2"><span class="px-2 py-1 bg-gray-100 rounded">${d.status}</span></td></tr>`).join('') : `<tr><td class="p-2 text-gray-500">No records</td></tr>`;
+            document.getElementById("cash-dep-table").innerHTML = cDep.length ? cDep.map(d => `<tr><td>${d.driverName}</td><td>$${d.amount} (${d.paymentMode})</td><td>Paid To: ${d.paidTo}</td><td>${d.status}</td></tr>`).join('') : `<tr><td>No records</td></tr>`;
         }
     </script>
 </body>
