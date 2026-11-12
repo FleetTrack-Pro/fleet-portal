@@ -39,7 +39,7 @@
                     <button onclick="handleLogout()" class="bg-indigo-600 hover:bg-indigo-500 px-3 py-1 rounded text-sm font-medium">Logout</button>
                 </div>
             </div>
-            <!-- Navigation Tabs (Driven by Spreadsheet Permissions) -->
+            <!-- Navigation Tabs -->
             <nav class="bg-indigo-800 border-t border-indigo-600 px-4 flex gap-2 overflow-x-auto" id="nav-tabs">
                 <button onclick="switchTab('fms')" id="tab-btn-fms" class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-white text-white" data-tab="fms">FMS Admin</button>
                 <button onclick="switchTab('fts')" id="tab-btn-fts" class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-indigo-200 hover:text-white" data-tab="fts">FTS Operations</button>
@@ -188,7 +188,6 @@
             <section id="tab-expenses" class="tab-content hidden space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     
-                    <!-- Form A: Driver Shift Expense / Cash Deposit -->
                     <div id="driver-financial-forms" class="space-y-6">
                         <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
                             <h2 class="text-lg font-bold text-gray-800 mb-4">Submit Shift Expense</h2>
@@ -228,7 +227,6 @@
                         </div>
                     </div>
 
-                    <!-- Form B: Admin Direct Company Expenses -->
                     <div id="admin-expense-form-wrap" class="bg-white p-6 rounded-xl shadow border border-gray-200">
                         <h2 class="text-lg font-bold text-gray-800 mb-4">Log Direct Company Expense</h2>
                         <form onsubmit="handleLogAdminExpense(event)" class="space-y-3">
@@ -254,9 +252,8 @@
                         </form>
                     </div>
 
-                    <!-- Combined Financial Audit Ledger -->
                     <div class="md:col-span-3 bg-white p-6 rounded-xl shadow border border-gray-200 overflow-x-auto">
-                        <h2 class="text-lg font-bold text-gray-800 mb-4">Financial Audit Ledger (Expenses & Cash Deposits)</h2>
+                        <h2 class="text-lg font-bold text-gray-800 mb-4">Financial Audit Ledger</h2>
                         <div class="space-y-4">
                             <h3 class="text-md font-semibold text-gray-700">Driver Shift Expenses</h3>
                             <table class="w-full text-left border-collapse text-sm mb-4">
@@ -281,7 +278,7 @@
 
     <!-- JavaScript Application Core -->
     <script>
-        const WEB_APP_URL = "YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxEqYLpD2NjelmB3z73neQXA096CuApC4YeG48DW1qmQHJWjaNVxvWgJ61HHfBb-esD/exec";
 
         let currentUser = null;
         let globalData = { users: [], cars: [], shifts: [], bookings: [], driverExpenses: [], adminExpenses: [], cashDeposits: [] };
@@ -337,7 +334,6 @@
             document.getElementById("app-view").classList.remove("hidden");
             document.getElementById("user-welcome").textContent = `${currentUser.username} (${currentUser.role.toUpperCase()})`;
             
-            // Apply Spreadsheet RBAC Matrix
             const fmsTab = document.getElementById("tab-btn-fms");
             const rosterTab = document.getElementById("tab-btn-roster");
             const expTab = document.getElementById("tab-btn-expenses");
@@ -346,7 +342,6 @@
             rosterTab.style.display = currentUser.accessRoster ? "block" : "none";
             expTab.style.display = currentUser.accessExpenses ? "block" : "none";
 
-            // Hide Admin direct expense form for drivers
             const adminExpForm = document.getElementById("admin-expense-form-wrap");
             adminExpForm.style.display = (currentUser.role.toLowerCase() === "driver") ? "none" : "block";
 
@@ -595,7 +590,6 @@
         }
 
         function renderDashboardData() {
-            // Render car dropdowns
             const carSelect = document.getElementById("shift-car-select");
             const admCarSelect = document.getElementById("adm-target-car");
             carSelect.innerHTML = '<option value="">Select Car</option>';
@@ -605,7 +599,6 @@
                 admCarSelect.innerHTML += `<option value="${c.reg}">${c.reg}</option>`;
             });
 
-            // Shift status
             const activeShift = globalData.shifts.find(s => s.driver.toLowerCase() === currentUser.username.toLowerCase() && s.status.toLowerCase() === "active");
             const statusBox = document.getElementById("shift-status-box");
             if (activeShift) {
@@ -618,7 +611,6 @@
                 document.getElementById("end-shift-form").classList.add("hidden");
             }
 
-            // Driver trips
             const tripsContainer = document.getElementById("driver-trips-container");
             tripsContainer.innerHTML = "";
             const myBookings = globalData.bookings.filter(b => b.assignedDriver.toLowerCase() === currentUser.username.toLowerCase() && b.status !== "Completed");
@@ -640,7 +632,6 @@
                 });
             }
 
-            // Booking roster
             const rosterBody = document.getElementById("roster-table-body");
             rosterBody.innerHTML = "";
             globalData.bookings.forEach(b => {
@@ -657,7 +648,6 @@
                 `;
             });
 
-            // Financial Ledgers
             const dExp = currentUser.role === "driver" ? globalData.driverExpenses.filter(e => e.DriverName.toLowerCase() === currentUser.username.toLowerCase()) : globalData.driverExpenses;
             document.getElementById("driver-exp-table").innerHTML = dExp.length ? dExp.map(e => `<tr class="border-b"><td class="p-2">${e.DriverName}</td><td class="p-2">${e.Category}</td><td class="p-2 font-bold">$${e.Amount}</td><td class="p-2">${e.Status}</td></tr>`).join('') : `<tr><td class="p-2 text-gray-500">No records</td></tr>`;
 
