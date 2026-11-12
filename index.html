@@ -419,7 +419,7 @@
                 const payload = {
                     contents: [{
                         parts: [
-                            { text: "Analyze this booking screenshot. Extract the following details into a raw JSON object with these exact keys: bookingId, vendor, type, date (YYYY-MM-DD), startTime (HH:MM), pickup, drop, companyFare (number), driverFare (number), paymentMode (Online/Cash), cashToCollect (number). Do not include markdown formatting like ```json, just output the raw JSON string." },
+                            { text: "Analyze this booking screenshot. Extract the following details into a raw JSON object with these exact keys: bookingId, vendor, type, date (YYYY-MM-DD), startTime (HH:MM), pickup, drop, companyFare (number), driverFare (number), paymentMode (Online/Cash), cashToCollect (number). Return ONLY valid JSON with no extra commentary or markdown blocks." },
                             { inline_data: { mime_type: "image/jpeg", data: base64Clean } }
                         ]
                     }]
@@ -434,12 +434,14 @@
 
                 if (json.candidates && json.candidates[0].content.parts[0].text) {
                     let rawText = json.candidates[0].content.parts[0].text;
-                    rawText = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
+                    
+                    rawText = rawText.replace(/```json/gi, "").replace(/```/g, "").trim();
                     const firstBrace = rawText.indexOf('{');
                     const lastBrace = rawText.lastIndexOf('}');
                     if (firstBrace !== -1 && lastBrace !== -1) {
                         rawText = rawText.substring(firstBrace, lastBrace + 1);
                     }
+                    
                     const d = JSON.parse(rawText);
 
                     if (d.bookingId) document.getElementById('b-id').value = d.bookingId;
