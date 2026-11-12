@@ -432,7 +432,12 @@
                 });
                 const json = await response.json();
 
-                if (json.candidates && json.candidates[0].content.parts[0].text) {
+                if (json.error) {
+                    alert("Gemini API Error: " + json.error.message);
+                    return;
+                }
+
+                if (json.candidates && json.candidates[0].content && json.candidates[0].content.parts[0].text) {
                     let rawText = json.candidates[0].content.parts[0].text;
                     
                     rawText = rawText.replace(/```json/gi, "").replace(/```/g, "").trim();
@@ -456,7 +461,7 @@
 
                     showBanner("Extracted successfully!");
                 } else {
-                    alert("Scan failed: Invalid response structure from AI.");
+                    alert("Scan failed: Unexpected response format: " + JSON.stringify(json));
                 }
             } catch (err) {
                 alert("Scan Error: " + err.message);
