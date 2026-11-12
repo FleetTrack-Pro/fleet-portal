@@ -3,662 +3,286 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fleet Management & Tracking System (FMS/FTS)</title>
+    <title>Fleet Management & Tracking System (FMS / FTS)</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f6f9; color: #333; margin: 0; padding: 0; }
-        header { background-color: #1e293b; color: white; padding: 15px 20px; }
-        header h1 { margin: 0; font-size: 20px; }
-        nav button { background: #334155; color: white; border: none; padding: 8px 15px; margin-right: 5px; cursor: pointer; border-radius: 4px; font-weight: bold; }
-        nav button:hover { background: #475569; }
-        main { padding: 20px; max-width: 1200px; margin: auto; }
-        .card { background: white; border: 1px solid #cbd5e1; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .card h2 { margin-top: 0; font-size: 18px; color: #1e293b; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; }
-        input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; margin-bottom: 12px; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box; }
-        button[type="submit"], button[type="button"], .btn { background-color: #2563eb; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 4px; font-weight: bold; width: 100%; }
-        button[type="submit"]:hover, button[type="button"]:hover { background-color: #1d4ed8; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; }
-        th, td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; font-size: 14px; }
-        th { background-color: #f8fafc; color: #475569; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
-        @media(max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
-        #app-banner { display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 50; padding: 12px; text-align: center; background: #0f172a; color: #fff; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        #login-view { display: flex; justify-content: center; align-items: center; height: 100vh; background: #0f172a; }
-        #login-card { background: white; padding: 30px; border-radius: 8px; width: 320px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .ai-box { background: #fef3c7; border: 1px solid #f59e0b; padding: 12px; border-radius: 6px; margin-bottom: 15px; }
+        body { background-color: #f8f9fa; }
+        .sidebar { min-height: 100vh; background-color: #212529; color: #fff; }
+        .sidebar a { color: #adb5bd; text-decoration: none; padding: 10px 15px; display: block; border-radius: 5px; margin-bottom: 5px; }
+        .sidebar a:hover, .sidebar a.active { background-color: #0d6efd; color: #fff; }
+        .card { border: none; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
 
-    <!-- Global App Banner -->
-    <div id="app-banner"></div>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar Navigation -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse p-3">
+                <h4 class="text-white mb-4"><i class="fas fa-truck-fast me-2"></i>Fleet Portal</h4>
+                <ul class="nav flex-column">
+                    <li class="nav-item"><a href="#" class="nav-link active" onclick="switchTab('booking-tab', this)"><i class="fas fa-file-invoice-dollar me-2"></i>Booking Roster</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link" onclick="switchTab('expense-tab', this)"><i class="fas fa-receipt me-2"></i>Expense Audit</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link" onclick="switchTab('admin-tab', this)"><i class="fas fa-cogs me-2"></i>FMS Admin</a></li>
+                </ul>
+            </nav>
 
-    <!-- Login Screen -->
-    <div id="login-view">
-        <div id="login-card">
-            <h2 style="margin-top:0; color:#1e293b;">Fleet Portal Login</h2>
-            <form onsubmit="handleLogin(event)">
-                <div>
-                    <label>Username</label>
-                    <input type="text" id="login-user" required>
+            <!-- Main Content Area -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+                
+                <!-- Status Banner -->
+                <div id="system-banner" class="alert alert-info d-none" role="alert"></div>
+
+                <!-- ==================== TAB 1: BOOKING & ROSTER ==================== -->
+                <div id="booking-tab" class="content-section">
+                    <div class="card p-4 mb-4">
+                        <h4 class="mb-3 text-primary"><i class="fas fa-file-invoice-dollar me-2"></i>Create / Import Booking</h4>
+                        
+                        <!-- Quick-Fill Template Selector -->
+                        <div class="mb-3 p-3 bg-light rounded border">
+                            <label class="form-label fw-bold text-muted small"><i class="fas fa-bolt me-1 text-warning"></i> Quick-Fill Template Selector</label>
+                            <select id="quick-template" class="form-select form-select-sm" onchange="applyBookingTemplate(this.value)">
+                                <option value="">-- Choose Aggregator Template --</option>
+                                <option value="Gozo">Gozo Intercity Standard</option>
+                                <option value="Uber">Uber Fleet Corporate</option>
+                                <option value="Ola">Ola Outstation</option>
+                                <option value="Direct">Direct Client / Corporate</option>
+                            </select>
+                        </div>
+
+                        <form id="booking-form" onsubmit="handleSaveBooking(event)">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Booking ID</label>
+                                    <input type="text" id="b-id" class="form-control" required placeholder="e.g. GZO-89321">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Vendor / Aggregator</label>
+                                    <input type="text" id="b-vendor" class="form-control" required placeholder="e.g. Gozo">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Trip Type</label>
+                                    <select id="b-type" class="form-control" required>
+                                        <option value="One-Way">One-Way Outstation</option>
+                                        <option value="Round-Trip">Round-Trip</option>
+                                        <option value="Local Rental">Local Rental</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Date</label>
+                                    <input type="date" id="b-date" class="form-control" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Start Time</label>
+                                    <input type="time" id="b-time" class="form-control" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Payment Mode</label>
+                                    <select id="b-payment" class="form-control">
+                                        <option value="Online / Pre-paid">Online / Pre-paid</option>
+                                        <option value="Cash on Delivery">Cash on Delivery</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Pickup Location</label>
+                                    <input type="text" id="b-pickup" class="form-control" required placeholder="e.g. Airport T2">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Drop Location</label>
+                                    <input type="text" id="b-drop" class="form-control" required placeholder="e.g. City Center Hotel">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Company Fare ($)</label>
+                                    <input type="number" step="0.01" id="b-company-fare" class="form-control" required placeholder="0.00">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Driver Payout ($)</label>
+                                    <input type="number" step="0.01" id="b-driver-fare" class="form-control" required placeholder="0.00">
+                                </div>
+                            </div>
+                            <div class="mt-4 text-end">
+                                <button type="submit" class="btn btn-primary px-4"><i class="fas fa-save me-1"></i> Save Booking to Roster</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <div>
-                    <label>Password</label>
-                    <input type="password" id="login-pass" required>
+
+                <!-- ==================== TAB 2: EXPENSE & AUDIT ==================== -->
+                <div id="expense-tab" class="content-section d-none">
+                    <div class="card p-4 shadow-sm">
+                        <h4 class="mb-3 text-success"><i class="fas fa-receipt me-2"></i>Driver Expense & Receipt Audit</h4>
+                        <form id="expense-form" onsubmit="handleLogDriverExpense(event)">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Expense Category</label>
+                                    <select id="d-exp-cat" class="form-control" required>
+                                        <option value="Fuel">Fuel (Receipt Mandatory)</option>
+                                        <option value="EV Charging">EV Charging (Receipt Mandatory)</option>
+                                        <option value="Toll">Toll Fee</option>
+                                        <option value="Parking">Parking</option>
+                                        <option value="Maintenance">Maintenance / Repairs</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Amount ($)</label>
+                                    <input type="number" step="0.01" id="d-exp-amt" class="form-control" required placeholder="0.00">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Expense Date</label>
+                                    <input type="date" id="d-exp-date" class="form-control" required>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label fw-bold text-dark">Upload Receipt / Invoice Image (Audit Proof)</label>
+                                    <input type="file" id="d-exp-receipt" class="form-control" accept="image/*">
+                                    <div class="form-text text-muted">Mandatory for Fuel & EV Charging audit compliance. Captured directly for admin ledger verification.</div>
+                                </div>
+                            </div>
+                            <div class="mt-4 text-end">
+                                <button type="submit" class="btn btn-success px-4"><i class="fas fa-check-circle me-1"></i> Submit Expense for Audit</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <button type="submit">Login</button>
-            </form>
+
+                <!-- ==================== TAB 3: ADMIN ==================== -->
+                <div id="admin-tab" class="content-section d-none">
+                    <div class="card p-4 shadow-sm">
+                        <h4 class="mb-3 text-dark"><i class="fas fa-cogs me-2"></i>FMS Admin Configuration</h4>
+                        <p class="text-muted">Manage system settings, web app backend endpoints, and master configurations here.</p>
+                        <div class="mb-3">
+                            <label class="form-label">Google Apps Script Web App URL</label>
+                            <input type="text" id="config-webapp-url" class="form-control" placeholder="https://script.google.com/macros/s/.../exec">
+                        </div>
+                        <button class="btn btn-dark" onclick="saveConfiguration()">Save Settings</button>
+                    </div>
+                </div>
+
+            </main>
         </div>
     </div>
 
-    <!-- Main Dashboard Application -->
-    <div id="app-view" style="display:none;">
-        <header>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h1>Fleet Management & Tracking System (FMS/FTS)</h1>
-                <div>
-                    <span id="user-welcome" style="margin-right:15px; font-size:14px;"></span>
-                    <button onclick="handleLogout()" style="background:#dc2626; width:auto; padding:5px 12px; font-size:12px;">Logout</button>
-                </div>
-            </div>
-            <!-- Navigation Tabs -->
-            <nav style="margin-top:12px;" id="nav-tabs">
-                <button onclick="switchTab('fms')" id="tab-btn-fms">FMS Admin</button>
-                <button onclick="switchTab('fts')" id="tab-btn-fts">FTS Operations</button>
-                <button onclick="switchTab('roster')" id="tab-btn-roster">Booking Roster</button>
-                <button onclick="switchTab('expenses')" id="tab-btn-expenses">Financials & Expenses</button>
-            </nav>
-        </header>
-
-        <main>
-            
-            <!-- TAB 1: FMS ADMIN -->
-            <section id="tab-fms" class="tab-content">
-                <div class="grid-2">
-                    <div class="card">
-                        <h2>Register New Car</h2>
-                        <form onsubmit="handleRegisterCar(event)">
-                            <input type="text" id="car-reg" placeholder="Registration (e.g., KA01AB1234)" required>
-                            <input type="text" id="car-desc" placeholder="Model / Description" required>
-                            <select id="car-fuel">
-                                <option value="EV">EV (Electric)</option>
-                                <option value="Petrol">Petrol</option>
-                                <option value="Diesel">Diesel</option>
-                                <option value="CNG">CNG</option>
-                            </select>
-                            <input type="text" id="car-owner" placeholder="Owner Name">
-                            <button type="submit">Add Car</button>
-                        </form>
-                    </div>
-
-                    <div class="card">
-                        <h2>Create System User & Permissions</h2>
-                        <form onsubmit="handleCreateUser(event)">
-                            <input type="text" id="new-username" placeholder="Username" required>
-                            <input type="password" id="new-password" placeholder="Password" required>
-                            <select id="new-role">
-                                <option value="driver">Driver</option>
-                                <option value="admin">Admin</option>
-                            </select>
-                            <div style="margin: 10px 0; font-size: 13px;">
-                                <label style="margin-right:10px;"><input type="checkbox" id="new-fms"> Access FMS</label>
-                                <label style="margin-right:10px;"><input type="checkbox" id="new-roster"> Access Roster</label>
-                                <label><input type="checkbox" id="new-expenses" checked> Access Expenses</label>
-                            </div>
-                            <button type="submit">Save User</button>
-                        </form>
-                    </div>
-                </div>
-            </section>
-
-            <!-- TAB 2: FTS OPERATIONS -->
-            <section id="tab-fts" class="tab-content" style="display:none;">
-                <div class="grid-2">
-                    <div class="card">
-                        <h2>Driver Shift Lifecycle</h2>
-                        <div id="shift-status-box" style="margin-bottom:12px; padding:10px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:4px; font-size:14px;">Checking shift state...</div>
-                        
-                        <div id="start-shift-form">
-                            <select id="shift-car-select" required></select>
-                            <input type="number" id="shift-start-odo" placeholder="Start Odometer KM" required>
-                            <label style="font-size:12px; font-weight:bold; color:#475569;">Odometer Photo Proof</label>
-                            <input type="file" id="shift-start-odo-img" accept="image/*" required>
-                            <label style="font-size:12px; font-weight:bold; color:#475569;">Driver Selfie Verification</label>
-                            <input type="file" id="shift-selfie-img" accept="image/*" required>
-                            <button type="button" onclick="handleStartShift()" style="background:#16a34a; margin-top:5px;">Start Shift</button>
-                        </div>
-
-                        <div id="end-shift-form" style="display:none;">
-                            <input type="number" id="shift-end-odo" placeholder="Closing Odometer KM" required>
-                            <label style="font-size:12px; font-weight:bold; color:#475569;">Closing Odometer Photo Proof</label>
-                            <input type="file" id="shift-end-odo-img" accept="image/*" required>
-                            <button type="button" onclick="handleEndShift()" style="background:#dc2626; margin-top:5px;">End Active Shift</button>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <h2>Assigned Bookings & Trips</h2>
-                        <div id="driver-trips-container">
-                            <p style="color:#64748b; font-size:14px;">No active shift or assigned bookings.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- TAB 3: BOOKING ROSTER -->
-            <section id="tab-roster" class="tab-content" style="display:none;">
-                <div class="card">
-                    <h2>Create / Import Booking</h2>
-                    <form onsubmit="handleAddBooking(event)">
-                        <div class="ai-box">
-                            <label style="color:#b45309; font-weight:bold; font-size:13px;">⚡ Quick Fill via Booking Screenshot (AI Scan)</label>
-                            <div style="display:flex; gap:10px; margin-top:6px;">
-                                <input type="file" id="scan-screenshot-file" accept="image/*" style="margin-bottom:0; background:white;">
-                                <button type="button" onclick="handleScanBookingScreenshot()" style="background:#d97706; width:auto; white-space:nowrap;">Scan & Fill</button>
-                            </div>
-                        </div>
-
-                        <div class="grid-3">
-                            <input type="text" id="b-id" placeholder="Booking ID" required>
-                            <input type="text" id="b-vendor" placeholder="Vendor (e.g., Gozo)" required>
-                            <input type="text" id="b-type" placeholder="Trip Type" required>
-                            <input type="date" id="b-date" required>
-                            <input type="time" id="b-time" required>
-                            <input type="text" id="b-pickup" placeholder="Pickup Location" required>
-                            <input type="text" id="b-drop" placeholder="Drop Location" required>
-                            <input type="number" id="b-company-fare" placeholder="Company Fare ($)" required>
-                            <input type="number" id="b-driver-fare" placeholder="Driver Payout ($)" required>
-                            <select id="b-payment-mode">
-                                <option value="Online">Online / Pre-paid</option>
-                                <option value="Cash">Cash to Collect</option>
-                            </select>
-                            <input type="number" id="b-cash-collect" placeholder="Cash Amount">
-                        </div>
-                        <button type="submit" style="margin-top:10px;">Save Booking to Roster</button>
-                    </form>
-                </div>
-
-                <div class="card" style="overflow-x:auto;">
-                    <h2>Master Booking Roster & Assignment</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Date / Time</th>
-                                <th>Route</th>
-                                <th>Fares</th>
-                                <th>Status</th>
-                                <th>Assignment</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="roster-table-body">
-                            <tr><td colspan="7" style="color:#64748b; text-align:center;">Loading bookings...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            <!-- TAB 4: FINANCIALS & EXPENSES -->
-            <section id="tab-expenses" class="tab-content" style="display:none;">
-                <div class="grid-2">
-                    
-                    <div style="display:flex; flex-direction:column; gap:20px;">
-                        <div class="card" style="margin-bottom:0;">
-                            <h2>Submit Shift Expense</h2>
-                            <form onsubmit="handleLogDriverExpense(event)">
-                                <select id="d-exp-cat">
-                                    <option value="Fuel">Fuel (Receipt Mandatory)</option>
-                                    <option value="EV Charging">EV Charging (Receipt Mandatory)</option>
-                                    <option value="Toll">Toll Fee</option>
-                                    <option value="Parking">Parking</option>
-                                    <option value="Maintenance">Maintenance</option>
-                                </select>
-                                <input type="number" id="d-exp-amt" step="0.01" placeholder="Amount ($)" required>
-                                <input type="date" id="d-exp-date" required>
-                                <input type="file" id="d-exp-receipt" accept="image/*">
-                                <button type="submit">Submit Expense</button>
-                            </form>
-                        </div>
-
-                        <div class="card" style="margin-bottom:0;">
-                            <h2>Submit Cash Deposit / Transfer</h2>
-                            <form onsubmit="handleLogCashDeposit(event)">
-                                <input type="number" id="dep-amt" step="0.01" placeholder="Amount ($)" required>
-                                <input type="date" id="dep-date" required>
-                                <select id="dep-mode" onchange="toggleDepositFields()">
-                                    <option value="Online Transfer">Online Transfer (UPI/Bank)</option>
-                                    <option value="Cash Handover">Cash Handover</option>
-                                </select>
-                                <div id="dep-recipient-wrap">
-                                    <input type="text" id="dep-paidto" placeholder="Paid To (Admin/Manager Name)">
-                                </div>
-                                <div id="dep-screenshot-wrap" style="display:none;">
-                                    <label style="font-size:12px; font-weight:bold; color:#475569;">Transfer Screenshot</label>
-                                    <input type="file" id="dep-screenshot" accept="image/*">
-                                </div>
-                                <button type="submit" style="background:#16a34a;">Log Deposit</button>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div id="admin-expense-form-wrap" class="card" style="margin-bottom:0;">
-                        <h2>Log Direct Company Expense</h2>
-                        <form onsubmit="handleLogAdminExpense(event)">
-                            <select id="adm-exp-cat" onchange="toggleAdminCarSelector()">
-                                <option value="Vehicle Specific">Vehicle Specific Maintenance / Repair</option>
-                                <option value="Office Overhead">Office Overhead</option>
-                                <option value="Insurance / Tax">Insurance / Tax</option>
-                                <option value="Miscellaneous">Miscellaneous</option>
-                            </select>
-                            <div id="adm-car-select-wrap">
-                                <label style="font-size:12px; font-weight:bold; color:#475569;">Target Car</label>
-                                <select id="adm-target-car"></select>
-                            </div>
-                            <input type="number" id="adm-exp-amt" step="0.01" placeholder="Amount ($)" required>
-                            <input type="date" id="adm-exp-date" required>
-                            <select id="adm-payment-mode">
-                                <option value="Company Bank">Company Bank Transfer</option>
-                                <option value="Company Card">Company Credit/Debit Card</option>
-                                <option value="Cash">Cash Box</option>
-                            </select>
-                            <textarea id="adm-exp-notes" placeholder="Notes / Description" rows="3"></textarea>
-                            <button type="submit">Record Company Expense</button>
-                        </form>
-                    </div>
-
-                    <div class="card" style="grid-column: span 2; overflow-x:auto;">
-                        <h2>Financial Audit Ledger</h2>
-                        <h3 style="font-size:15px; color:#475569; margin-top:15px;">Driver Shift Expenses</h3>
-                        <table>
-                            <tbody id="driver-exp-table"></tbody>
-                        </table>
-                        <h3 style="font-size:15px; color:#475569; margin-top:20px;">Admin Direct Company Expenses</h3>
-                        <table>
-                            <tbody id="admin-exp-table"></tbody>
-                        </table>
-                        <h3 style="font-size:15px; color:#475569; margin-top:20px;">Cash Deposits & Settlements</h3>
-                        <table>
-                            <tbody id="cash-dep-table"></tbody>
-                        </table>
-                    </div>
-
-                </div>
-            </section>
-
-        </main>
-    </div>
-
-    <!-- JavaScript Application Core -->
+    <!-- Bootstrap & JS Logic -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzgq0DU2ZPO4SQ0b5kBjQQaqOLeRdnZ9O1nEsU6jVfVvT9jQDt2OqC3pvGZOY6JB5o/exec
-        let currentUser = null;
-        let globalData = { users: [], cars: [], shifts: [], bookings: [], driverExpenses: [], adminExpenses: [], cashDeposits: [] };
+        // Replace with your deployed Google Apps Script Web App URL
+        const WEB_APP_URL = localStorage.getItem("FMS_WEB_APP_URL") || "YOUR_APPS_SCRIPT_WEB_APP_URL";
+        let currentUser = { username: "AdminDriver" };
 
-        function showBanner(message, duration = 4000) {
-            const banner = document.getElementById("app-banner");
-            banner.textContent = message;
-            banner.style.display = "block";
-            setTimeout(() => banner.style.display = "none", duration);
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById('config-webapp-url').value = WEB_APP_URL;
+            // Set default date fields to today
+            const today = new Date().toISOString().split('T')[0];
+            if(document.getElementById('b-date')) document.getElementById('b-date').value = today;
+            if(document.getElementById('d-exp-date')) document.getElementById('d-exp-date').value = today;
+        });
+
+        function switchTab(tabId, el) {
+            document.querySelectorAll('.content-section').forEach(sec => sec.classList.add('d-none'));
+            document.getElementById(tabId).classList.remove('d-none');
+            document.querySelectorAll('.sidebar .nav-link').forEach(link => link.classList.remove('active'));
+            if(el) el.classList.add('active');
         }
 
-        async function handleLogin(e) {
-            e.preventDefault();
-            const u = document.getElementById("login-user").value.trim();
-            const p = document.getElementById("login-pass").value.trim();
-            showBanner("Authenticating...");
-
-            try {
-                const res = await fetch(`${WEB_APP_URL}?action=login&username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}`);
-                const data = await res.json();
-                if (data.status === "success") {
-                    currentUser = data.user;
-                    localStorage.setItem("fleet_user", JSON.stringify(currentUser));
-                    initApp();
-                } else if (data.status === "inactive") {
-                    alert("Account is inactive.");
-                } else {
-                    alert("Invalid credentials.");
-                }
-            } catch (err) {
-                alert("Login connection error: " + err.message);
-            }
+        function showBanner(msg, type="info") {
+            const b = document.getElementById('system-banner');
+            b.className = `alert alert-${type}`;
+            b.textContent = msg;
+            b.classList.remove('d-none');
+            setTimeout(() => b.classList.add('d-none'), 4000);
         }
 
-        function handleLogout() {
-            currentUser = null;
-            localStorage.removeItem("fleet_user");
-            document.getElementById("app-view").style.display = "none";
-            document.getElementById("login-view").style.display = "flex";
+        function saveConfiguration() {
+            const url = document.getElementById('config-webapp-url').value.trim();
+            localStorage.setItem("FMS_WEB_APP_URL", url);
+            showBanner("Configuration saved successfully!", "success");
         }
 
-        window.onload = function() {
-            const saved = localStorage.getItem("fleet_user");
-            if (saved) {
-                currentUser = JSON.parse(saved);
-                initApp();
-            }
-        };
-
-        function initApp() {
-            document.getElementById("login-view").style.display = "none";
-            document.getElementById("app-view").style.display = "block";
-            document.getElementById("user-welcome").textContent = `${currentUser.username} (${currentUser.role.toUpperCase()})`;
-            
-            document.getElementById("tab-btn-fms").style.display = currentUser.accessFMS ? "inline-block" : "none";
-            document.getElementById("tab-btn-roster").style.display = currentUser.accessRoster ? "inline-block" : "none";
-            document.getElementById("tab-btn-expenses").style.display = currentUser.accessExpenses ? "inline-block" : "none";
-
-            document.getElementById("admin-expense-form-wrap").style.display = (currentUser.role.toLowerCase() === "driver") ? "none" : "block";
-
-            if (currentUser.role.toLowerCase() === "driver") {
-                switchTab('fts');
-            } else {
-                switchTab('fms');
-            }
-            fetchDatabase();
-        }
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
-            document.getElementById(`tab-${tabId}`).style.display = 'block';
-        }
-
+        // Generic API Caller to Google Apps Script Backend
         async function apiCall(action, payload) {
+            if (!WEB_APP_URL || WEB_APP_URL.includes("YOUR_")) {
+                alert("Please configure your Google Apps Script Web App URL in the FMS Admin tab first.");
+                return { status: "error", message: "Missing Web App URL" };
+            }
             try {
-                const res = await fetch(WEB_APP_URL, {
+                showBanner("Communicating with Google Sheets backend...", "warning");
+                const response = await fetch(WEB_APP_URL, {
                     method: "POST",
-                    body: JSON.stringify({ action, ...payload })
+                    body: JSON.stringify({ action, payload })
                 });
-                return await res.json();
+                const result = await response.json();
+                return result;
             } catch (err) {
-                return { status: "error", message: err.toString() };
+                return { status: "error", message: err.message };
             }
         }
 
-        async function fetchDatabase() {
-            const res = await apiCall("getDatabase");
-            if (res && res.cars) {
-                globalData = res;
-                renderDashboardData();
+        // Quick-Fill Template Logic
+        function applyBookingTemplate(val) {
+            if (!val) return;
+            const templates = {
+                "Gozo": { vendor: "Gozo", type: "One-Way", company: 120.00, driver: 95.00 },
+                "Uber": { vendor: "Uber Fleet", type: "Local Rental", company: 45.00, driver: 35.00 },
+                "Ola": { vendor: "Ola Outstation", type: "Round-Trip", company: 180.00, driver: 140.00 },
+                "Direct": { vendor: "Direct Corporate", type: "One-Way", company: 150.00, driver: 120.00 }
+            };
+            const t = templates[val];
+            if (t) {
+                document.getElementById('b-vendor').value = t.vendor;
+                document.getElementById('b-type').value = t.type;
+                document.getElementById('b-company-fare').value = t.company;
+                document.getElementById('b-driver-fare').value = t.driver;
+                document.getElementById('b-time').value = "09:00";
             }
         }
 
-        function compressImageFile(file, maxWidth = 800, quality = 0.6) {
-            return new Promise((resolve, reject) => {
-                if (!file) { resolve(""); return; }
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        let w = img.width, h = img.height;
-                        if (w > maxWidth) { h = Math.round((h * maxWidth) / w); w = maxWidth; }
-                        canvas.width = w; canvas.height = h;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, w, h);
-                        resolve(canvas.toDataURL('image/jpeg', quality));
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-
-        async function handleScanBookingScreenshot() {
-            const fileInput = document.getElementById('scan-screenshot-file');
-            if (!fileInput.files || !fileInput.files[0]) { alert("Select screenshot first."); return; }
-            showBanner("Scanning with AI via server...");
-            try {
-                const dataUrl = await compressImageFile(fileInput.files[0], 1000, 0.7);
-                const res = await apiCall("scanBookingImage", { screenshotData: dataUrl });
-
-                if (res.status === "success" && res.data) {
-                    const d = res.data;
-                    if (d.bookingId) document.getElementById('b-id').value = d.bookingId;
-                    if (d.vendor) document.getElementById('b-vendor').value = d.vendor;
-                    if (d.type) document.getElementById('b-type').value = d.type;
-                    if (d.date) document.getElementById('b-date').value = d.date;
-                    if (d.startTime) document.getElementById('b-time').value = d.startTime;
-                    if (d.pickup) document.getElementById('b-pickup').value = d.pickup;
-                    if (d.drop) document.getElementById('b-drop').value = d.drop;
-                    if (d.companyFare) document.getElementById('b-company-fare').value = d.companyFare;
-                    if (d.driverFare) document.getElementById('b-driver-fare').value = d.driverFare;
-
-                    showBanner("Extracted successfully!");
-                } else {
-                    alert("Scan failed: " + (res.message || "Unknown error"));
-                }
-            } catch (err) {
-                alert("Scan Error: " + err.message);
-            }
-        }
-
-        async function handleRegisterCar(e) {
+        // Save Booking Handler
+        async function handleSaveBooking(e) {
             e.preventDefault();
-            const res = await apiCall("addCar", {
-                reg: document.getElementById("car-reg").value.trim(),
-                desc: document.getElementById("car-desc").value.trim(),
-                fuelType: document.getElementById("car-fuel").value,
-                owner: document.getElementById("car-owner").value.trim()
-            });
-            alert(res.message);
-            if (res.status === "success") { e.target.reset(); fetchDatabase(); }
+            const payload = {
+                bookingId: document.getElementById('b-id').value,
+                vendor: document.getElementById('b-vendor').value,
+                type: document.getElementById('b-type').value,
+                date: document.getElementById('b-date').value,
+                time: document.getElementById('b-time').value,
+                payment: document.getElementById('b-payment').value,
+                pickup: document.getElementById('b-pickup').value,
+                drop: document.getElementById('b-drop').value,
+                companyFare: document.getElementById('b-company-fare').value,
+                driverFare: document.getElementById('b-driver-fare').value
+            };
+
+            const res = await apiCall("addBooking", payload);
+            showBanner(res.message || "Booking saved successfully!", res.status === "success" ? "success" : "danger");
+            if(res.status === "success") { e.target.reset(); }
         }
 
-        async function handleCreateUser(e) {
-            e.preventDefault();
-            const res = await apiCall("addUser", {
-                username: document.getElementById("new-username").value.trim(),
-                password: document.getElementById("new-password").value.trim(),
-                role: document.getElementById("new-role").value,
-                status: "active",
-                accessFMS: document.getElementById("new-fms").checked,
-                accessRoster: document.getElementById("new-roster").checked,
-                accessExpenses: document.getElementById("new-expenses").checked
-            });
-            alert(res.message);
-            if (res.status === "success") { e.target.reset(); fetchDatabase(); }
-        }
-
-        async function handleStartShift() {
-            const carReg = document.getElementById("shift-car-select").value;
-            const startOdo = document.getElementById("shift-start-odo").value;
-            const odoFile = document.getElementById("shift-start-odo-img").files[0];
-            const selfieFile = document.getElementById("shift-selfie-img").files[0];
-            if (!carReg || !startOdo || !odoFile || !selfieFile) { alert("Fill all shift details."); return; }
-
-            showBanner("Starting shift...");
-            const now = new Date();
-            const res = await apiCall("startShift", {
-                driver: currentUser.username, regNumber: carReg,
-                date: now.toISOString().split('T')[0], startTime: now.toLocaleTimeString(), startOdometer: startOdo
-            });
-            alert(res.message);
-            fetchDatabase();
-        }
-
-        async function handleEndShift() {
-            const endOdo = document.getElementById("shift-end-odo").value;
-            const now = new Date();
-            const res = await apiCall("endShift", { driver: currentUser.username, endTime: now.toLocaleTimeString(), endOdometer: endOdo });
-            alert(res.message);
-            fetchDatabase();
-        }
-
-        async function handleAddBooking(e) {
-            e.preventDefault();
-            const res = await apiCall("addBooking", {
-                bookingId: document.getElementById("b-id").value.trim(),
-                vendor: document.getElementById("b-vendor").value.trim(),
-                type: document.getElementById("b-type").value.trim(),
-                date: document.getElementById("b-date").value,
-                startTime: document.getElementById("b-time").value,
-                pickup: document.getElementById("b-pickup").value.trim(),
-                drop: document.getElementById("b-drop").value.trim(),
-                companyFare: document.getElementById("b-company-fare").value,
-                driverFare: document.getElementById("b-driver-fare").value,
-                paymentMode: document.getElementById("b-payment-mode").value,
-                cashToCollect: document.getElementById("b-cash-collect").value || 0,
-                status: "Pending"
-            });
-            alert(res.message);
-            if (res.status === "success") { e.target.reset(); fetchDatabase(); }
-        }
-
-        async function assignDriver(bookingId) {
-            const driver = prompt("Enter Driver Username:");
-            if (!driver) return;
-            const car = prompt("Enter Car Reg Number:");
-            if (!car) return;
-            const res = await apiCall("assignBookingDriver", { bookingId, assignedDriver: driver, assignedCar: car });
-            alert(res.message);
-            fetchDatabase();
-        }
-
-        async function startTrip(bookingId) {
-            const res = await apiCall("startTrip", { bookingId });
-            alert(res.message);
-            fetchDatabase();
-        }
-
-        async function closeTrip(bookingId) {
-            const res = await apiCall("closeTrip", { bookingId });
-            alert(res.message);
-            fetchDatabase();
-        }
-
+        // Driver Expense Audit Handler
         async function handleLogDriverExpense(e) {
             e.preventDefault();
             const cat = document.getElementById("d-exp-cat").value;
-            const file = document.getElementById("d-exp-receipt").files[0];
-            if ((cat === "Fuel" || cat === "EV Charging") && !file) { alert("Receipt required for Fuel/EV."); return; }
-            
-            const res = await apiCall("addDriverExpense", {
-                driver: currentUser.username, category: cat,
+            const fileInput = document.getElementById("d-exp-receipt");
+            const file = fileInput.files[0];
+
+            if ((cat === "Fuel" || cat === "EV Charging") && !file) {
+                alert("Receipt image is mandatory for Fuel / EV audit compliance.");
+                return;
+            }
+
+            const payload = {
+                driver: currentUser ? currentUser.username : "AdminDriver",
+                category: cat,
                 amount: document.getElementById("d-exp-amt").value,
                 date: document.getElementById("d-exp-date").value,
-                receiptProvided: !!file, requiresApproval: !file && (cat === "Fuel" || cat === "EV")
-            });
-            alert(res.message);
-            if (res.status === "success") { e.target.reset(); fetchDatabase(); }
-        }
+                receiptAttached: !!file,
+                status: file ? "Verified & Attached" : "Pending Manual Audit"
+            };
 
-        function toggleDepositFields() {
-            const mode = document.getElementById("dep-mode").value;
-            if (mode === "Online Transfer") {
-                document.getElementById("dep-recipient-wrap").style.display = "none";
-                document.getElementById("dep-screenshot-wrap").style.display = "block";
-            } else {
-                document.getElementById("dep-recipient-wrap").style.display = "block";
-                document.getElementById("dep-screenshot-wrap").style.display = "none";
-            }
-        }
-
-        async function handleLogCashDeposit(e) {
-            e.preventDefault();
-            const mode = document.getElementById("dep-mode").value;
-            const paidTo = document.getElementById("dep-paidto").value;
-            if (mode === "Cash Handover" && !paidTo) { alert("Specify who received the cash."); return; }
-
-            const res = await apiCall("addCashDeposit", {
-                driverName: currentUser.username,
-                amount: document.getElementById("dep-amt").value,
-                date: document.getElementById("dep-date").value,
-                paymentMode: mode, paidTo: paidTo
-            });
-            alert(res.message);
-            if (res.status === "success") { e.target.reset(); fetchDatabase(); }
-        }
-
-        function toggleAdminCarSelector() {
-            const cat = document.getElementById("adm-exp-cat").value;
-            const wrap = document.getElementById("adm-car-select-wrap");
-            wrap.style.display = (cat === "Vehicle Specific") ? "block" : "none";
-        }
-
-        async function handleLogAdminExpense(e) {
-            e.preventDefault();
-            const res = await apiCall("addAdminExpense", {
-                adminName: currentUser.username,
-                category: document.getElementById("adm-exp-cat").value,
-                targetCar: document.getElementById("adm-target-car").value || "General / Company",
-                amount: document.getElementById("adm-exp-amt").value,
-                date: document.getElementById("adm-exp-date").value,
-                paymentMode: document.getElementById("adm-payment-mode").value,
-                notes: document.getElementById("adm-exp-notes").value
-            });
-            alert(res.message);
-            if (res.status === "success") { e.target.reset(); fetchDatabase(); }
-        }
-
-        function renderDashboardData() {
-            const carSelect = document.getElementById("shift-car-select");
-            const admCarSelect = document.getElementById("adm-target-car");
-            carSelect.innerHTML = '<option value="">Select Car</option>';
-            admCarSelect.innerHTML = '<option value="General">General / Company</option>';
-            globalData.cars.forEach(c => {
-                carSelect.innerHTML += `<option value="${c.reg}">${c.reg} - ${c.desc}</option>`;
-                admCarSelect.innerHTML += `<option value="${c.reg}">${c.reg}</option>`;
-            });
-
-            const activeShift = globalData.shifts.find(s => s.driver.toLowerCase() === currentUser.username.toLowerCase() && s.status.toLowerCase() === "active");
-            const statusBox = document.getElementById("shift-status-box");
-            if (activeShift) {
-                statusBox.innerHTML = `<strong>● ACTIVE SHIFT</strong><br>Car: ${activeShift.regNumber} | Start Odo: ${activeShift.startOdometer} km`;
-                document.getElementById("start-shift-form").style.display = "none";
-                document.getElementById("end-shift-form").style.display = "block";
-            } else {
-                statusBox.innerHTML = `No active shift.`;
-                document.getElementById("start-shift-form").style.display = "block";
-                document.getElementById("end-shift-form").style.display = "none";
-            }
-
-            const tripsContainer = document.getElementById("driver-trips-container");
-            tripsContainer.innerHTML = "";
-            const myBookings = globalData.bookings.filter(b => b.assignedDriver.toLowerCase() === currentUser.username.toLowerCase() && b.status !== "Completed");
-            if (myBookings.length === 0) {
-                tripsContainer.innerHTML = `<p style="color:#64748b; font-size:14px;">No active assigned trips.</p>`;
-            } else {
-                myBookings.forEach(b => {
-                    tripsContainer.innerHTML += `
-                        <div style="border:1px solid #e2e8f0; padding:12px; margin-bottom:10px; border-radius:6px; background:#f8fafc;">
-                            <div style="font-weight:bold; color:#1e293b;">${b.bookingId} (${b.type})</div>
-                            <div style="font-size:13px; color:#475569; margin:4px 0;">Route: ${b.pickup} ➔ ${b.drop}</div>
-                            <div style="font-size:13px;">Status: <span style="font-weight:bold;">${b.status}</span></div>
-                            <div style="margin-top:8px;">
-                                ${b.status === "Assigned" ? `<button onclick="startTrip('${b.bookingId}')" style="width:auto; padding:5px 10px; font-size:12px; background:#2563eb;">Start Trip</button>` : ""}
-                                ${b.status === "In Progress" ? `<button onclick="closeTrip('${b.bookingId}')" style="width:auto; padding:5px 10px; font-size:12px; background:#16a34a;">Complete Trip</button>` : ""}
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-
-            const rosterBody = document.getElementById("roster-table-body");
-            rosterBody.innerHTML = "";
-            globalData.bookings.forEach(b => {
-                rosterBody.innerHTML += `
-                    <tr>
-                        <td><b>${b.bookingId}</b><br><span style="color:#64748b; font-size:12px;">${b.vendor}</span></td>
-                        <td>${b.date}<br><span style="color:#64748b; font-size:12px;">${b.startTime}</span></td>
-                        <td>${b.pickup} ➔ ${b.drop}</td>
-                        <td>Comp: $${b.companyFare}<br>Driver: $${b.driverFare}</td>
-                        <td><span style="background:#e0f2fe; color:#0369a1; padding:2px 6px; border-radius:4px; font-size:12px; font-weight:bold;">${b.status}</span></td>
-                        <td>Driver: ${b.assignedDriver || '-'}<br>Car: ${b.assignedCar || '-'}</td>
-                        <td>${b.status === "Pending" ? `<button onclick="assignDriver('${b.bookingId}')" style="width:auto; padding:4px 8px; font-size:12px;">Assign</button>` : "-"}</td>
-                    </tr>
-                `;
-            });
-
-            const dExp = currentUser.role === "driver" ? globalData.driverExpenses.filter(e => e.DriverName.toLowerCase() === currentUser.username.toLowerCase()) : globalData.driverExpenses;
-            document.getElementById("driver-exp-table").innerHTML = dExp.length ? dExp.map(e => `<tr><td>${e.DriverName}</td><td>${e.Category}</td><td><b>$${e.Amount}</b></td><td>${e.Status}</td></tr>`).join('') : `<tr><td style="color:#64748b;">No records</td></tr>`;
-
-            const aExp = globalData.adminExpenses;
-            document.getElementById("admin-exp-table").innerHTML = aExp.length ? aExp.map(e => `<tr><td>${e.adminName}</td><td>${e.category} (${e.targetCar})</td><td><b>$${e.amount}</b></td><td style="font-size:12px; color:#64748b;">${e.notes}</td></tr>`).join('') : `<tr><td style="color:#64748b;">No records</td></tr>`;
-
-            const cDep = currentUser.role === "driver" ? globalData.cashDeposits.filter(d => d.driverName.toLowerCase() === currentUser.username.toLowerCase()) : globalData.cashDeposits;
-            document.getElementById("cash-dep-table").innerHTML = cDep.length ? cDep.map(d => `<tr><td>${d.driverName}</td><td><b>$${d.amount}</b> (${d.paymentMode})</td><td style="font-size:12px;">Paid To: ${d.paidTo}</td><td>${d.status}</td></tr>`).join('') : `<tr><td style="color:#64748b;">No records</td></tr>`;
+            const res = await apiCall("addDriverExpense", payload);
+            showBanner(res.message || "Expense recorded for audit!", res.status === "success" ? "success" : "danger");
+            if(res.status === "success") { e.target.reset(); }
         }
     </script>
 </body>
