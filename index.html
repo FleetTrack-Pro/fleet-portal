@@ -380,7 +380,6 @@
                     loginBtn.disabled = false;
                     loginBtn.textContent = "Login to Portal";
                     
-                    // Offline fallback check against previously cached database
                     const cachedData = localStorage.getItem('cached_db');
                     if (cachedData) {
                         const data = JSON.parse(cachedData);
@@ -401,15 +400,18 @@
                 });
         }
 
-        // 2. ASYNCHRONOUS BACKGROUND DATABASE SYNC
+        // 2. ASYNCHRONOUS BACKGROUND DATABASE SYNC VIA POST (Bypasses CORS redirects)
         function fetchDatabase() {
             showBanner("Syncing fleet data...", "bg-blue-600");
 
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 15000);
-            const liveUrl = `${WEB_APP_URL}?v=${Date.now()}`;
 
-            fetch(liveUrl, { signal: controller.signal, redirect: 'follow' })
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                signal: controller.signal,
+                body: JSON.stringify({ action: "getDatabase" })
+            })
                 .then(response => {
                     clearTimeout(timeoutId);
                     if (!response.ok) throw new Error("Server error: " + response.status);
