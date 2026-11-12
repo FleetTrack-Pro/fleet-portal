@@ -80,34 +80,69 @@
                 <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
                     <h3 class="text-lg font-bold text-blue-900 mb-4">Add Vendor Booking & Proof</h3>
                     <form id="add-booking-form" onsubmit="handleAddBooking(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <input type="text" id="b-id" placeholder="Booking ID e.g. #726" required class="px-3 py-2 border rounded bg-white text-sm">
-                        <div class="flex gap-2">
-                            <select id="b-vendor" class="w-full px-3 py-2 border rounded bg-white text-sm" required></select>
-                            <button type="button" onclick="promptAddVendor()" class="bg-blue-600 text-white px-3 py-1 rounded text-xs">+ New</button>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Booking ID</label>
+                            <input type="text" id="b-id" placeholder="e.g. #7262991" required class="w-full px-3 py-2 border rounded bg-white text-sm">
                         </div>
-                        <select id="b-type" class="px-3 py-2 border rounded bg-white text-sm">
-                            <option value="Airport Pickup">Airport Pickup</option>
-                            <option value="Airport Drop">Airport Drop</option>
-                            <option value="Rental">Rental</option>
-                            <option value="Outstation">Outstation</option>
-                        </select>
-                        <input type="date" id="b-date" required class="px-3 py-2 border rounded bg-white text-sm">
-                        <input type="time" id="b-time" required class="px-3 py-2 border rounded bg-white text-sm">
-                        <input type="text" id="b-pickup" placeholder="Pickup Location" required class="px-3 py-2 border rounded bg-white text-sm">
-                        <input type="text" id="b-drop" placeholder="Drop Location" required class="px-3 py-2 border rounded bg-white text-sm">
-                        <input type="number" id="b-company-fare" placeholder="Company Actual Fare (₹)" required class="px-3 py-2 border rounded bg-white text-sm">
-                        <input type="number" id="b-driver-fare" placeholder="Driver Masked Fare (₹)" required class="px-3 py-2 border rounded bg-white text-sm">
-                        <select id="b-payment-mode" class="px-3 py-2 border rounded bg-white text-sm">
-                            <option value="Cash Full">Cash Full</option>
-                            <option value="Cash Partial">Cash Partial</option>
-                            <option value="Online">Online</option>
-                        </select>
-                        <input type="number" id="b-cash-collect" placeholder="Cash to Collect (₹)" value="0" required class="px-3 py-2 border rounded bg-white text-sm">
-                        <div class="md:col-span-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Vendor / Client</label>
+                            <div class="flex gap-2">
+                                <select id="b-vendor" class="w-full px-3 py-2 border rounded bg-white text-sm" required></select>
+                                <button type="button" onclick="promptAddVendor()" class="bg-blue-600 text-white px-3 py-1 rounded text-xs">+ New</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Booking Type</label>
+                            <select id="b-type" class="w-full px-3 py-2 border rounded bg-white text-sm">
+                                <option value="Airport Pickup">Airport Pickup</option>
+                                <option value="Airport Drop">Airport Drop</option>
+                                <option value="Rental">Rental</option>
+                                <option value="Outstation">Outstation</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Date</label>
+                            <input type="text" id="b-date" placeholder="e.g. 11-11-2026" required class="w-full px-3 py-2 border rounded bg-white text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Start Time</label>
+                            <input type="text" id="b-time" placeholder="e.g. 8:00 AM" required class="w-full px-3 py-2 border rounded bg-white text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Pickup Location</label>
+                            <input type="text" id="b-pickup" placeholder="e.g. CCU Airport" required class="w-full px-3 py-2 border rounded bg-white text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Drop Location</label>
+                            <input type="text" id="b-drop" placeholder="e.g. Park Street" required class="w-full px-3 py-2 border rounded bg-white text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Company Actual Fare (₹)</label>
+                            <input type="number" id="b-company-fare" placeholder="e.g. 4500" required class="w-full px-3 py-2 border rounded bg-white text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Driver Masked Fare (₹)</label>
+                            <input type="number" id="b-driver-fare" placeholder="e.g. 3500" required class="w-full px-3 py-2 border rounded bg-white text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Payment Mode</label>
+                            <select id="b-payment-mode" class="w-full px-3 py-2 border rounded bg-white text-sm">
+                                <option value="Cash Full">Cash Full</option>
+                                <option value="Cash Partial">Cash Partial</option>
+                                <option value="Online">Online</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Cash to Collect (₹)</label>
+                            <input type="number" id="b-cash-collect" placeholder="e.g. 1000" value="0" required class="w-full px-3 py-2 border rounded bg-white text-sm">
+                        </div>
+                        <div class="md:col-span-2">
                             <label class="block text-xs font-semibold text-gray-600 mb-1">Booking Screenshot / Proof (Optional)</label>
                             <input type="file" id="b-screenshot" accept="image/*,.pdf" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-blue-600 file:text-white">
                         </div>
-                        <div class="md:col-span-3"><button type="submit" class="w-full bg-green-600 text-white py-2.5 rounded font-semibold text-sm hover:bg-green-700">Save Booking to Roster</button></div>
+                        <div class="md:col-span-3">
+                            <button type="submit" class="w-full bg-green-600 text-white py-2.5 rounded font-semibold text-sm hover:bg-green-700">Save Booking to Roster</button>
+                        </div>
                     </form>
                 </div>
                 <div class="bg-white border rounded-lg overflow-x-auto">
@@ -436,8 +471,8 @@
                 bookingId: document.getElementById('b-id').value.trim(),
                 vendor: document.getElementById('b-vendor').value,
                 type: document.getElementById('b-type').value,
-                date: document.getElementById('b-date').value,
-                startTime: document.getElementById('b-time').value,
+                date: document.getElementById('b-date').value.trim(),
+                startTime: document.getElementById('b-time').value.trim(),
                 pickup: document.getElementById('b-pickup').value.trim(),
                 drop: document.getElementById('b-drop').value.trim(),
                 companyFare: document.getElementById('b-company-fare').value,
@@ -514,7 +549,7 @@
                         ${b.screenshotUrl && b.screenshotUrl.startsWith('http') ? '<br><a href="'+b.screenshotUrl+'" target="_blank" class="text-blue-600 underline font-medium">View Proof ↗</a>' : ''}
                     </td>
                     <td class="p-3">${b.type}<br><span class="text-gray-500">${b.pickup} ➔ ${b.drop}</span></td>
-                    <td class="p-3">${b.date}<br>${b.startTime}</td>
+                    <td class="p-3">${b.date || ''}<br>${b.startTime || ''}</td>
                     <td class="p-3">Actual: ₹${b.companyFare}<br>Driver: ₹${b.driverFare}</td>
                     <td class="p-3">Collect: ₹${b.cashToCollect}<br>${b.collectedCash>0?'Got: ₹'+b.collectedCash:''}</td>
                     <td class="p-3">${b.assignedDriver}<br><span class="text-gray-500">${b.assignedCar}</span></td>
