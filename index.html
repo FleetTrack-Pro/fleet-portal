@@ -619,7 +619,10 @@
             }
 
             const activeShift = dbShifts.find(s => (s.driver || "").toLowerCase() === currentUser.username.toLowerCase() && (s.status || "").toLowerCase() === 'active');
-            const regNumber = activeShift ? activeShift.regNumber : "Unassigned";
+            if (!activeShift) {
+                alert("Shift is closed! You cannot submit expenses after closing your shift.");
+                return;
+            }
 
             const btn = document.getElementById('add-expense-btn');
             btn.disabled = true; btn.textContent = "Uploading...";
@@ -631,7 +634,7 @@
                 const payload = {
                     action: "addExpense",
                     driver: currentUser.username,
-                    regNumber: regNumber,
+                    regNumber: activeShift.regNumber,
                     date: new Date().toLocaleDateString(),
                     category: category,
                     amount: amount,
