@@ -3,691 +3,358 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fleet Management & Tracking System</title>
+    <title>Fleet Management & Tracking System (FMS/FTS)</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 </head>
-<body class="bg-gray-50 min-h-screen flex flex-col justify-between">
+<body class="bg-gray-100 text-gray-900 font-sans min-h-screen">
 
-    <div id="status-banner" class="hidden w-full text-center py-2 text-sm font-medium text-white bg-blue-600 transition-colors">
-        Connecting...
-    </div>
+    <!-- Global App Banner -->
+    <div id="app-banner" class="hidden fixed top-0 left-0 right-0 z-50 p-3 text-center text-white text-sm font-semibold shadow-md transition-all"></div>
 
-    <main class="flex-grow flex items-center justify-center p-4">
-        
-        <!-- LOGIN VIEW -->
-        <div id="login-section" class="bg-white p-8 rounded-xl shadow-md w-full max-w-md border border-gray-100">
-            <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Unified Fleet Portal</h2>
-            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+    <!-- Login Screen -->
+    <div id="login-view" class="flex items-center justify-center min-h-screen px-4">
+        <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md border border-gray-200">
+            <h1 class="text-2xl font-bold text-center text-indigo-700 mb-6">Fleet Portal Login</h1>
+            <form onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Login ID / Username</label>
-                    <input type="text" id="login-username" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Username / Email</label>
+                    <input type="text" id="login-user" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <input type="password" id="login-password" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <input type="password" id="login-pass" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500">
                 </div>
-                <button type="submit" id="login-btn" class="w-full bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition">
-                    Login to Portal
-                </button>
+                <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition">Login</button>
             </form>
-            <div id="login-error" class="text-red-500 text-sm text-center mt-3 hidden"></div>
         </div>
+    </div>
 
-        <!-- DASHBOARD VIEW -->
-        <div id="dashboard-section" class="hidden bg-white p-6 md:p-8 rounded-xl shadow-md w-full max-w-6xl border border-gray-100">
-            <div class="flex flex-wrap justify-between items-center gap-4 mb-6 border-b pb-4">
-                <div>
-                    <h1 id="welcome-title" class="text-2xl font-bold text-gray-800">Dashboard</h1>
-                    <p id="user-role-display" class="text-sm text-gray-500 uppercase tracking-wide"></p>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="fetchDatabase()" class="bg-blue-50 text-blue-700 border px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-100">Sync Data</button>
-                    <button onclick="handleLogout()" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600">Logout</button>
-                </div>
-            </div>
-
-            <div id="nav-tabs" class="flex space-x-2 mb-6 border-b pb-4 overflow-x-auto"></div>
-
-            <!-- TAB: USERS -->
-            <div id="subtab-users" class="hidden space-y-6">
-                <div class="bg-gray-50 p-6 rounded-lg border">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Create User & Set Module Access</h3>
-                    <form id="create-user-form" onsubmit="handleCreateUser(event)" class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                        <input type="text" id="new-username" placeholder="Username" required class="px-3 py-2 border rounded bg-white text-sm">
-                        <input type="password" id="new-password" placeholder="Password" required class="px-3 py-2 border rounded bg-white text-sm">
-                        <select id="new-role" class="px-3 py-2 border rounded bg-white text-sm">
-                            <option value="driver">Driver</option>
-                            <option value="admin">Admin</option>
-                            <option id="superadmin-option" value="superadmin">Super Admin</option>
-                        </select>
-                        <select id="new-fms-access" class="px-3 py-2 border rounded bg-white text-sm">
-                            <option value="false">FTS Only (No FMS)</option>
-                            <option value="true">Full Access (FMS + FTS)</option>
-                        </select>
-                        <button type="submit" class="bg-green-600 text-white py-2 rounded text-sm font-semibold hover:bg-green-700">Add User</button>
-                    </form>
-                </div>
-                <div class="bg-white border rounded-lg overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead><tr class="bg-gray-100 text-gray-600 text-xs uppercase"><th class="p-3">Username</th><th class="p-3">Role</th><th class="p-3">FMS Access</th><th class="p-3">Status</th><th class="p-3">Action</th></tr></thead>
-                        <tbody id="users-table-body" class="text-sm divide-y"></tbody>
-                    </table>
+    <!-- Main Dashboard Application -->
+    <div id="app-view" class="hidden flex flex-col min-h-screen">
+        <header class="bg-indigo-700 text-white shadow">
+            <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+                <h1 class="text-xl font-bold">Fleet Management & Tracking System</h1>
+                <div class="flex items-center gap-4">
+                    <span id="user-welcome" class="text-sm bg-indigo-800 px-3 py-1 rounded-full"></span>
+                    <button onclick="handleLogout()" class="bg-indigo-600 hover:bg-indigo-500 px-3 py-1 rounded text-sm font-medium">Logout</button>
                 </div>
             </div>
+            <!-- Navigation Tabs -->
+            <nav class="bg-indigo-800 border-t border-indigo-600 px-4 flex gap-2 overflow-x-auto" id="nav-tabs">
+                <button onclick="switchTab('fms')" class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-white text-white" data-tab="fms">FMS Admin</button>
+                <button onclick="switchTab('fts')" class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-indigo-200 hover:text-white" data-tab="fts">FTS Operations</button>
+                <button onclick="switchTab('roster')" class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-indigo-200 hover:text-white" data-tab="roster">Booking Roster</button>
+                <button onclick="switchTab('expenses')" class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-indigo-200 hover:text-white" data-tab="expenses">Expenses Ledger</button>
+            </nav>
+        </header>
 
-            <!-- TAB: FMS BOOKING ROSTER -->
-            <div id="subtab-fms-roster" class="hidden space-y-6">
-                <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
-                    <h3 class="text-lg font-bold text-blue-900 mb-4">Add Vendor Booking & Proof</h3>
-                    <form id="add-booking-form" onsubmit="handleAddBooking(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Booking ID</label>
-                            <input type="text" id="b-id" placeholder="e.g. #7262991" required class="w-full px-3 py-2 border rounded bg-white text-sm">
+        <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+            
+            <!-- TAB 1: FMS ADMIN -->
+            <section id="tab-fms" class="tab-content space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
+                        <h2 class="text-lg font-bold text-gray-800 mb-4">Register New Car</h2>
+                        <form onsubmit="handleRegisterCar(event)" class="space-y-3">
+                            <input type="text" id="car-reg" placeholder="Registration Number (e.g., KA01AB1234)" required class="w-full px-3 py-2 border rounded text-sm">
+                            <input type="text" id="car-desc" placeholder="Car Description / Model" required class="w-full px-3 py-2 border rounded text-sm">
+                            <select id="car-fuel" class="w-full px-3 py-2 border rounded text-sm">
+                                <option value="EV">EV (Electric)</option>
+                                <option value="Petrol">Petrol</option>
+                                <option value="Diesel">Diesel</option>
+                                <option value="CNG">CNG</option>
+                            </select>
+                            <input type="text" id="car-owner" placeholder="Owner Name (Optional)" class="w-full px-3 py-2 border rounded text-sm">
+                            <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded text-sm font-semibold hover:bg-indigo-700">Add Car to Fleet</button>
+                        </form>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
+                        <h2 class="text-lg font-bold text-gray-800 mb-4">Create System User</h2>
+                        <form onsubmit="handleCreateUser(event)" class="space-y-3">
+                            <input type="text" id="new-username" placeholder="Username / Email" required class="w-full px-3 py-2 border rounded text-sm">
+                            <input type="password" id="new-password" placeholder="Temporary Password" required class="w-full px-3 py-2 border rounded text-sm">
+                            <select id="new-role" class="w-full px-3 py-2 border rounded text-sm">
+                                <option value="driver">Driver</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                            <select id="new-access" class="w-full px-3 py-2 border rounded text-sm">
+                                <option value="Yes">FMS Access: Yes</option>
+                                <option value="No">FMS Access: No</option>
+                            </select>
+                            <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded text-sm font-semibold hover:bg-indigo-700">Create User</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: FTS OPERATIONS -->
+            <section id="tab-fts" class="tab-content hidden space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Shift Management Card -->
+                    <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
+                        <h2 class="text-lg font-bold text-gray-800 mb-4">Driver Shift Lifecycle</h2>
+                        <div id="shift-status-box" class="mb-4 p-3 bg-gray-50 border rounded text-sm">Checking shift state...</div>
+                        
+                        <div id="start-shift-form" class="space-y-3">
+                            <select id="shift-car-select" required class="w-full px-3 py-2 border rounded text-sm"></select>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Start Odometer Reading</label>
+                                <input type="number" id="shift-start-odo" placeholder="Odometer KM" required class="w-full px-3 py-2 border rounded text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Odometer Photo Proof</label>
+                                <input type="file" id="shift-start-odo-img" accept="image/*" required class="w-full text-xs text-gray-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Driver Selfie Verification</label>
+                                <input type="file" id="shift-selfie-img" accept="image/*" required class="w-full text-xs text-gray-500">
+                            </div>
+                            <button type="button" onclick="handleStartShift()" class="w-full bg-green-600 text-white py-2 rounded text-sm font-semibold hover:bg-green-700">Start Shift</button>
                         </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Vendor / Client</label>
+
+                        <div id="end-shift-form" class="space-y-3 hidden">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">End Odometer Reading</label>
+                                <input type="number" id="shift-end-odo" placeholder="Closing Odometer KM" required class="w-full px-3 py-2 border rounded text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Closing Odometer Photo Proof</label>
+                                <input type="file" id="shift-end-odo-img" accept="image/*" required class="w-full text-xs text-gray-500">
+                            </div>
+                            <button type="button" onclick="handleEndShift()" class="w-full bg-red-600 text-white py-2 rounded text-sm font-semibold hover:bg-red-700">End Active Shift</button>
+                        </div>
+                    </div>
+
+                    <!-- Live Active Bookings Assigned to Driver -->
+                    <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
+                        <h2 class="text-lg font-bold text-gray-800 mb-4">Assigned Bookings & Trips</h2>
+                        <div id="driver-trips-container" class="space-y-3">
+                            <p class="text-sm text-gray-500">No active shift or assigned bookings.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: BOOKING ROSTER -->
+            <section id="tab-roster" class="tab-content hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
+                    <h2 class="text-lg font-bold text-gray-800 mb-4">Create / Import Booking</h2>
+                    <form onsubmit="handleAddBooking(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- AI Scan Quick Fill Box -->
+                        <div class="md:col-span-3 bg-amber-50 p-4 rounded-lg border border-amber-200 mb-2">
+                            <label class="block text-xs font-bold text-amber-900 mb-1">⚡ Quick Fill via Booking Screenshot (AI Scan)</label>
                             <div class="flex gap-2">
-                                <select id="b-vendor" class="w-full px-3 py-2 border rounded bg-white text-sm" required></select>
-                                <button type="button" onclick="promptAddVendor()" class="bg-blue-600 text-white px-3 py-1 rounded text-xs">+ New</button>
+                                <input type="file" id="scan-screenshot-file" accept="image/*" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-amber-600 file:text-white">
+                                <button type="button" onclick="handleScanBookingScreenshot()" class="bg-amber-600 text-white px-4 py-2 rounded text-xs font-semibold whitespace-nowrap hover:bg-amber-700">Scan & Fill</button>
                             </div>
                         </div>
+
+                        <input type="text" id="b-id" placeholder="Booking ID / Ref" required class="px-3 py-2 border rounded text-sm">
+                        <input type="text" id="b-vendor" placeholder="Vendor Name (e.g., Gozo)" required class="px-3 py-2 border rounded text-sm">
+                        <input type="text" id="b-type" placeholder="Trip Type (e.g., Airport Drop)" required class="px-3 py-2 border rounded text-sm">
+                        <input type="date" id="b-date" required class="px-3 py-2 border rounded text-sm">
+                        <input type="time" id="b-time" required class="px-3 py-2 border rounded text-sm">
+                        <input type="text" id="b-pickup" placeholder="Pickup Location" required class="px-3 py-2 border rounded text-sm">
+                        <input type="text" id="b-drop" placeholder="Drop Location" required class="px-3 py-2 border rounded text-sm">
+                        <input type="number" id="b-company-fare" placeholder="Company Fare ($)" required class="px-3 py-2 border rounded text-sm">
+                        <input type="number" id="b-driver-fare" placeholder="Driver Payout ($)" required class="px-3 py-2 border rounded text-sm">
+                        <select id="b-payment-mode" class="px-3 py-2 border rounded text-sm">
+                            <option value="Online">Online / Pre-paid</option>
+                            <option value="Cash">Cash to Collect</option>
+                        </select>
+                        <input type="number" id="b-cash-collect" placeholder="Cash Amount" class="px-3 py-2 border rounded text-sm">
+                        
+                        <div class="md:col-span-3">
+                            <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded text-sm font-semibold hover:bg-indigo-700">Save Booking to Roster</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Bookings Table & Assignment -->
+                <div class="bg-white p-6 rounded-xl shadow border border-gray-200 overflow-x-auto">
+                    <h2 class="text-lg font-bold text-gray-800 mb-4">Master Booking Roster & Assignment</h2>
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-gray-100 border-b">
+                                <th class="p-2">ID</th>
+                                <th class="p-2">Date / Time</th>
+                                <th class="p-2">Route</th>
+                                <th class="p-2">Fares</th>
+                                <th class="p-2">Status</th>
+                                <th class="p-2">Assignment</th>
+                                <th class="p-2">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="roster-table-body">
+                            <tr><td colspan="7" class="p-4 text-center text-gray-500">Loading bookings...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB 4: EXPENSES LEDGER -->
+            <section id="tab-expenses" class="tab-content hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow border border-gray-200 max-w-xl mx-auto">
+                    <h2 class="text-lg font-bold text-gray-800 mb-4">Log Driver Expense (Active Shift Required)</h2>
+                    <form onsubmit="handleLogExpense(event)" class="space-y-4">
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Booking Type</label>
-                            <select id="b-type" class="w-full px-3 py-2 border rounded bg-white text-sm">
-                                <option value="Airport Pickup">Airport Pickup</option>
-                                <option value="Airport Drop">Airport Drop</option>
-                                <option value="Rental">Rental</option>
-                                <option value="Outstation">Outstation</option>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Expense Category</label>
+                            <select id="exp-category" class="w-full px-3 py-2 border rounded text-sm" onchange="toggleReceiptRequirement()">
+                                <option value="Fuel">Fuel (Receipt Mandatory)</option>
+                                <option value="EV Charging">EV Charging (Receipt Mandatory)</option>
+                                <option value="Toll">Toll Fee</option>
+                                <option value="Parking">Parking</option>
+                                <option value="Maintenance">Maintenance</option>
                             </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Amount ($)</label>
+                            <input type="number" id="exp-amount" step="0.01" placeholder="0.00" required class="w-full px-3 py-2 border rounded text-sm">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1">Date</label>
-                            <input type="text" id="b-date" placeholder="e.g. 11-11-2026" required class="w-full px-3 py-2 border rounded bg-white text-sm">
+                            <input type="date" id="exp-date" required class="w-full px-3 py-2 border rounded text-sm">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Start Time</label>
-                            <input type="text" id="b-time" placeholder="e.g. 8:00 AM" required class="w-full px-3 py-2 border rounded bg-white text-sm">
+                            <label id="receipt-label" class="block text-xs font-semibold text-gray-600 mb-1">Receipt Photo (Mandatory for Fuel/EV)</label>
+                            <input type="file" id="exp-receipt" accept="image/*" class="w-full text-xs text-gray-500">
                         </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Pickup Location</label>
-                            <input type="text" id="b-pickup" placeholder="e.g. CCU Airport" required class="w-full px-3 py-2 border rounded bg-white text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Drop Location</label>
-                            <input type="text" id="b-drop" placeholder="e.g. Park Street" required class="w-full px-3 py-2 border rounded bg-white text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Company Actual Fare (₹)</label>
-                            <input type="number" id="b-company-fare" placeholder="e.g. 4500" required class="w-full px-3 py-2 border rounded bg-white text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Driver Masked Fare (₹)</label>
-                            <input type="number" id="b-driver-fare" placeholder="e.g. 3500" required class="w-full px-3 py-2 border rounded bg-white text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Payment Mode</label>
-                            <select id="b-payment-mode" class="w-full px-3 py-2 border rounded bg-white text-sm">
-                                <option value="Cash Full">Cash Full</option>
-                                <option value="Cash Partial">Cash Partial</option>
-                                <option value="Online">Online</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Cash to Collect (₹)</label>
-                            <input type="number" id="b-cash-collect" placeholder="e.g. 1000" value="0" required class="w-full px-3 py-2 border rounded bg-white text-sm">
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Booking Screenshot / Proof (Optional)</label>
-                            <input type="file" id="b-screenshot" accept="image/*,.pdf" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-blue-600 file:text-white">
-                        </div>
-                        <div class="md:col-span-3">
-                            <button type="submit" class="w-full bg-green-600 text-white py-2.5 rounded font-semibold text-sm hover:bg-green-700">Save Booking to Roster</button>
-                        </div>
+                        <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded text-sm font-semibold hover:bg-indigo-700">Submit Expense</button>
                     </form>
                 </div>
-                <div class="bg-white border rounded-lg overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-xs">
-                        <thead><tr class="bg-gray-100 uppercase"><th class="p-3">ID / Vendor</th><th class="p-3">Route</th><th class="p-3">Date & Time</th><th class="p-3">Fares</th><th class="p-3">Cash</th><th class="p-3">Assigned</th><th class="p-3">Status</th><th class="p-3">Action</th></tr></thead>
-                        <tbody id="bookings-table-body" class="divide-y"></tbody>
+
+                <!-- Expenses Audit Ledger -->
+                <div class="bg-white p-6 rounded-xl shadow border border-gray-200 overflow-x-auto">
+                    <h2 class="text-lg font-bold text-gray-800 mb-4">Expense Ledger Audit</h2>
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-gray-100 border-b">
+                                <th class="p-2">Driver</th>
+                                <th class="p-2">Car Reg</th>
+                                <th class="p-2">Date</th>
+                                <th class="p-2">Category</th>
+                                <th class="p-2">Amount</th>
+                                <th class="p-2">Receipt</th>
+                                <th class="p-2">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expenses-table-body">
+                            <tr><td colspan="7" class="p-4 text-center text-gray-500">Loading ledger...</td></tr>
+                        </tbody>
                     </table>
                 </div>
-            </div>
+            </section>
 
-            <!-- TAB: CAR FLEET -->
-            <div id="subtab-cars" class="hidden space-y-6">
-                <div class="bg-gray-50 p-6 rounded-lg border">
-                    <h3 class="text-lg font-semibold mb-4">Register Car</h3>
-                    <form id="create-car-form" onsubmit="handleCreateCar(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <input type="text" id="car-reg" placeholder="Reg Number (WB01...)" required class="px-3 py-2 border rounded bg-white text-sm">
-                        <input type="text" id="car-model" placeholder="Model (Crysta)" required class="px-3 py-2 border rounded bg-white text-sm">
-                        <select id="car-fuel" class="px-3 py-2 border rounded bg-white text-sm">
-                            <option value="Petrol">Petrol</option>
-                            <option value="Diesel">Diesel</option>
-                            <option value="EV">EV / Electric</option>
-                        </select>
-                        <select id="car-status" class="px-3 py-2 border rounded bg-white text-sm">
-                            <option value="Active">Active</option>
-                            <option value="Maintenance">Maintenance</option>
-                        </select>
-                        <button type="submit" class="md:col-span-4 bg-green-600 text-white py-2 rounded text-sm font-semibold hover:bg-green-700">Register Car</button>
-                    </form>
-                </div>
-                <div class="bg-white border rounded-lg overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead><tr class="bg-gray-100 text-xs uppercase"><th class="p-3">Reg</th><th class="p-3">Model</th><th class="p-3">Fuel</th><th class="p-3">Status</th></tr></thead>
-                        <tbody id="cars-table-body" class="text-sm divide-y"></tbody>
-                    </table>
-                </div>
-            </div>
+        </main>
+    </div>
 
-            <!-- TAB: LIVE SHIFTS & EXPENSE MANAGEMENT -->
-            <div id="subtab-active-shifts" class="hidden space-y-6">
-                <div class="bg-white border rounded-lg overflow-x-auto shadow-sm">
-                    <div class="p-4 bg-gray-50 border-b"><h3 class="text-md font-semibold text-gray-800">Live Shifts</h3></div>
-                    <table class="w-full text-left border-collapse">
-                        <thead><tr class="bg-gray-100 text-xs uppercase"><th class="p-3">Driver</th><th class="p-3">Car</th><th class="p-3">Start Odo</th><th class="p-3">Photos</th><th class="p-3">Status</th><th class="p-3">Action</th></tr></thead>
-                        <tbody id="active-shifts-table-body" class="text-sm divide-y"></tbody>
-                    </table>
-                </div>
-
-                <div class="bg-white border rounded-lg overflow-x-auto shadow-sm">
-                    <div class="p-4 bg-gray-50 border-b"><h3 class="text-md font-semibold text-gray-800">Driver Expenses Approval Ledger</h3></div>
-                    <table class="w-full text-left border-collapse text-xs">
-                        <thead><tr class="bg-gray-100 uppercase"><th class="p-3">Date</th><th class="p-3">Driver / Car</th><th class="p-3">Category</th><th class="p-3">Amount</th><th class="p-3">Receipt</th><th class="p-3">Status</th><th class="p-3">Action</th></tr></thead>
-                        <tbody id="admin-expenses-table-body" class="divide-y"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- TAB: DRIVER PORTAL -->
-            <div id="subtab-driver-portal" class="hidden space-y-6">
-                <div class="flex space-x-2 bg-gray-100 p-1.5 rounded-lg">
-                    <button onclick="switchDriverSection('shift')" id="drv-sec-shift-btn" class="flex-1 py-2 text-xs md:text-sm font-semibold rounded-md bg-white text-blue-700 shadow-sm">My Shift</button>
-                    <button onclick="switchDriverSection('roster')" id="drv-sec-roster-btn" class="flex-1 py-2 text-xs md:text-sm font-semibold rounded-md text-gray-600">Bookings & Trips</button>
-                    <button onclick="switchDriverSection('expenses')" id="drv-sec-expenses-btn" class="flex-1 py-2 text-xs md:text-sm font-semibold rounded-md text-gray-600">Expenses</button>
-                </div>
-
-                <!-- 1. SHIFT -->
-                <div id="driver-section-shift" class="bg-blue-50 p-6 rounded-lg border border-blue-200">
-                    <div id="driver-loading-view" class="text-center py-6 text-sm text-blue-800">Loading shift...</div>
-                    <div id="start-shift-view" class="hidden">
-                        <h3 class="text-lg font-bold mb-2">Start Daily Shift</h3>
-                        <form onsubmit="handleStartShift(event)" class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Select Car</label>
-                                <select id="active-car-select" required class="w-full px-3 py-2 border rounded bg-white text-sm"></select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Start Odometer (km)</label>
-                                <input type="number" id="start-odo-reading" placeholder="e.g. 45230" required class="w-full px-3 py-2 border rounded bg-white text-sm">
-                            </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div><label class="block text-sm mb-1">Driver Selfie</label><input type="file" id="start-selfie-file" accept="image/*" capture="user" required class="w-full text-xs"></div>
-                                <div><label class="block text-sm mb-1">Start Odo Photo</label><input type="file" id="start-odo-file" accept="image/*" capture="environment" required class="w-full text-xs"></div>
-                            </div>
-                            <button type="submit" id="start-shift-btn" class="w-full bg-green-600 text-white py-2.5 rounded font-semibold text-sm hover:bg-green-700">Clock In & Start Shift</button>
-                        </form>
-                    </div>
-                    <div id="end-shift-view" class="hidden">
-                        <h3 class="text-lg font-bold mb-2">Active Shift in Progress</h3>
-                        <p id="active-shift-info" class="text-sm text-blue-800 font-medium mb-3"></p>
-                        <div id="shift-photo-links" class="flex gap-3 mb-4 text-xs"></div>
-                        <form onsubmit="handleEndShift(event)" class="space-y-4 border-t pt-4">
-                            <div><label class="block text-sm mb-1">Closing Odo Photo</label><input type="file" id="end-odo-file" accept="image/*" capture="environment" required class="w-full text-xs"></div>
-                            <div><label class="block text-sm mb-1">Closing Odometer (km)</label><input type="number" id="end-odo-reading" placeholder="e.g. 45410" required class="w-full px-3 py-2 border rounded bg-white text-sm"></div>
-                            <button type="submit" id="end-shift-btn" class="w-full bg-red-600 text-white py-2.5 rounded font-semibold text-sm hover:bg-red-700">Submit Closing & End Shift</button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- 2. ROSTER -->
-                <div id="driver-section-roster" class="hidden bg-white border rounded-lg p-5 space-y-4">
-                    <h3 class="text-md font-bold text-gray-800">My Assigned Bookings</h3>
-                    <div id="driver-bookings-list" class="space-y-4"></div>
-                </div>
-
-                <!-- 3. EXPENSES -->
-                <div id="driver-section-expenses" class="hidden space-y-6">
-                    <div class="bg-gray-50 p-5 rounded-lg border">
-                        <h3 class="text-md font-bold mb-4">Log Expense</h3>
-                        <form onsubmit="handleAddExpense(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-semibold mb-1">Category</label>
-                                <select id="exp-category" onchange="checkReceiptRequirement()" class="w-full px-3 py-2 border rounded bg-white text-sm">
-                                    <option value="Fuel (Petrol/Diesel/CNG)">Fuel (Petrol/Diesel/CNG) *Mandatory Receipt</option>
-                                    <option value="EV Charging">EV Charging *Mandatory Receipt</option>
-                                    <option value="Toll / FASTag">Toll / FASTag</option>
-                                    <option value="Parking">Parking</option>
-                                    <option value="Car Wash / Cleaning">Car Wash / Cleaning</option>
-                                    <option value="Puncture / Repair">Puncture / Repair</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold mb-1">Amount (₹)</label>
-                                <input type="number" id="exp-amount" placeholder="e.g. 1200" required class="w-full px-3 py-2 border rounded bg-white text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold mb-1">Notes / Description</label>
-                                <input type="text" id="exp-notes" placeholder="Pump name / location" class="w-full px-3 py-2 border rounded bg-white text-sm">
-                            </div>
-                            <div>
-                                <label id="receipt-label" class="block text-xs font-semibold mb-1 text-red-600">Receipt Photo *Required for Fuel/EV</label>
-                                <input type="file" id="exp-receipt-file" accept="image/*" capture="environment" class="w-full text-xs">
-                            </div>
-                            <div class="md:col-span-2">
-                                <button type="submit" id="add-expense-btn" class="w-full bg-blue-600 text-white py-2.5 rounded font-semibold text-sm hover:bg-blue-700">Submit Expense</button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <div class="bg-white border rounded-lg overflow-hidden">
-                        <h4 class="text-sm font-bold p-4 bg-gray-50 border-b">My Expense Ledger</h4>
-                        <div id="driver-expenses-list" class="divide-y text-xs"></div>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-    </main>
-
-    <footer class="text-center py-4 text-xs text-gray-400">Fleet Management System &copy; 2026</footer>
-
+    <!-- JavaScript Application Core -->
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxEqYLpD2NjelmB3z73neQXA096CuApC4YeG48DW1qmQHJWjaNVxvWgJ61HHfBb-esD/exec";
+        // REPLACE WITH YOUR PUBLISHED GOOGLE APPS SCRIPT WEB APP URL
+        const WEB_APP_URL = "YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
 
-        let dbUsers = [], dbCars = [], dbShifts = [], dbVendors = [], dbBookings = [], dbExpenses = [];
-        let isDbLoaded = false;
-        let currentUser = JSON.parse(sessionStorage.getItem('currentUser')) || null;
+        let currentUser = null;
+        let globalData = { users: [], cars: [], shifts: [], vendors: [], bookings: [], expenses: [] };
 
-        window.onload = function() {
-            if (currentUser) { loadDashboard(currentUser); fetchDatabase(); }
-        };
-
-        function showBanner(text, colorClass, autoHideMs = 0) {
-            const banner = document.getElementById('status-banner');
-            banner.textContent = text;
-            banner.className = `w-full text-center py-2 text-sm font-medium text-white transition-colors ${colorClass}`;
-            banner.classList.remove('hidden');
-            if (autoHideMs > 0) setTimeout(() => banner.classList.add('hidden'), autoHideMs);
+        function showBanner(message, bgColor = "bg-indigo-600", duration = 4000) {
+            const banner = document.getElementById("app-banner");
+            banner.textContent = message;
+            banner.className = `fixed top-0 left-0 right-0 z-50 p-3 text-center text-white text-sm font-semibold shadow-md transition-all ${bgColor}`;
+            banner.classList.remove("hidden");
+            setTimeout(() => banner.classList.add("hidden"), duration);
         }
 
-        function handleLogin(event) {
-            event.preventDefault();
-            const usernameInput = document.getElementById('login-username').value.trim();
-            const passwordInput = document.getElementById('login-password').value.trim();
-            const errorDiv = document.getElementById('login-error');
-            const loginBtn = document.getElementById('login-btn');
-
-            errorDiv.classList.add('hidden');
-            loginBtn.disabled = true;
-            loginBtn.textContent = "Verifying...";
-            showBanner("Authenticating...", "bg-blue-600");
-
-            fetch(`${WEB_APP_URL}?action=login&username=${encodeURIComponent(usernameInput)}&password=${encodeURIComponent(passwordInput)}&v=${Date.now()}`, { redirect: 'follow' })
-                .then(res => res.json())
-                .then(res => {
-                    loginBtn.disabled = false; loginBtn.textContent = "Login to Portal";
-                    if (res.status === "success" && res.user) {
-                        currentUser = res.user;
-                        sessionStorage.setItem('currentUser', JSON.stringify(res.user));
-                        showBanner("Login successful!", "bg-green-600", 2000);
-                        loadDashboard(currentUser);
-                        fetchDatabase();
-                    } else {
-                        document.getElementById('status-banner').classList.add('hidden');
-                        errorDiv.textContent = "Invalid username or password.";
-                        errorDiv.classList.remove('hidden');
-                    }
-                })
-                .catch(() => {
-                    loginBtn.disabled = false; loginBtn.textContent = "Login to Portal";
-                    showBanner("Connection failed.", "bg-red-600");
-                });
-        }
-
-        function fetchDatabase() {
-            showBanner("Syncing fleet data...", "bg-blue-600");
-            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify({ action: "getDatabase" }) })
-                .then(res => res.json())
-                .then(data => {
-                    applyDatabaseState(data);
-                    showBanner("Synced successfully!", "bg-green-600", 2000);
-                })
-                .catch(() => showBanner("Sync failed.", "bg-red-600"));
-        }
-
-        function applyDatabaseState(data) {
-            dbUsers = data.users || [];
-            dbCars = data.cars || [];
-            dbShifts = data.shifts || [];
-            dbVendors = data.vendors || ["Gozo", "Savari", "Taxi Bazar"];
-            dbBookings = data.bookings || [];
-            dbExpenses = data.expenses || [];
-            isDbLoaded = true;
-
-            if (currentUser) {
-                const role = (currentUser.role || "").toLowerCase();
-                if (role === 'superadmin' || role === 'admin') {
-                    renderUsersTable(); renderCarsTable(); renderBookingRoster(); renderActiveShiftsTable(); renderAdminExpensesTable();
-                } else {
-                    renderDriverPortal(currentUser.username);
-                }
-            }
-        }
-
-        function loadDashboard(user) {
-            document.getElementById('login-section').classList.add('hidden');
-            document.getElementById('dashboard-section').classList.remove('hidden');
-            document.getElementById('welcome-title').textContent = `Welcome, ${user.username}`;
-            document.getElementById('user-role-display').textContent = `Role: ${user.role} | FMS Access: ${user.accessFMS}`;
-
-            const role = user.role.toLowerCase();
-            const hasFmsAccess = String(user.accessFMS).toLowerCase() === 'true';
-            const navTabs = document.getElementById('nav-tabs');
-            navTabs.innerHTML = '';
-
-            if (role === 'superadmin' || role === 'admin') {
-                navTabs.innerHTML += `<button onclick="switchTab('users')" id="tab-users-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white">Users</button>`;
-                if (hasFmsAccess || role === 'superadmin') {
-                    navTabs.innerHTML += `<button onclick="switchTab('fms-roster')" id="tab-fms-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700">FMS Roster</button>`;
-                }
-                navTabs.innerHTML += `<button onclick="switchTab('cars')" id="tab-cars-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700">Cars</button>`;
-                navTabs.innerHTML += `<button onclick="switchTab('active-shifts')" id="tab-shifts-btn" class="px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700">Live Shifts & Expenses</button>`;
-                switchTab('users');
-            } else {
-                navTabs.innerHTML = `<button onclick="switchTab('driver-portal')" class="px-4 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white">Driver Portal</button>`;
-                switchTab('driver-portal');
-            }
-        }
-
-        function switchTab(tab) {
-            ['subtab-users', 'subtab-fms-roster', 'subtab-cars', 'subtab-active-shifts', 'subtab-driver-portal'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.classList.add('hidden');
-            });
-            if (tab === 'users') document.getElementById('subtab-users').classList.remove('hidden');
-            if (tab === 'fms-roster') { document.getElementById('subtab-fms-roster').classList.remove('hidden'); renderBookingRoster(); }
-            if (tab === 'cars') document.getElementById('subtab-cars').classList.remove('hidden');
-            if (tab === 'active-shifts') { document.getElementById('subtab-active-shifts').classList.remove('hidden'); renderActiveShiftsTable(); renderAdminExpensesTable(); }
-            if (tab === 'driver-portal') document.getElementById('subtab-driver-portal').classList.remove('hidden');
-        }
-
-        function switchDriverSection(sec) {
-            ['shift', 'roster', 'expenses'].forEach(s => {
-                document.getElementById(`driver-section-${s}`).classList.add('hidden');
-                document.getElementById(`drv-sec-${s}-btn`).className = "flex-1 py-2 text-xs md:text-sm font-semibold rounded-md text-gray-600";
-            });
-            document.getElementById(`driver-section-${sec}`).classList.remove('hidden');
-            document.getElementById(`drv-sec-${sec}-btn`).className = "flex-1 py-2 text-xs md:text-sm font-semibold rounded-md bg-white text-blue-700 shadow-sm";
-        }
-
-        function checkReceiptRequirement() {
-            const cat = document.getElementById('exp-category').value;
-            const label = document.getElementById('receipt-label');
-            if (cat.includes('Fuel') || cat.includes('EV')) {
-                label.textContent = "Receipt Photo *Mandatory for Fuel/EV";
-                label.className = "block text-xs font-semibold mb-1 text-red-600";
-            } else {
-                label.textContent = "Receipt Photo (Optional)";
-                label.className = "block text-xs font-semibold mb-1 text-gray-600";
-            }
-        }
-
-        function postToBackend(payload, onSuccess) {
-            showBanner("Saving...", "bg-blue-600");
-            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
-                .then(res => res.json())
-                .then(res => {
-                    if (res.status === "success") {
-                        if (onSuccess) onSuccess(res);
-                        fetchDatabase();
-                    } else { alert("Error: " + res.message); }
-                });
-        }
-
-        function promptAddVendor() {
-            const v = prompt("New Vendor Name:");
-            if (v) postToBackend({ action: "addVendor", vendorName: v.trim() }, () => alert("Vendor added!"));
-        }
-
-        async function handleAddBooking(event) {
-            event.preventDefault();
-            const fileInput = document.getElementById('b-screenshot');
-            let screenshotData = "";
-
-            if (fileInput.files && fileInput.files[0]) {
-                showBanner("Compressing booking proof...", "bg-blue-600");
-                try {
-                    screenshotData = await compressImageFile(fileInput.files[0], 1000, 0.7);
-                } catch (e) {
-                    console.error("Image compression failed", e);
-                }
-            }
-
-            const payload = {
-                action: "addBooking",
-                bookingId: document.getElementById('b-id').value.trim(),
-                vendor: document.getElementById('b-vendor').value,
-                type: document.getElementById('b-type').value,
-                date: document.getElementById('b-date').value.trim(),
-                startTime: document.getElementById('b-time').value.trim(),
-                pickup: document.getElementById('b-pickup').value.trim(),
-                drop: document.getElementById('b-drop').value.trim(),
-                companyFare: document.getElementById('b-company-fare').value,
-                driverFare: document.getElementById('b-driver-fare').value,
-                paymentMode: document.getElementById('b-payment-mode').value,
-                cashToCollect: document.getElementById('b-cash-collect').value,
-                screenshotData: screenshotData,
-                status: "Pending"
-            };
-            postToBackend(payload, () => { alert("Booking saved!"); document.getElementById('add-booking-form').reset(); });
-        }
-
-        function openAssignModal(bookingId) {
-            const drv = prompt(`Assign Driver for ${bookingId}\nAvailable: ${dbUsers.filter(u=>u.role==='driver').map(u=>u.username).join(', ')}`);
-            if (!drv) return;
-            const car = prompt(`Enter Car Reg Number:`);
-            if (!car) return;
-            postToBackend({ action: "assignBookingDriver", bookingId, assignedDriver: drv.trim(), assignedCar: car.trim() }, () => alert("Assigned!"));
-        }
-
-        function toggleUserFmsAccess(username, currentAccess) {
-            const newAccess = String(currentAccess).toLowerCase() === "true" ? "false" : "true";
-            postToBackend({ action: "updateUserAccess", username, accessFMS: newAccess }, () => alert("Access updated!"));
-        }
-
-        function handleCreateUser(event) {
-            event.preventDefault();
-            const payload = {
-                action: "addUser",
-                username: document.getElementById('new-username').value.trim(),
-                password: document.getElementById('new-password').value.trim(),
-                role: document.getElementById('new-role').value,
-                status: "Active",
-                accessFMS: document.getElementById('new-fms-access').value
-            };
-            postToBackend(payload, () => { alert("User created!"); document.getElementById('create-user-form').reset(); });
-        }
-
-        function handleCreateCar(event) {
-            event.preventDefault();
-            const payload = {
-                action: "addCar",
-                reg: document.getElementById('car-reg').value.trim(),
-                desc: document.getElementById('car-model').value.trim(),
-                fuelType: document.getElementById('car-fuel').value,
-                status: document.getElementById('car-status').value,
-                owner: currentUser.username
-            };
-            postToBackend(payload, () => { alert("Car registered!"); document.getElementById('create-car-form').reset(); });
-        }
-
-        function renderUsersTable() {
-            document.getElementById('users-table-body').innerHTML = dbUsers.map(u => `
-                <tr class="hover:bg-gray-50">
-                    <td class="p-3 font-medium">${u.username}</td><td class="p-3 capitalize">${u.role}</td>
-                    <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full ${u.accessFMS==='true'?'bg-blue-100 text-blue-800':'bg-gray-100'}">${u.accessFMS==='true'?'Full':'FTS Only'}</span></td>
-                    <td class="p-3">${u.status}</td>
-                    <td class="p-3"><button onclick="toggleUserFmsAccess('${u.username}', '${u.accessFMS}')" class="text-xs px-2.5 py-1 rounded bg-amber-100 text-amber-800">Toggle FMS</button></td>
-                </tr>
-            `).join('');
-        }
-
-        function renderCarsTable() {
-            document.getElementById('cars-table-body').innerHTML = dbCars.map(c => `
-                <tr class="hover:bg-gray-50"><td class="p-3 font-medium">${c.reg}</td><td class="p-3">${c.desc}</td><td class="p-3">${c.fuelType}</td><td class="p-3">${c.status}</td></tr>
-            `).join('');
-        }
-
-        function renderBookingRoster() {
-            document.getElementById('b-vendor').innerHTML = dbVendors.map(v => `<option value="${v}">${v}</option>`).join('');
-            document.getElementById('bookings-table-body').innerHTML = dbBookings.map(b => `
-                <tr class="hover:bg-gray-50">
-                    <td class="p-3"><b>${b.bookingId}</b><br><span class="text-purple-700">${b.vendor}</span>
-                        ${b.screenshotUrl && b.screenshotUrl.startsWith('http') ? '<br><a href="'+b.screenshotUrl+'" target="_blank" class="text-blue-600 underline font-medium">View Proof ↗</a>' : ''}
-                    </td>
-                    <td class="p-3">${b.type}<br><span class="text-gray-500">${b.pickup} ➔ ${b.drop}</span></td>
-                    <td class="p-3">${b.date || ''}<br>${b.startTime || ''}</td>
-                    <td class="p-3">Actual: ₹${b.companyFare}<br>Driver: ₹${b.driverFare}</td>
-                    <td class="p-3">Collect: ₹${b.cashToCollect}<br>${b.collectedCash>0?'Got: ₹'+b.collectedCash:''}</td>
-                    <td class="p-3">${b.assignedDriver}<br><span class="text-gray-500">${b.assignedCar}</span></td>
-                    <td class="p-3"><span class="px-2 py-1 text-[10px] rounded bg-blue-100 text-blue-800">${b.status}</span></td>
-                    <td class="p-3"><button onclick="openAssignModal('${b.bookingId}')" class="bg-blue-600 text-white text-[11px] px-2 py-1 rounded">Assign</button></td>
-                </tr>
-            `).join('');
-        }
-
-        function renderDriverPortal(username) {
-            document.getElementById('driver-loading-view').classList.add('hidden');
-            const activeShift = dbShifts.find(s => (s.driver || "").toLowerCase() === username.toLowerCase() && (s.status || "").toLowerCase() === 'active');
-            const startView = document.getElementById('start-shift-view');
-            const endView = document.getElementById('end-shift-view');
-            
-            if (activeShift) {
-                startView.classList.add('hidden'); endView.classList.remove('hidden');
-                document.getElementById('active-shift-info').textContent = `Car: ${activeShift.regNumber} | Start Odo: ${activeShift.startOdometer} km`;
-            } else {
-                startView.classList.remove('hidden'); endView.classList.add('hidden');
-                const activeCarsInUse = dbShifts.filter(s => (s.status || "").toLowerCase() === 'active').map(s => s.regNumber);
-                const availableCars = dbCars.filter(c => (c.status || "").toLowerCase() === 'active' && !activeCarsInUse.includes(c.reg));
-                document.getElementById('active-car-select').innerHTML = availableCars.length === 0 ? `<option value="">No cars available</option>` : availableCars.map(c => `<option value="${c.reg}">${c.reg} - ${c.desc}</option>`).join('');
-            }
-
-            // Bookings
-            const driverBookings = dbBookings.filter(b => (b.assignedDriver || "").toLowerCase().trim() === username.toLowerCase().trim());
-            document.getElementById('driver-bookings-list').innerHTML = driverBookings.length === 0 ? `<p class="text-xs text-gray-500 italic">No trips assigned.</p>` : driverBookings.map(b => {
-                let btn = '';
-                const st = (b.status||"").toLowerCase();
-                if (st === 'assigned' || st === 'pending') btn = `<button onclick="handleStartTrip('${b.bookingId}')" class="w-full mt-2 bg-green-600 text-white py-1.5 rounded text-xs font-semibold">Start Trip</button>`;
-                else if (st === 'in progress') btn = `<button onclick="handleCloseTrip('${b.bookingId}', '${b.cashToCollect}')" class="w-full mt-2 bg-purple-600 text-white py-1.5 rounded text-xs font-semibold">Close Trip & Confirm Cash</button>`;
-                else btn = `<div class="mt-2 text-center py-1 bg-green-100 text-green-800 text-xs font-bold rounded">Completed ✓</div>`;
-                return `<div class="border p-3 rounded-lg text-xs space-y-1 bg-blue-50/40"><b>#${b.bookingId} (${b.vendor})</b><br>Date: ${b.date} | Time: ${b.startTime}<br>${b.pickup} ➔ ${b.drop}<br>Fare: ₹${b.driverFare} | Collect Cash: ₹${b.cashToCollect}${btn}</div>`;
-            }).join('');
-
-            // Expenses
-            const myExpenses = dbExpenses.filter(e => (e.DriverName || "").toLowerCase().trim() === username.toLowerCase().trim());
-            document.getElementById('driver-expenses-list').innerHTML = myExpenses.length === 0 ? `<p class="p-4 text-center text-gray-500">No expenses logged.</p>` : myExpenses.slice().reverse().map(e => `
-                <div class="p-3 flex justify-between items-center">
-                    <div><b>${e.Category}</b> — ₹${e.Amount}<br><span class="text-gray-500">${e.Date} | Car: ${e.RegNumber} | Status: <span class="font-bold ${e.Status==='Approved'?'text-green-600':'text-amber-600'}">${e.Status}</span></span></div>
-                    <div>${e.ReceiptURL && e.ReceiptURL.startsWith('http') ? `<a href="${e.ReceiptURL}" target="_blank" class="text-blue-600 underline">Receipt ↗</a>` : '<span class="text-gray-400">No Receipt</span>'}</div>
-                </div>
-            `).join('');
-        }
-
-        function handleStartTrip(bookingId) {
-            postToBackend({ action: "startTrip", bookingId, driver: currentUser.username }, () => alert("Trip started!"));
-        }
-
-        function handleCloseTrip(bookingId, expectedCash) {
-            const cash = prompt(`Closing Trip #${bookingId}.\nExpected Cash: ₹${expectedCash}\nEnter actual cash collected:`, expectedCash);
-            if (cash !== null) postToBackend({ action: "closeTrip", bookingId, driver: currentUser.username, collectedCash: cash }, () => alert("Trip closed!"));
-        }
-
-        async function handleAddExpense(event) {
-            event.preventDefault();
-            const category = document.getElementById('exp-category').value;
-            const amount = document.getElementById('exp-amount').value;
-            const notes = document.getElementById('exp-notes').value.trim();
-            const file = document.getElementById('exp-receipt-file').files[0];
-
-            const isFuelOrEv = category.includes('Fuel') || category.includes('EV');
-            if (isFuelOrEv && !file) {
-                alert("Receipt photo is mandatory for Fuel and EV Charging bills!");
-                return;
-            }
-
-            const activeShift = dbShifts.find(s => (s.driver || "").toLowerCase() === currentUser.username.toLowerCase() && (s.status || "").toLowerCase() === 'active');
-            if (!activeShift) {
-                alert("Shift is closed! You cannot submit expenses after closing your shift.");
-                return;
-            }
-
-            const btn = document.getElementById('add-expense-btn');
-            btn.disabled = true; btn.textContent = "Uploading...";
+        async function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById("login-user").value.trim();
+            const p = document.getElementById("login-pass").value.trim();
+            showBanner("Authenticating...", "bg-blue-600", 2000);
 
             try {
-                let receiptData = "";
-                if (file) receiptData = await compressImageFile(file);
-
-                const payload = {
-                    action: "addExpense",
-                    driver: currentUser.username,
-                    regNumber: activeShift.regNumber,
-                    date: new Date().toLocaleDateString(),
-                    category: category,
-                    amount: amount,
-                    notes: notes,
-                    receiptData: receiptData,
-                    requiresApproval: !file
-                };
-
-                const res = await (await fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })).json();
-                alert(res.message);
-                document.getElementById('exp-amount').value = '';
-                document.getElementById('exp-notes').value = '';
-                document.getElementById('exp-receipt-file').value = '';
-                fetchDatabase();
+                const res = await fetch(`${WEB_APP_URL}?action=login&username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}`);
+                const data = await res.json();
+                if (data.status === "success") {
+                    currentUser = data.user;
+                    localStorage.setItem("fleet_user", JSON.stringify(currentUser));
+                    initApp();
+                } else if (data.status === "inactive") {
+                    alert("Account is inactive. Contact administrator.");
+                } else {
+                    alert("Invalid username or password.");
+                }
             } catch (err) {
-                alert("Error: " + err.message);
-            } finally {
-                btn.disabled = false; btn.textContent = "Submit Expense";
+                alert("Login connection error: " + err.message);
             }
         }
 
-        function renderActiveShiftsTable() {
-            document.getElementById('active-shifts-table-body').innerHTML = dbShifts.filter(s => (s.status||"").toLowerCase() === 'active').map(s => `
-                <tr class="hover:bg-gray-50"><td class="p-3">${s.driver}</td><td class="p-3 font-bold text-blue-600">${s.regNumber}</td><td class="p-3">${s.startOdometer} km</td><td class="p-3 text-xs">${s.startSelfieURL?'<a href="'+s.startSelfieURL+'" target="_blank" class="text-blue-600 underline">Selfie</a>':''}</td><td class="p-3"><span class="px-2 py-0.5 rounded bg-green-100 text-green-800">Active</span></td><td class="p-3"><button onclick="promptAdminForceClose('${s.driver}','${s.regNumber}')" class="bg-red-600 text-white text-xs px-2 py-1 rounded">Force Close</button></td></tr>
-            `).join('') || `<tr><td colspan="6" class="p-4 text-center text-gray-500">No active shifts.</td></tr>`;
+        function handleLogout() {
+            currentUser = null;
+            localStorage.removeItem("fleet_user");
+            document.getElementById("app-view").classList.add("hidden");
+            document.getElementById("login-view").classList.remove("hidden");
         }
 
-        function renderAdminExpensesTable() {
-            document.getElementById('admin-expenses-table-body').innerHTML = dbExpenses.slice().reverse().map(e => `
-                <tr class="hover:bg-gray-50">
-                    <td class="p-3">${e.Date}</td><td class="p-3"><b>${e.DriverName}</b> (${e.RegNumber})</td><td class="p-3">${e.Category}</td>
-                    <td class="p-3 font-bold">₹${e.Amount}</td>
-                    <td class="p-3">${e.ReceiptURL && e.ReceiptURL.startsWith('http') ? '<a href="'+e.ReceiptURL+'" target="_blank" class="text-blue-600 underline">View Receipt ↗</a>' : 'No Receipt'}</td>
-                    <td class="p-3"><span class="px-2 py-0.5 rounded text-xs font-bold ${e.Status==='Approved'?'bg-green-100 text-green-800':'bg-amber-100 text-amber-800'}">${e.Status}</span></td>
-                    <td class="p-3 space-x-1">
-                        <button onclick="updateExpenseStatus('${e.DriverName}', '${e.Date}', '${e.Amount}', 'Approved')" class="bg-green-600 text-white text-[10px] px-2 py-1 rounded">Approve</button>
-                        <button onclick="updateExpenseStatus('${e.DriverName}', '${e.Date}', '${e.Amount}', 'Rejected')" class="bg-red-600 text-white text-[10px] px-2 py-1 rounded">Reject</button>
-                    </td>
-                </tr>
-            `).join('') || `<tr><td colspan="7" class="p-4 text-center text-gray-500">No expenses submitted.</td></tr>`;
+        window.onload = function() {
+            const saved = localStorage.getItem("fleet_user");
+            if (saved) {
+                currentUser = JSON.parse(saved);
+                initApp();
+            }
+        };
+
+        function initApp() {
+            document.getElementById("login-view").classList.add("hidden");
+            document.getElementById("app-view").classList.remove("hidden");
+            document.getElementById("user-welcome").textContent = `${currentUser.username} (${currentUser.role.toUpperCase()})`;
+            
+            if (currentUser.role === "driver") {
+                document.querySelector('[onclick="switchTab(\'fms\')"]').style.display = "none";
+                switchTab('fts');
+            } else {
+                switchTab('fms');
+            }
+            fetchDatabase();
         }
 
-        function updateExpenseStatus(driver, date, amount, status) {
-            postToBackend({ action: "updateExpenseStatus", driver, date, amount, status }, () => alert(`Expense marked as ${status}!`));
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-white', 'text-white');
+                btn.classList.add('border-transparent', 'text-indigo-200');
+            });
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.querySelector(`[onclick="switchTab('${tabId}')"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('border-white', 'text-white');
+                activeBtn.classList.remove('border-transparent', 'text-indigo-200');
+            }
         }
 
-        function promptAdminForceClose(driver, reg) {
-            const odo = prompt(`Force close shift for ${driver}. Enter Closing Odometer:`);
-            if (odo) postToBackend({ action: "adminCloseShift", driver, regNumber: reg, endOdometer: odo }, () => alert("Shift closed!"));
+        async function apiCall(action, payload) {
+            try {
+                const res = await fetch(WEB_APP_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action, ...payload })
+                });
+                return await res.json();
+            } catch (err) {
+                return { status: "error", message: err.toString() };
+            }
         }
 
-        function compressImageFile(file, maxWidth = 800, quality = 0.65) {
+        async function fetchDatabase() {
+            const res = await apiCall("getDatabase");
+            if (res && res.cars) {
+                globalData = res;
+                renderDashboardData();
+            }
+        }
+
+        function compressImageFile(file, maxWidth = 800, quality = 0.6) {
             return new Promise((resolve, reject) => {
+                if (!file) { resolve(""); return; }
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const img = new Image();
@@ -696,54 +363,324 @@
                         let w = img.width, h = img.height;
                         if (w > maxWidth) { h = Math.round((h * maxWidth) / w); w = maxWidth; }
                         canvas.width = w; canvas.height = h;
-                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                        resolve(canvas.toDataURL('image/jpeg', quality));
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, w, h);
+                        try {
+                            resolve(canvas.toDataURL('image/jpeg', quality));
+                        } catch (err) { reject(err); }
                     };
-                    img.onerror = reject; img.src = e.target.result;
+                    img.onerror = (err) => reject(new Error("Image load failure"));
+                    img.src = e.target.result;
                 };
-                reader.onerror = reject; reader.readAsDataURL(file);
+                reader.onerror = (err) => reject(new Error("File read failure"));
+                reader.readAsDataURL(file);
             });
         }
 
-        async function handleStartShift(event) {
-            event.preventDefault();
-            const selfie = document.getElementById('start-selfie-file').files[0];
-            const odo = document.getElementById('start-odo-file').files[0];
-            const regNumber = document.getElementById('active-car-select').value;
-            if (!regNumber || !selfie || !odo) { alert("Please complete all fields and photos."); return; }
-
-            showBanner("Compressing & Uploading...", "bg-blue-600");
+        async function handleScanBookingScreenshot() {
+            const fileInput = document.getElementById('scan-screenshot-file');
+            if (!fileInput.files || !fileInput.files[0]) {
+                alert("Please select a booking screenshot first.");
+                return;
+            }
+            showBanner("Scanning screenshot with AI...", "bg-amber-600", 10000);
             try {
-                const [selfieData, odoPhotoData] = await Promise.all([compressImageFile(selfie), compressImageFile(odo)]);
-                const now = new Date();
-                postToBackend({
-                    action: "startShift", driver: currentUser.username, regNumber,
-                    date: now.toLocaleDateString(), startTime: now.toLocaleTimeString(), startTimestamp: now.toISOString(),
-                    startOdometer: document.getElementById('start-odo-reading').value, selfieData, odoPhotoData
-                }, () => alert("Shift started!"));
-            } catch (err) { alert("Error: " + err.message); }
+                const base64Data = await compressImageFile(fileInput.files[0], 1000, 0.7);
+                const res = await apiCall("scanBookingImage", { screenshotData: base64Data });
+                if (res.status === "success" && res.data) {
+                    const d = res.data;
+                    if (d.bookingId) document.getElementById('b-id').value = d.bookingId;
+                    if (d.vendor) document.getElementById('b-vendor').value = d.vendor;
+                    if (d.type) document.getElementById('b-type').value = d.type;
+                    if (d.date) document.getElementById('b-date').value = d.date;
+                    if (d.startTime) document.getElementById('b-time').value = d.startTime;
+                    if (d.pickup) document.getElementById('b-pickup').value = d.pickup;
+                    if (d.drop) document.getElementById('b-drop').value = d.drop;
+                    if (d.companyFare) document.getElementById('b-company-fare').value = d.companyFare;
+                    if (d.driverFare) document.getElementById('b-driver-fare').value = d.driverFare;
+                    if (d.paymentMode) document.getElementById('b-payment-mode').value = d.paymentMode;
+                    if (d.cashToCollect) document.getElementById('b-cash-collect').value = d.cashToCollect;
+
+                    showBanner("Booking details extracted successfully!", "bg-green-600", 3000);
+                } else {
+                    alert("Scan failed: " + (res.message || "Unknown error"));
+                    showBanner("Scan failed.", "bg-red-600", 2000);
+                }
+            } catch (err) {
+                alert("Error scanning image: " + err.message);
+                showBanner("Scan error.", "bg-red-600", 2000);
+            }
         }
 
-        async function handleEndShift(event) {
-            event.preventDefault();
-            const file = document.getElementById('end-odo-file').files[0];
-            if (!file) return;
-            try {
-                const endOdoPhotoData = await compressImageFile(file);
-                const now = new Date();
-                postToBackend({
-                    action: "endShift", driver: currentUser.username,
-                    endTime: now.toLocaleTimeString(), endTimestamp: now.toISOString(),
-                    endOdometer: document.getElementById('end-odo-reading').value, endOdoPhotoData
-                }, () => alert("Shift ended!"));
-            } catch (err) { alert("Error: " + err.message); }
+        async function handleRegisterCar(e) {
+            e.preventDefault();
+            const res = await apiCall("addCar", {
+                reg: document.getElementById("car-reg").value.trim(),
+                desc: document.getElementById("car-desc").value.trim(),
+                fuelType: document.getElementById("car-fuel").value,
+                owner: document.getElementById("car-owner").value.trim()
+            });
+            alert(res.message);
+            if (res.status === "success") { e.target.reset(); fetchDatabase(); }
         }
 
-        function handleLogout() {
-            currentUser = null; isDbLoaded = false;
-            sessionStorage.removeItem('currentUser');
-            document.getElementById('dashboard-section').classList.add('hidden');
-            document.getElementById('login-section').classList.remove('hidden');
+        async function handleCreateUser(e) {
+            e.preventDefault();
+            const res = await apiCall("addUser", {
+                username: document.getElementById("new-username").value.trim(),
+                password: document.getElementById("new-password").value.trim(),
+                role: document.getElementById("new-role").value,
+                status: "active",
+                accessFMS: document.getElementById("new-access").value
+            });
+            alert(res.message);
+            if (res.status === "success") { e.target.reset(); fetchDatabase(); }
+        }
+
+        async function handleStartShift() {
+            const carReg = document.getElementById("shift-car-select").value;
+            const startOdo = document.getElementById("shift-start-odo").value;
+            const odoFile = document.getElementById("shift-start-odo-img").files[0];
+            const selfieFile = document.getElementById("shift-selfie-img").files[0];
+
+            if (!carReg || !startOdo || !odoFile || !selfieFile) {
+                alert("Please fill all shift details and attach both photos.");
+                return;
+            }
+
+            showBanner("Processing shift start...", "bg-blue-600", 15000);
+            try {
+                const odoData = await compressImageFile(odoFile);
+                const selfieData = await compressImageFile(selfieFile);
+                const now = new Date();
+
+                const res = await apiCall("startShift", {
+                    driver: currentUser.username,
+                    regNumber: carReg,
+                    date: now.toISOString().split('T')[0],
+                    startTime: now.toLocaleTimeString(),
+                    startOdometer: startOdo,
+                    startTimestamp: now.toISOString(),
+                    odoPhotoData: odoData,
+                    selfieData: selfieData
+                });
+
+                alert(res.message);
+                fetchDatabase();
+            } catch (err) {
+                alert("Error starting shift: " + err.message);
+            }
+        }
+
+        async function handleEndShift() {
+            const endOdo = document.getElementById("shift-end-odo").value;
+            const endOdoFile = document.getElementById("shift-end-odo-img").files[0];
+
+            if (!endOdo || !endOdoFile) {
+                alert("Please provide closing odometer and photo.");
+                return;
+            }
+
+            showBanner("Processing shift close...", "bg-blue-600", 15000);
+            try {
+                const endOdoData = await compressImageFile(endOdoFile);
+                const now = new Date();
+
+                const res = await apiCall("endShift", {
+                    driver: currentUser.username,
+                    endTime: now.toLocaleTimeString(),
+                    endOdometer: endOdo,
+                    endTimestamp: now.toISOString(),
+                    endOdoPhotoData: endOdoData
+                });
+
+                alert(res.message);
+                fetchDatabase();
+            } catch (err) {
+                alert("Error ending shift: " + err.message);
+            }
+        }
+
+        async function handleAddBooking(e) {
+            e.preventDefault();
+            const res = await apiCall("addBooking", {
+                bookingId: document.getElementById("b-id").value.trim(),
+                vendor: document.getElementById("b-vendor").value.trim(),
+                type: document.getElementById("b-type").value.trim(),
+                date: document.getElementById("b-date").value,
+                startTime: document.getElementById("b-time").value,
+                pickup: document.getElementById("b-pickup").value.trim(),
+                drop: document.getElementById("b-drop").value.trim(),
+                companyFare: document.getElementById("b-company-fare").value,
+                driverFare: document.getElementById("b-driver-fare").value,
+                paymentMode: document.getElementById("b-payment-mode").value,
+                cashToCollect: document.getElementById("b-cash-collect").value || 0,
+                status: "Pending"
+            });
+            alert(res.message);
+            if (res.status === "success") { e.target.reset(); fetchDatabase(); }
+        }
+
+        async function assignDriver(bookingId) {
+            const driver = prompt("Enter Driver Username for assignment:");
+            if (!driver) return;
+            const car = prompt("Enter Car Registration Number:");
+            if (!car) return;
+
+            const res = await apiCall("assignBookingDriver", { bookingId, assignedDriver: driver, assignedCar: car });
+            alert(res.message);
+            fetchDatabase();
+        }
+
+        async function startTrip(bookingId) {
+            const res = await apiCall("startTrip", { bookingId });
+            alert(res.message);
+            fetchDatabase();
+        }
+
+        async function closeTrip(bookingId) {
+            const collected = prompt("Enter Cash Collected (if any):", "0");
+            const res = await apiCall("closeTrip", { bookingId, collectedCash: collected });
+            alert(res.message);
+            fetchDatabase();
+        }
+
+        function toggleReceiptRequirement() {
+            const cat = document.getElementById("exp-category").value;
+            const label = document.getElementById("receipt-label");
+            if (cat === "Fuel" || cat === "EV Charging") {
+                label.textContent = "Receipt Photo (Mandatory for Fuel/EV)";
+            } else {
+                label.textContent = "Receipt Photo (Optional)";
+            }
+        }
+
+        async function handleLogExpense(e) {
+            e.preventDefault();
+            const cat = document.getElementById("exp-category").value;
+            const receiptFile = document.getElementById("exp-receipt").files[0];
+
+            if ((cat === "Fuel" || cat === "EV Charging") && !receiptFile) {
+                alert("Receipt photo is mandatory for Fuel and EV Charging expenses!");
+                return;
+            }
+
+            showBanner("Submitting expense...", "bg-blue-600", 10000);
+            try {
+                const receiptData = receiptFile ? await compressImageFile(receiptFile) : "";
+                const requiresApproval = (!receiptFile && (cat === "Fuel" || cat === "EV Charging"));
+
+                const res = await apiCall("addExpense", {
+                    driver: currentUser.username,
+                    category: cat,
+                    amount: document.getElementById("exp-amount").value,
+                    date: document.getElementById("exp-date").value,
+                    receiptData: receiptData,
+                    requiresApproval: requiresApproval
+                });
+
+                alert(res.message);
+                if (res.status === "success") { e.target.reset(); fetchDatabase(); }
+            } catch (err) {
+                alert("Error logging expense: " + err.message);
+            }
+        }
+
+        function renderDashboardData() {
+            // Render car select options
+            const carSelect = document.getElementById("shift-car-select");
+            carSelect.innerHTML = '<option value="">Select Car</option>';
+            globalData.cars.forEach(c => {
+                carSelect.innerHTML += `<option value="${c.reg}">${c.reg} - ${c.desc}</option>`;
+            });
+
+            // Check active shift for current user
+            const activeShift = globalData.shifts.find(s => s.driver.toLowerCase() === currentUser.username.toLowerCase() && s.status.toLowerCase() === "active");
+            const statusBox = document.getElementById("shift-status-box");
+            const startForm = document.getElementById("start-shift-form");
+            const endForm = document.getElementById("end-shift-form");
+
+            if (activeShift) {
+                statusBox.innerHTML = `<span class="text-green-600 font-bold">● ACTIVE SHIFT</span><br>Car: ${activeShift.regNumber} | Start Odo: ${activeShift.startOdometer} km | Started: ${activeShift.startTime}`;
+                startForm.classList.add("hidden");
+                endForm.classList.remove("hidden");
+            } else {
+                statusBox.innerHTML = `<span class="text-gray-500 font-semibold">No active shift. Start your shift below.</span>`;
+                startForm.classList.remove("hidden");
+                endForm.classList.add("hidden");
+            }
+
+            // Render Driver Assigned Trips
+            const tripsContainer = document.getElementById("driver-trips-container");
+            tripsContainer.innerHTML = "";
+            const myBookings = globalData.bookings.filter(b => b.assignedDriver.toLowerCase() === currentUser.username.toLowerCase() && b.status !== "Completed");
+            
+            if (myBookings.length === 0) {
+                tripsContainer.innerHTML = `<p class="text-sm text-gray-500">No active bookings assigned to you.</p>`;
+            } else {
+                myBookings.forEach(b => {
+                    tripsContainer.innerHTML += `
+                        <div class="p-3 border rounded bg-gray-50 space-y-2 text-sm">
+                            <div class="font-bold text-indigo-700">${b.bookingId} (${b.type})</div>
+                            <div>Route: ${b.pickup} ➔ ${b.drop}</div>
+                            <div>Status: <span class="font-semibold">${b.status}</span></div>
+                            <div class="flex gap-2 pt-1">
+                                ${b.status === "Assigned" ? `<button onclick="startTrip('${b.bookingId}')" class="bg-blue-600 text-white px-3 py-1 rounded text-xs font-semibold">Start Trip</button>` : ""}
+                                ${b.status === "In Progress" ? `<button onclick="closeTrip('${b.bookingId}')" class="bg-green-600 text-white px-3 py-1 rounded text-xs font-semibold">Complete Trip</button>` : ""}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // Render Booking Roster Table
+            const rosterBody = document.getElementById("roster-table-body");
+            rosterBody.innerHTML = "";
+            if (globalData.bookings.length === 0) {
+                rosterBody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500">No bookings in roster.</td></tr>`;
+            } else {
+                globalData.bookings.forEach(b => {
+                    rosterBody.innerHTML += `
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="p-2 font-semibold">${b.bookingId}<br><span class="text-xs text-gray-500">${b.vendor}</span></td>
+                            <td class="p-2 text-xs">${b.date}<br>${b.startTime}</td>
+                            <td class="p-2 text-xs">${b.pickup} ➔ ${b.drop}</td>
+                            <td class="p-2 text-xs">Comp: $${b.companyFare}<br>Driver: $${b.driverFare}</td>
+                            <td class="p-2"><span class="px-2 py-1 rounded text-xs font-semibold bg-blue-100 text-blue-800">${b.status}</span></td>
+                            <td class="p-2 text-xs">Driver: ${b.assignedDriver || 'Unassigned'}<br>Car: ${b.assignedCar || 'Unassigned'}</td>
+                            <td class="p-2">
+                                ${b.status === "Pending" ? `<button onclick="assignDriver('${b.bookingId}')" class="bg-indigo-600 text-white px-2 py-1 rounded text-xs">Assign</button>` : "-"}
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Render Expenses Ledger Table
+            const expBody = document.getElementById("expenses-table-body");
+            expBody.innerHTML = "";
+            const filteredExpenses = currentUser.role === "driver" 
+                ? globalData.expenses.filter(e => e.DriverName.toLowerCase() === currentUser.username.toLowerCase())
+                : globalData.expenses;
+
+            if (filteredExpenses.length === 0) {
+                expBody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500">No expense records found.</td></tr>`;
+            } else {
+                filteredExpenses.forEach(e => {
+                    const receiptLink = e.ReceiptURL && e.ReceiptURL.startsWith('http') ? `<a href="${e.ReceiptURL}" target="_blank" class="text-indigo-600 underline">View</a>` : 'None';
+                    expBody.innerHTML += `
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="p-2 font-semibold">${e.DriverName}</td>
+                            <td class="p-2">${e.RegNumber}</td>
+                            <td class="p-2 text-xs">${e.Date}</td>
+                            <td class="p-2">${e.Category}</td>
+                            <td class="p-2 font-bold">$${e.Amount}</td>
+                            <td class="p-2">${receiptLink}</td>
+                            <td class="p-2"><span class="px-2 py-1 rounded text-xs font-semibold bg-gray-100">${e.Status}</span></td>
+                        </tr>
+                    `;
+                });
+            }
         }
     </script>
 </body>
