@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fleet Management & Tracking System (FMS/FTS)</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 </head>
 <body class="bg-gray-100 text-gray-900 font-sans min-h-screen">
 
@@ -18,7 +17,7 @@
             <h1 class="text-2xl font-bold text-center text-indigo-700 mb-6">Fleet Portal Login</h1>
             <form onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Username / Email</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
                     <input type="text" id="login-user" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500">
                 </div>
                 <div>
@@ -40,12 +39,12 @@
                     <button onclick="handleLogout()" class="bg-indigo-600 hover:bg-indigo-500 px-3 py-1 rounded text-sm font-medium">Logout</button>
                 </div>
             </div>
-            <!-- Navigation Tabs -->
+            <!-- Navigation Tabs (Driven by Spreadsheet Permissions) -->
             <nav class="bg-indigo-800 border-t border-indigo-600 px-4 flex gap-2 overflow-x-auto" id="nav-tabs">
-                <button onclick="switchTab('fms')" class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-white text-white" data-tab="fms">FMS Admin</button>
-                <button onclick="switchTab('fts')" class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-indigo-200 hover:text-white" data-tab="fts">FTS Operations</button>
-                <button onclick="switchTab('roster')" class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-indigo-200 hover:text-white" data-tab="roster">Booking Roster</button>
-                <button onclick="switchTab('expenses')" class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-indigo-200 hover:text-white" data-tab="expenses">Expenses Ledger</button>
+                <button onclick="switchTab('fms')" id="tab-btn-fms" class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-white text-white" data-tab="fms">FMS Admin</button>
+                <button onclick="switchTab('fts')" id="tab-btn-fts" class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-indigo-200 hover:text-white" data-tab="fts">FTS Operations</button>
+                <button onclick="switchTab('roster')" id="tab-btn-roster" class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-indigo-200 hover:text-white" data-tab="roster">Booking Roster</button>
+                <button onclick="switchTab('expenses')" id="tab-btn-expenses" class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-indigo-200 hover:text-white" data-tab="expenses">Financials & Expenses</button>
             </nav>
         </header>
 
@@ -57,33 +56,34 @@
                     <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
                         <h2 class="text-lg font-bold text-gray-800 mb-4">Register New Car</h2>
                         <form onsubmit="handleRegisterCar(event)" class="space-y-3">
-                            <input type="text" id="car-reg" placeholder="Registration Number (e.g., KA01AB1234)" required class="w-full px-3 py-2 border rounded text-sm">
-                            <input type="text" id="car-desc" placeholder="Car Description / Model" required class="w-full px-3 py-2 border rounded text-sm">
+                            <input type="text" id="car-reg" placeholder="Registration (e.g., KA01AB1234)" required class="w-full px-3 py-2 border rounded text-sm">
+                            <input type="text" id="car-desc" placeholder="Model / Description" required class="w-full px-3 py-2 border rounded text-sm">
                             <select id="car-fuel" class="w-full px-3 py-2 border rounded text-sm">
                                 <option value="EV">EV (Electric)</option>
                                 <option value="Petrol">Petrol</option>
                                 <option value="Diesel">Diesel</option>
                                 <option value="CNG">CNG</option>
                             </select>
-                            <input type="text" id="car-owner" placeholder="Owner Name (Optional)" class="w-full px-3 py-2 border rounded text-sm">
-                            <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded text-sm font-semibold hover:bg-indigo-700">Add Car to Fleet</button>
+                            <input type="text" id="car-owner" placeholder="Owner Name" class="w-full px-3 py-2 border rounded text-sm">
+                            <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded text-sm font-semibold hover:bg-indigo-700">Add Car</button>
                         </form>
                     </div>
 
                     <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
-                        <h2 class="text-lg font-bold text-gray-800 mb-4">Create System User</h2>
+                        <h2 class="text-lg font-bold text-gray-800 mb-4">Create System User & Permissions</h2>
                         <form onsubmit="handleCreateUser(event)" class="space-y-3">
-                            <input type="text" id="new-username" placeholder="Username / Email" required class="w-full px-3 py-2 border rounded text-sm">
-                            <input type="password" id="new-password" placeholder="Temporary Password" required class="w-full px-3 py-2 border rounded text-sm">
+                            <input type="text" id="new-username" placeholder="Username" required class="w-full px-3 py-2 border rounded text-sm">
+                            <input type="password" id="new-password" placeholder="Password" required class="w-full px-3 py-2 border rounded text-sm">
                             <select id="new-role" class="w-full px-3 py-2 border rounded text-sm">
                                 <option value="driver">Driver</option>
                                 <option value="admin">Admin</option>
                             </select>
-                            <select id="new-access" class="w-full px-3 py-2 border rounded text-sm">
-                                <option value="Yes">FMS Access: Yes</option>
-                                <option value="No">FMS Access: No</option>
-                            </select>
-                            <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded text-sm font-semibold hover:bg-indigo-700">Create User</button>
+                            <div class="grid grid-cols-3 gap-2 text-xs font-semibold text-gray-700 pt-1">
+                                <label><input type="checkbox" id="new-fms"> Access FMS</label>
+                                <label><input type="checkbox" id="new-roster"> Access Roster</label>
+                                <label><input type="checkbox" id="new-expenses" checked> Access Expenses</label>
+                            </div>
+                            <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded text-sm font-semibold hover:bg-indigo-700">Save User</button>
                         </form>
                     </div>
                 </div>
@@ -92,17 +92,13 @@
             <!-- TAB 2: FTS OPERATIONS -->
             <section id="tab-fts" class="tab-content hidden space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Shift Management Card -->
                     <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
                         <h2 class="text-lg font-bold text-gray-800 mb-4">Driver Shift Lifecycle</h2>
                         <div id="shift-status-box" class="mb-4 p-3 bg-gray-50 border rounded text-sm">Checking shift state...</div>
                         
                         <div id="start-shift-form" class="space-y-3">
                             <select id="shift-car-select" required class="w-full px-3 py-2 border rounded text-sm"></select>
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Start Odometer Reading</label>
-                                <input type="number" id="shift-start-odo" placeholder="Odometer KM" required class="w-full px-3 py-2 border rounded text-sm">
-                            </div>
+                            <input type="number" id="shift-start-odo" placeholder="Start Odometer KM" required class="w-full px-3 py-2 border rounded text-sm">
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600 mb-1">Odometer Photo Proof</label>
                                 <input type="file" id="shift-start-odo-img" accept="image/*" required class="w-full text-xs text-gray-500">
@@ -115,10 +111,7 @@
                         </div>
 
                         <div id="end-shift-form" class="space-y-3 hidden">
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">End Odometer Reading</label>
-                                <input type="number" id="shift-end-odo" placeholder="Closing Odometer KM" required class="w-full px-3 py-2 border rounded text-sm">
-                            </div>
+                            <input type="number" id="shift-end-odo" placeholder="Closing Odometer KM" required class="w-full px-3 py-2 border rounded text-sm">
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600 mb-1">Closing Odometer Photo Proof</label>
                                 <input type="file" id="shift-end-odo-img" accept="image/*" required class="w-full text-xs text-gray-500">
@@ -127,7 +120,6 @@
                         </div>
                     </div>
 
-                    <!-- Live Active Bookings Assigned to Driver -->
                     <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
                         <h2 class="text-lg font-bold text-gray-800 mb-4">Assigned Bookings & Trips</h2>
                         <div id="driver-trips-container" class="space-y-3">
@@ -142,7 +134,6 @@
                 <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
                     <h2 class="text-lg font-bold text-gray-800 mb-4">Create / Import Booking</h2>
                     <form onsubmit="handleAddBooking(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <!-- AI Scan Quick Fill Box -->
                         <div class="md:col-span-3 bg-amber-50 p-4 rounded-lg border border-amber-200 mb-2">
                             <label class="block text-xs font-bold text-amber-900 mb-1">⚡ Quick Fill via Booking Screenshot (AI Scan)</label>
                             <div class="flex gap-2">
@@ -151,9 +142,9 @@
                             </div>
                         </div>
 
-                        <input type="text" id="b-id" placeholder="Booking ID / Ref" required class="px-3 py-2 border rounded text-sm">
-                        <input type="text" id="b-vendor" placeholder="Vendor Name (e.g., Gozo)" required class="px-3 py-2 border rounded text-sm">
-                        <input type="text" id="b-type" placeholder="Trip Type (e.g., Airport Drop)" required class="px-3 py-2 border rounded text-sm">
+                        <input type="text" id="b-id" placeholder="Booking ID" required class="px-3 py-2 border rounded text-sm">
+                        <input type="text" id="b-vendor" placeholder="Vendor (e.g., Gozo)" required class="px-3 py-2 border rounded text-sm">
+                        <input type="text" id="b-type" placeholder="Trip Type" required class="px-3 py-2 border rounded text-sm">
                         <input type="date" id="b-date" required class="px-3 py-2 border rounded text-sm">
                         <input type="time" id="b-time" required class="px-3 py-2 border rounded text-sm">
                         <input type="text" id="b-pickup" placeholder="Pickup Location" required class="px-3 py-2 border rounded text-sm">
@@ -172,7 +163,6 @@
                     </form>
                 </div>
 
-                <!-- Bookings Table & Assignment -->
                 <div class="bg-white p-6 rounded-xl shadow border border-gray-200 overflow-x-auto">
                     <h2 class="text-lg font-bold text-gray-800 mb-4">Master Booking Roster & Assignment</h2>
                     <table class="w-full text-left border-collapse text-sm">
@@ -194,56 +184,95 @@
                 </div>
             </section>
 
-            <!-- TAB 4: EXPENSES LEDGER -->
+            <!-- TAB 4: FINANCIALS & EXPENSES -->
             <section id="tab-expenses" class="tab-content hidden space-y-6">
-                <div class="bg-white p-6 rounded-xl shadow border border-gray-200 max-w-xl mx-auto">
-                    <h2 class="text-lg font-bold text-gray-800 mb-4">Log Driver Expense (Active Shift Required)</h2>
-                    <form onsubmit="handleLogExpense(event)" class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Expense Category</label>
-                            <select id="exp-category" class="w-full px-3 py-2 border rounded text-sm" onchange="toggleReceiptRequirement()">
-                                <option value="Fuel">Fuel (Receipt Mandatory)</option>
-                                <option value="EV Charging">EV Charging (Receipt Mandatory)</option>
-                                <option value="Toll">Toll Fee</option>
-                                <option value="Parking">Parking</option>
-                                <option value="Maintenance">Maintenance</option>
-                            </select>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    
+                    <!-- Form A: Driver Shift Expense / Cash Deposit -->
+                    <div id="driver-financial-forms" class="space-y-6">
+                        <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
+                            <h2 class="text-lg font-bold text-gray-800 mb-4">Submit Shift Expense</h2>
+                            <form onsubmit="handleLogDriverExpense(event)" class="space-y-3">
+                                <select id="d-exp-cat" class="w-full px-3 py-2 border rounded text-sm">
+                                    <option value="Fuel">Fuel (Receipt Mandatory)</option>
+                                    <option value="EV Charging">EV Charging (Receipt Mandatory)</option>
+                                    <option value="Toll">Toll Fee</option>
+                                    <option value="Parking">Parking</option>
+                                    <option value="Maintenance">Maintenance</option>
+                                </select>
+                                <input type="number" id="d-exp-amt" step="0.01" placeholder="Amount ($)" required class="w-full px-3 py-2 border rounded text-sm">
+                                <input type="date" id="d-exp-date" required class="w-full px-3 py-2 border rounded text-sm">
+                                <input type="file" id="d-exp-receipt" accept="image/*" class="w-full text-xs text-gray-500">
+                                <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded text-sm font-semibold">Submit Expense</button>
+                            </form>
                         </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Amount ($)</label>
-                            <input type="number" id="exp-amount" step="0.01" placeholder="0.00" required class="w-full px-3 py-2 border rounded text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Date</label>
-                            <input type="date" id="exp-date" required class="w-full px-3 py-2 border rounded text-sm">
-                        </div>
-                        <div>
-                            <label id="receipt-label" class="block text-xs font-semibold text-gray-600 mb-1">Receipt Photo (Mandatory for Fuel/EV)</label>
-                            <input type="file" id="exp-receipt" accept="image/*" class="w-full text-xs text-gray-500">
-                        </div>
-                        <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded text-sm font-semibold hover:bg-indigo-700">Submit Expense</button>
-                    </form>
-                </div>
 
-                <!-- Expenses Audit Ledger -->
-                <div class="bg-white p-6 rounded-xl shadow border border-gray-200 overflow-x-auto">
-                    <h2 class="text-lg font-bold text-gray-800 mb-4">Expense Ledger Audit</h2>
-                    <table class="w-full text-left border-collapse text-sm">
-                        <thead>
-                            <tr class="bg-gray-100 border-b">
-                                <th class="p-2">Driver</th>
-                                <th class="p-2">Car Reg</th>
-                                <th class="p-2">Date</th>
-                                <th class="p-2">Category</th>
-                                <th class="p-2">Amount</th>
-                                <th class="p-2">Receipt</th>
-                                <th class="p-2">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="expenses-table-body">
-                            <tr><td colspan="7" class="p-4 text-center text-gray-500">Loading ledger...</td></tr>
-                        </tbody>
-                    </table>
+                        <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
+                            <h2 class="text-lg font-bold text-gray-800 mb-4">Submit Cash Deposit / Transfer</h2>
+                            <form onsubmit="handleLogCashDeposit(event)" class="space-y-3">
+                                <input type="number" id="dep-amt" step="0.01" placeholder="Amount ($)" required class="w-full px-3 py-2 border rounded text-sm">
+                                <input type="date" id="dep-date" required class="w-full px-3 py-2 border rounded text-sm">
+                                <select id="dep-mode" onchange="toggleDepositFields()" class="w-full px-3 py-2 border rounded text-sm">
+                                    <option value="Online Transfer">Online Transfer (UPI/Bank)</option>
+                                    <option value="Cash Handover">Cash Handover</option>
+                                </select>
+                                <div id="dep-recipient-wrap">
+                                    <input type="text" id="dep-paidto" placeholder="Paid To (Admin/Manager Name)" class="w-full px-3 py-2 border rounded text-sm">
+                                </div>
+                                <div id="dep-screenshot-wrap" class="hidden">
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Transfer Screenshot</label>
+                                    <input type="file" id="dep-screenshot" accept="image/*" class="w-full text-xs text-gray-500">
+                                </div>
+                                <button type="submit" class="w-full bg-green-600 text-white py-2 rounded text-sm font-semibold">Log Deposit</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Form B: Admin Direct Company Expenses -->
+                    <div id="admin-expense-form-wrap" class="bg-white p-6 rounded-xl shadow border border-gray-200">
+                        <h2 class="text-lg font-bold text-gray-800 mb-4">Log Direct Company Expense</h2>
+                        <form onsubmit="handleLogAdminExpense(event)" class="space-y-3">
+                            <select id="adm-exp-cat" class="w-full px-3 py-2 border rounded text-sm" onchange="toggleAdminCarSelector()">
+                                <option value="Vehicle Specific">Vehicle Specific Maintenance / Repair</option>
+                                <option value="Office Overhead">Office Overhead</option>
+                                <option value="Insurance / Tax">Insurance / Tax</option>
+                                <option value="Miscellaneous">Miscellaneous</option>
+                            </select>
+                            <div id="adm-car-select-wrap">
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Target Car</label>
+                                <select id="adm-target-car" class="w-full px-3 py-2 border rounded text-sm"></select>
+                            </div>
+                            <input type="number" id="adm-exp-amt" step="0.01" placeholder="Amount ($)" required class="w-full px-3 py-2 border rounded text-sm">
+                            <input type="date" id="adm-exp-date" required class="w-full px-3 py-2 border rounded text-sm">
+                            <select id="adm-payment-mode" class="w-full px-3 py-2 border rounded text-sm">
+                                <option value="Company Bank">Company Bank Transfer</option>
+                                <option value="Company Card">Company Credit/Debit Card</option>
+                                <option value="Cash">Cash Box</option>
+                            </select>
+                            <textarea id="adm-exp-notes" placeholder="Notes / Description" class="w-full px-3 py-2 border rounded text-sm"></textarea>
+                            <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded text-sm font-semibold">Record Company Expense</button>
+                        </form>
+                    </div>
+
+                    <!-- Combined Financial Audit Ledger -->
+                    <div class="md:col-span-3 bg-white p-6 rounded-xl shadow border border-gray-200 overflow-x-auto">
+                        <h2 class="text-lg font-bold text-gray-800 mb-4">Financial Audit Ledger (Expenses & Cash Deposits)</h2>
+                        <div class="space-y-4">
+                            <h3 class="text-md font-semibold text-gray-700">Driver Shift Expenses</h3>
+                            <table class="w-full text-left border-collapse text-sm mb-4">
+                                <tbody id="driver-exp-table"></tbody>
+                            </table>
+                            <h3 class="text-md font-semibold text-gray-700">Admin Direct Company Expenses</h3>
+                            <table class="w-full text-left border-collapse text-sm mb-4">
+                                <tbody id="admin-exp-table"></tbody>
+                            </table>
+                            <h3 class="text-md font-semibold text-gray-700">Cash Deposits & Settlements</h3>
+                            <table class="w-full text-left border-collapse text-sm">
+                                <tbody id="cash-dep-table"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
                 </div>
             </section>
 
@@ -252,11 +281,10 @@
 
     <!-- JavaScript Application Core -->
     <script>
-        // REPLACE WITH YOUR PUBLISHED GOOGLE APPS SCRIPT WEB APP URL
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxEqYLpD2NjelmB3z73neQXA096CuApC4YeG48DW1qmQHJWjaNVxvWgJ61HHfBb-esD/exec";
+        const WEB_APP_URL = "YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
 
         let currentUser = null;
-        let globalData = { users: [], cars: [], shifts: [], vendors: [], bookings: [], expenses: [] };
+        let globalData = { users: [], cars: [], shifts: [], bookings: [], driverExpenses: [], adminExpenses: [], cashDeposits: [] };
 
         function showBanner(message, bgColor = "bg-indigo-600", duration = 4000) {
             const banner = document.getElementById("app-banner");
@@ -280,9 +308,9 @@
                     localStorage.setItem("fleet_user", JSON.stringify(currentUser));
                     initApp();
                 } else if (data.status === "inactive") {
-                    alert("Account is inactive. Contact administrator.");
+                    alert("Account is inactive.");
                 } else {
-                    alert("Invalid username or password.");
+                    alert("Invalid credentials.");
                 }
             } catch (err) {
                 alert("Login connection error: " + err.message);
@@ -309,8 +337,20 @@
             document.getElementById("app-view").classList.remove("hidden");
             document.getElementById("user-welcome").textContent = `${currentUser.username} (${currentUser.role.toUpperCase()})`;
             
-            if (currentUser.role === "driver") {
-                document.querySelector('[onclick="switchTab(\'fms\')"]').style.display = "none";
+            // Apply Spreadsheet RBAC Matrix
+            const fmsTab = document.getElementById("tab-btn-fms");
+            const rosterTab = document.getElementById("tab-btn-roster");
+            const expTab = document.getElementById("tab-btn-expenses");
+
+            fmsTab.style.display = currentUser.accessFMS ? "block" : "none";
+            rosterTab.style.display = currentUser.accessRoster ? "block" : "none";
+            expTab.style.display = currentUser.accessExpenses ? "block" : "none";
+
+            // Hide Admin direct expense form for drivers
+            const adminExpForm = document.getElementById("admin-expense-form-wrap");
+            adminExpForm.style.display = (currentUser.role.toLowerCase() === "driver") ? "none" : "block";
+
+            if (currentUser.role.toLowerCase() === "driver") {
                 switchTab('fts');
             } else {
                 switchTab('fms');
@@ -365,28 +405,21 @@
                         canvas.width = w; canvas.height = h;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, w, h);
-                        try {
-                            resolve(canvas.toDataURL('image/jpeg', quality));
-                        } catch (err) { reject(err); }
+                        resolve(canvas.toDataURL('image/jpeg', quality));
                     };
-                    img.onerror = (err) => reject(new Error("Image load failure"));
                     img.src = e.target.result;
                 };
-                reader.onerror = (err) => reject(new Error("File read failure"));
                 reader.readAsDataURL(file);
             });
         }
 
         async function handleScanBookingScreenshot() {
             const fileInput = document.getElementById('scan-screenshot-file');
-            if (!fileInput.files || !fileInput.files[0]) {
-                alert("Please select a booking screenshot first.");
-                return;
-            }
-            showBanner("Scanning screenshot with AI...", "bg-amber-600", 10000);
+            if (!fileInput.files || !fileInput.files[0]) { alert("Select screenshot first."); return; }
+            showBanner("Scanning with AI...", "bg-amber-600", 10000);
             try {
-                const base64Data = await compressImageFile(fileInput.files[0], 1000, 0.7);
-                const res = await apiCall("scanBookingImage", { screenshotData: base64Data });
+                const base64 = await compressImageFile(fileInput.files[0], 1000, 0.7);
+                const res = await apiCall("scanBookingImage", { screenshotData: base64 });
                 if (res.status === "success" && res.data) {
                     const d = res.data;
                     if (d.bookingId) document.getElementById('b-id').value = d.bookingId;
@@ -398,18 +431,9 @@
                     if (d.drop) document.getElementById('b-drop').value = d.drop;
                     if (d.companyFare) document.getElementById('b-company-fare').value = d.companyFare;
                     if (d.driverFare) document.getElementById('b-driver-fare').value = d.driverFare;
-                    if (d.paymentMode) document.getElementById('b-payment-mode').value = d.paymentMode;
-                    if (d.cashToCollect) document.getElementById('b-cash-collect').value = d.cashToCollect;
-
-                    showBanner("Booking details extracted successfully!", "bg-green-600", 3000);
-                } else {
-                    alert("Scan failed: " + (res.message || "Unknown error"));
-                    showBanner("Scan failed.", "bg-red-600", 2000);
-                }
-            } catch (err) {
-                alert("Error scanning image: " + err.message);
-                showBanner("Scan error.", "bg-red-600", 2000);
-            }
+                    showBanner("Extracted successfully!", "bg-green-600", 3000);
+                } else { alert("Scan failed."); }
+            } catch (err) { alert("Error: " + err.message); }
         }
 
         async function handleRegisterCar(e) {
@@ -431,7 +455,9 @@
                 password: document.getElementById("new-password").value.trim(),
                 role: document.getElementById("new-role").value,
                 status: "active",
-                accessFMS: document.getElementById("new-access").value
+                accessFMS: document.getElementById("new-fms").checked,
+                accessRoster: document.getElementById("new-roster").checked,
+                accessExpenses: document.getElementById("new-expenses").checked
             });
             alert(res.message);
             if (res.status === "success") { e.target.reset(); fetchDatabase(); }
@@ -442,63 +468,24 @@
             const startOdo = document.getElementById("shift-start-odo").value;
             const odoFile = document.getElementById("shift-start-odo-img").files[0];
             const selfieFile = document.getElementById("shift-selfie-img").files[0];
+            if (!carReg || !startOdo || !odoFile || !selfieFile) { alert("Fill all shift details."); return; }
 
-            if (!carReg || !startOdo || !odoFile || !selfieFile) {
-                alert("Please fill all shift details and attach both photos.");
-                return;
-            }
-
-            showBanner("Processing shift start...", "bg-blue-600", 15000);
-            try {
-                const odoData = await compressImageFile(odoFile);
-                const selfieData = await compressImageFile(selfieFile);
-                const now = new Date();
-
-                const res = await apiCall("startShift", {
-                    driver: currentUser.username,
-                    regNumber: carReg,
-                    date: now.toISOString().split('T')[0],
-                    startTime: now.toLocaleTimeString(),
-                    startOdometer: startOdo,
-                    startTimestamp: now.toISOString(),
-                    odoPhotoData: odoData,
-                    selfieData: selfieData
-                });
-
-                alert(res.message);
-                fetchDatabase();
-            } catch (err) {
-                alert("Error starting shift: " + err.message);
-            }
+            showBanner("Starting shift...", "bg-blue-600", 15000);
+            const now = new Date();
+            const res = await apiCall("startShift", {
+                driver: currentUser.username, regNumber: carReg,
+                date: now.toISOString().split('T')[0], startTime: now.toLocaleTimeString(), startOdometer: startOdo
+            });
+            alert(res.message);
+            fetchDatabase();
         }
 
         async function handleEndShift() {
             const endOdo = document.getElementById("shift-end-odo").value;
-            const endOdoFile = document.getElementById("shift-end-odo-img").files[0];
-
-            if (!endOdo || !endOdoFile) {
-                alert("Please provide closing odometer and photo.");
-                return;
-            }
-
-            showBanner("Processing shift close...", "bg-blue-600", 15000);
-            try {
-                const endOdoData = await compressImageFile(endOdoFile);
-                const now = new Date();
-
-                const res = await apiCall("endShift", {
-                    driver: currentUser.username,
-                    endTime: now.toLocaleTimeString(),
-                    endOdometer: endOdo,
-                    endTimestamp: now.toISOString(),
-                    endOdoPhotoData: endOdoData
-                });
-
-                alert(res.message);
-                fetchDatabase();
-            } catch (err) {
-                alert("Error ending shift: " + err.message);
-            }
+            const now = new Date();
+            const res = await apiCall("endShift", { driver: currentUser.username, endTime: now.toLocaleTimeString(), endOdometer: endOdo });
+            alert(res.message);
+            fetchDatabase();
         }
 
         async function handleAddBooking(e) {
@@ -522,11 +509,10 @@
         }
 
         async function assignDriver(bookingId) {
-            const driver = prompt("Enter Driver Username for assignment:");
+            const driver = prompt("Enter Driver Username:");
             if (!driver) return;
-            const car = prompt("Enter Car Registration Number:");
+            const car = prompt("Enter Car Reg Number:");
             if (!car) return;
-
             const res = await apiCall("assignBookingDriver", { bookingId, assignedDriver: driver, assignedCar: car });
             alert(res.message);
             fetchDatabase();
@@ -539,84 +525,105 @@
         }
 
         async function closeTrip(bookingId) {
-            const collected = prompt("Enter Cash Collected (if any):", "0");
-            const res = await apiCall("closeTrip", { bookingId, collectedCash: collected });
+            const res = await apiCall("closeTrip", { bookingId });
             alert(res.message);
             fetchDatabase();
         }
 
-        function toggleReceiptRequirement() {
-            const cat = document.getElementById("exp-category").value;
-            const label = document.getElementById("receipt-label");
-            if (cat === "Fuel" || cat === "EV Charging") {
-                label.textContent = "Receipt Photo (Mandatory for Fuel/EV)";
+        async function handleLogDriverExpense(e) {
+            e.preventDefault();
+            const cat = document.getElementById("d-exp-cat").value;
+            const file = document.getElementById("d-exp-receipt").files[0];
+            if ((cat === "Fuel" || cat === "EV Charging") && !file) { alert("Receipt required for Fuel/EV."); return; }
+            
+            const res = await apiCall("addDriverExpense", {
+                driver: currentUser.username, category: cat,
+                amount: document.getElementById("d-exp-amt").value,
+                date: document.getElementById("d-exp-date").value,
+                receiptProvided: !!file, requiresApproval: !file && (cat === "Fuel" || cat === "EV")
+            });
+            alert(res.message);
+            if (res.status === "success") { e.target.reset(); fetchDatabase(); }
+        }
+
+        function toggleDepositFields() {
+            const mode = document.getElementById("dep-mode").value;
+            if (mode === "Online Transfer") {
+                document.getElementById("dep-recipient-wrap").classList.add("hidden");
+                document.getElementById("dep-screenshot-wrap").classList.remove("hidden");
             } else {
-                label.textContent = "Receipt Photo (Optional)";
+                document.getElementById("dep-recipient-wrap").classList.remove("hidden");
+                document.getElementById("dep-screenshot-wrap").classList.add("hidden");
             }
         }
 
-        async function handleLogExpense(e) {
+        async function handleLogCashDeposit(e) {
             e.preventDefault();
-            const cat = document.getElementById("exp-category").value;
-            const receiptFile = document.getElementById("exp-receipt").files[0];
+            const mode = document.getElementById("dep-mode").value;
+            const paidTo = document.getElementById("dep-paidto").value;
+            if (mode === "Cash Handover" && !paidTo) { alert("Specify who received the cash."); return; }
 
-            if ((cat === "Fuel" || cat === "EV Charging") && !receiptFile) {
-                alert("Receipt photo is mandatory for Fuel and EV Charging expenses!");
-                return;
-            }
+            const res = await apiCall("addCashDeposit", {
+                driverName: currentUser.username,
+                amount: document.getElementById("dep-amt").value,
+                date: document.getElementById("dep-date").value,
+                paymentMode: mode, paidTo: paidTo
+            });
+            alert(res.message);
+            if (res.status === "success") { e.target.reset(); fetchDatabase(); }
+        }
 
-            showBanner("Submitting expense...", "bg-blue-600", 10000);
-            try {
-                const receiptData = receiptFile ? await compressImageFile(receiptFile) : "";
-                const requiresApproval = (!receiptFile && (cat === "Fuel" || cat === "EV Charging"));
+        function toggleAdminCarSelector() {
+            const cat = document.getElementById("adm-exp-cat").value;
+            const wrap = document.getElementById("adm-car-select-wrap");
+            wrap.style.display = (cat === "Vehicle Specific") ? "block" : "none";
+        }
 
-                const res = await apiCall("addExpense", {
-                    driver: currentUser.username,
-                    category: cat,
-                    amount: document.getElementById("exp-amount").value,
-                    date: document.getElementById("exp-date").value,
-                    receiptData: receiptData,
-                    requiresApproval: requiresApproval
-                });
-
-                alert(res.message);
-                if (res.status === "success") { e.target.reset(); fetchDatabase(); }
-            } catch (err) {
-                alert("Error logging expense: " + err.message);
-            }
+        async function handleLogAdminExpense(e) {
+            e.preventDefault();
+            const res = await apiCall("addAdminExpense", {
+                adminName: currentUser.username,
+                category: document.getElementById("adm-exp-cat").value,
+                targetCar: document.getElementById("adm-target-car").value || "General / Company",
+                amount: document.getElementById("adm-exp-amt").value,
+                date: document.getElementById("adm-exp-date").value,
+                paymentMode: document.getElementById("adm-payment-mode").value,
+                notes: document.getElementById("adm-exp-notes").value
+            });
+            alert(res.message);
+            if (res.status === "success") { e.target.reset(); fetchDatabase(); }
         }
 
         function renderDashboardData() {
-            // Render car select options
+            // Render car dropdowns
             const carSelect = document.getElementById("shift-car-select");
+            const admCarSelect = document.getElementById("adm-target-car");
             carSelect.innerHTML = '<option value="">Select Car</option>';
+            admCarSelect.innerHTML = '<option value="General">General / Company</option>';
             globalData.cars.forEach(c => {
                 carSelect.innerHTML += `<option value="${c.reg}">${c.reg} - ${c.desc}</option>`;
+                admCarSelect.innerHTML += `<option value="${c.reg}">${c.reg}</option>`;
             });
 
-            // Check active shift for current user
+            // Shift status
             const activeShift = globalData.shifts.find(s => s.driver.toLowerCase() === currentUser.username.toLowerCase() && s.status.toLowerCase() === "active");
             const statusBox = document.getElementById("shift-status-box");
-            const startForm = document.getElementById("start-shift-form");
-            const endForm = document.getElementById("end-shift-form");
-
             if (activeShift) {
-                statusBox.innerHTML = `<span class="text-green-600 font-bold">● ACTIVE SHIFT</span><br>Car: ${activeShift.regNumber} | Start Odo: ${activeShift.startOdometer} km | Started: ${activeShift.startTime}`;
-                startForm.classList.add("hidden");
-                endForm.classList.remove("hidden");
+                statusBox.innerHTML = `<span class="text-green-600 font-bold">● ACTIVE SHIFT</span><br>Car: ${activeShift.regNumber} | Start Odo: ${activeShift.startOdometer} km`;
+                document.getElementById("start-shift-form").classList.add("hidden");
+                document.getElementById("end-shift-form").classList.remove("hidden");
             } else {
-                statusBox.innerHTML = `<span class="text-gray-500 font-semibold">No active shift. Start your shift below.</span>`;
-                startForm.classList.remove("hidden");
-                endForm.classList.add("hidden");
+                statusBox.innerHTML = `<span class="text-gray-500 font-semibold">No active shift.</span>`;
+                document.getElementById("start-shift-form").classList.remove("hidden");
+                document.getElementById("end-shift-form").classList.add("hidden");
             }
 
-            // Render Driver Assigned Trips
+            // Driver trips
             const tripsContainer = document.getElementById("driver-trips-container");
             tripsContainer.innerHTML = "";
             const myBookings = globalData.bookings.filter(b => b.assignedDriver.toLowerCase() === currentUser.username.toLowerCase() && b.status !== "Completed");
-            
             if (myBookings.length === 0) {
-                tripsContainer.innerHTML = `<p class="text-sm text-gray-500">No active bookings assigned to you.</p>`;
+                tripsContainer.innerHTML = `<p class="text-sm text-gray-500">No active assigned trips.</p>`;
             } else {
                 myBookings.forEach(b => {
                     tripsContainer.innerHTML += `
@@ -625,62 +632,40 @@
                             <div>Route: ${b.pickup} ➔ ${b.drop}</div>
                             <div>Status: <span class="font-semibold">${b.status}</span></div>
                             <div class="flex gap-2 pt-1">
-                                ${b.status === "Assigned" ? `<button onclick="startTrip('${b.bookingId}')" class="bg-blue-600 text-white px-3 py-1 rounded text-xs font-semibold">Start Trip</button>` : ""}
-                                ${b.status === "In Progress" ? `<button onclick="closeTrip('${b.bookingId}')" class="bg-green-600 text-white px-3 py-1 rounded text-xs font-semibold">Complete Trip</button>` : ""}
+                                ${b.status === "Assigned" ? `<button onclick="startTrip('${b.bookingId}')" class="bg-blue-600 text-white px-3 py-1 rounded text-xs">Start Trip</button>` : ""}
+                                ${b.status === "In Progress" ? `<button onclick="closeTrip('${b.bookingId}')" class="bg-green-600 text-white px-3 py-1 rounded text-xs">Complete Trip</button>` : ""}
                             </div>
                         </div>
                     `;
                 });
             }
 
-            // Render Booking Roster Table
+            // Booking roster
             const rosterBody = document.getElementById("roster-table-body");
             rosterBody.innerHTML = "";
-            if (globalData.bookings.length === 0) {
-                rosterBody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500">No bookings in roster.</td></tr>`;
-            } else {
-                globalData.bookings.forEach(b => {
-                    rosterBody.innerHTML += `
-                        <tr class="border-b hover:bg-gray-50">
-                            <td class="p-2 font-semibold">${b.bookingId}<br><span class="text-xs text-gray-500">${b.vendor}</span></td>
-                            <td class="p-2 text-xs">${b.date}<br>${b.startTime}</td>
-                            <td class="p-2 text-xs">${b.pickup} ➔ ${b.drop}</td>
-                            <td class="p-2 text-xs">Comp: $${b.companyFare}<br>Driver: $${b.driverFare}</td>
-                            <td class="p-2"><span class="px-2 py-1 rounded text-xs font-semibold bg-blue-100 text-blue-800">${b.status}</span></td>
-                            <td class="p-2 text-xs">Driver: ${b.assignedDriver || 'Unassigned'}<br>Car: ${b.assignedCar || 'Unassigned'}</td>
-                            <td class="p-2">
-                                ${b.status === "Pending" ? `<button onclick="assignDriver('${b.bookingId}')" class="bg-indigo-600 text-white px-2 py-1 rounded text-xs">Assign</button>` : "-"}
-                            </td>
-                        </tr>
-                    `;
-                });
-            }
+            globalData.bookings.forEach(b => {
+                rosterBody.innerHTML += `
+                    <tr class="border-b hover:bg-gray-50 text-xs">
+                        <td class="p-2 font-semibold">${b.bookingId}<br>${b.vendor}</td>
+                        <td class="p-2">${b.date}<br>${b.startTime}</td>
+                        <td class="p-2">${b.pickup} ➔ ${b.drop}</td>
+                        <td class="p-2">Comp: $${b.companyFare}<br>Driver: $${b.driverFare}</td>
+                        <td class="p-2"><span class="px-2 py-1 bg-blue-100 text-blue-800 rounded">${b.status}</span></td>
+                        <td class="p-2">Driver: ${b.assignedDriver || '-'}<br>Car: ${b.assignedCar || '-'}</td>
+                        <td class="p-2">${b.status === "Pending" ? `<button onclick="assignDriver('${b.bookingId}')" class="bg-indigo-600 text-white px-2 py-1 rounded">Assign</button>` : "-"}</td>
+                    </tr>
+                `;
+            });
 
-            // Render Expenses Ledger Table
-            const expBody = document.getElementById("expenses-table-body");
-            expBody.innerHTML = "";
-            const filteredExpenses = currentUser.role === "driver" 
-                ? globalData.expenses.filter(e => e.DriverName.toLowerCase() === currentUser.username.toLowerCase())
-                : globalData.expenses;
+            // Financial Ledgers
+            const dExp = currentUser.role === "driver" ? globalData.driverExpenses.filter(e => e.DriverName.toLowerCase() === currentUser.username.toLowerCase()) : globalData.driverExpenses;
+            document.getElementById("driver-exp-table").innerHTML = dExp.length ? dExp.map(e => `<tr class="border-b"><td class="p-2">${e.DriverName}</td><td class="p-2">${e.Category}</td><td class="p-2 font-bold">$${e.Amount}</td><td class="p-2">${e.Status}</td></tr>`).join('') : `<tr><td class="p-2 text-gray-500">No records</td></tr>`;
 
-            if (filteredExpenses.length === 0) {
-                expBody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500">No expense records found.</td></tr>`;
-            } else {
-                filteredExpenses.forEach(e => {
-                    const receiptLink = e.ReceiptURL && e.ReceiptURL.startsWith('http') ? `<a href="${e.ReceiptURL}" target="_blank" class="text-indigo-600 underline">View</a>` : 'None';
-                    expBody.innerHTML += `
-                        <tr class="border-b hover:bg-gray-50">
-                            <td class="p-2 font-semibold">${e.DriverName}</td>
-                            <td class="p-2">${e.RegNumber}</td>
-                            <td class="p-2 text-xs">${e.Date}</td>
-                            <td class="p-2">${e.Category}</td>
-                            <td class="p-2 font-bold">$${e.Amount}</td>
-                            <td class="p-2">${receiptLink}</td>
-                            <td class="p-2"><span class="px-2 py-1 rounded text-xs font-semibold bg-gray-100">${e.Status}</span></td>
-                        </tr>
-                    `;
-                });
-            }
+            const aExp = globalData.adminExpenses;
+            document.getElementById("admin-exp-table").innerHTML = aExp.length ? aExp.map(e => `<tr class="border-b"><td class="p-2">${e.adminName}</td><td class="p-2">${e.category} (${e.targetCar})</td><td class="p-2 font-bold">$${e.amount}</td><td class="p-2 text-xs">${e.notes}</td></tr>`).join('') : `<tr><td class="p-2 text-gray-500">No records</td></tr>`;
+
+            const cDep = currentUser.role === "driver" ? globalData.cashDeposits.filter(d => d.driverName.toLowerCase() === currentUser.username.toLowerCase()) : globalData.cashDeposits;
+            document.getElementById("cash-dep-table").innerHTML = cDep.length ? cDep.map(d => `<tr class="border-b"><td class="p-2">${d.driverName}</td><td class="p-2">$${d.amount} (${d.paymentMode})</td><td class="p-2 text-xs">Paid To: ${d.paidTo}</td><td class="p-2"><span class="px-2 py-1 bg-gray-100 rounded">${d.status}</span></td></tr>`).join('') : `<tr><td class="p-2 text-gray-500">No records</td></tr>`;
         }
     </script>
 </body>
