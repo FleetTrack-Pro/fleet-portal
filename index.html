@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fleet Management & Tracking System (FMS/FTS)</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
 </head>
 <body class="bg-gray-100 text-gray-900 font-sans min-h-screen">
 
@@ -278,7 +278,7 @@
 
     <!-- JavaScript Application Core -->
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxEqYLpD2NjelmB3z73neQXA096CuApC4YeG48DW1qmQHJWjaNVxvWgJ61HHfBb-esD/exec";
+        const WEB_APP_URL = "[https://script.google.com/macros/s/AKfycbxEqYLpD2NjelmB3z73neQXA096CuApC4YeG48DW1qmQHJWjaNVxvWgJ61HHfBb-esD/exec](https://script.google.com/macros/s/AKfycbxEqYLpD2NjelmB3z73neQXA096CuApC4YeG48DW1qmQHJWjaNVxvWgJ61HHfBb-esD/exec)";
 
         let currentUser = null;
         let globalData = { users: [], cars: [], shifts: [], bookings: [], driverExpenses: [], adminExpenses: [], cashDeposits: [] };
@@ -427,7 +427,7 @@
                     if (d.companyFare) document.getElementById('b-company-fare').value = d.companyFare;
                     if (d.driverFare) document.getElementById('b-driver-fare').value = d.driverFare;
                     showBanner("Extracted successfully!", "bg-green-600", 3000);
-                } else { alert("Scan failed."); }
+                } else { alert("Scan failed: " + (res.message || "Unknown error")); }
             } catch (err) { alert("Error: " + err.message); }
         }
 
