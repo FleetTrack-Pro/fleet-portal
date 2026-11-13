@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fleet Management & Tracking System (FMS / FTS)</title>
+    <title>Fleet Management & Tracking System (FMS/FTS)</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome Icons -->
@@ -18,166 +18,192 @@
 </head>
 <body>
 
-    <div class="container-fluid">
+    <!-- ==================== LOGIN SCREEN ==================== -->
+    <div id="login-screen" class="container mt-5" style="max-width: 450px;">
+        <div class="card p-4 shadow">
+            <h3 class="text-center mb-4"><i class="fas fa-truck-fast text-primary me-2"></i>Fleet Portal Login</h3>
+            <div class="mb-3">
+                <label class="form-label">Username / Driver ID</label>
+                <input type="text" id="login-username" class="form-control" placeholder="e.g. driver_john or admin">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Role</label>
+                <select id="login-role" class="form-control">
+                    <option value="Driver">Driver</option>
+                    <option value="Admin">Administrator</option>
+                </select>
+            </div>
+            <button class="btn btn-primary w-100 py-2" onclick="handleLogin()">Login to Portal</button>
+        </div>
+    </div>
+
+    <!-- ==================== MAIN DASHBOARD ==================== -->
+    <div id="main-dashboard" class="container-fluid d-none">
         <div class="row">
             <!-- Sidebar Navigation -->
             <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse p-3">
-                <h4 class="text-white mb-4"><i class="fas fa-truck-fast me-2"></i>Fleet Portal</h4>
+                <h4 class="text-white mb-3"><i class="fas fa-truck-fast me-2"></i>Fleet Portal</h4>
+                <div class="mb-4 text-warning small">
+                    <i class="fas fa-user-circle me-1"></i> <span id="user-display">User</span> (<span id="role-display">Role</span>)
+                </div>
                 <ul class="nav flex-column">
-                    <li class="nav-item"><a href="#" class="nav-link active" onclick="switchTab('booking-tab', this)"><i class="fas fa-file-invoice-dollar me-2"></i>Booking Roster</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link active" onclick="switchTab('shift-tab', this)"><i class="fas fa-clock me-2"></i>Shift Control</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link" onclick="switchTab('roster-tab', this)"><i class="fas fa-list-alt me-2"></i>Booking Roster</a></li>
                     <li class="nav-item"><a href="#" class="nav-link" onclick="switchTab('expense-tab', this)"><i class="fas fa-receipt me-2"></i>Expense Audit</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link" onclick="switchTab('admin-tab', this)"><i class="fas fa-cogs me-2"></i>FMS Admin</a></li>
+                    <li class="nav-item admin-only"><a href="#" class="nav-link" onclick="switchTab('admin-tab', this)"><i class="fas fa-cogs me-2"></i>FMS Admin</a></li>
+                    <li class="nav-item mt-4"><a href="#" class="nav-link text-danger" onclick="handleLogout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
                 </ul>
             </nav>
 
-            <!-- Main Content Area -->
+            <!-- Content Area -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
-                
-                <!-- Status Banner -->
                 <div id="system-banner" class="alert alert-info d-none" role="alert"></div>
 
-                <!-- ==================== TAB 1: BOOKING & ROSTER ==================== -->
-                <div id="booking-tab" class="content-section">
+                <!-- TAB 1: SHIFT CONTROL -->
+                <div id="shift-tab" class="content-section">
                     <div class="card p-4 mb-4">
-                        <h4 class="mb-3 text-primary"><i class="fas fa-file-invoice-dollar me-2"></i>Create / Import Booking</h4>
+                        <h4 class="mb-3 text-primary"><i class="fas fa-clock me-2"></i>Driver Shift Management</h4>
+                        <p class="text-muted">Start your shift to begin receiving booking assignments, and end your shift to wrap up daily logs.</p>
+                        <div class="p-4 bg-light rounded border text-center">
+                            <h5 id="shift-status-text" class="mb-3 text-danger"><i class="fas fa-circle me-1"></i> Shift Status: OFFLINE</h5>
+                            <button id="btn-start-shift" class="btn btn-success btn-lg px-5 me-2" onclick="toggleShift(true)"><i class="fas fa-play me-2"></i>Start Shift</button>
+                            <button id="btn-end-shift" class="btn btn-danger btn-lg px-5 d-none" onclick="toggleShift(false)"><i class="fas fa-stop me-2"></i>End Shift</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: BOOKING ROSTER & ASSIGNMENTS -->
+                <div id="roster-tab" class="content-section d-none">
+                    <div class="card p-4 mb-4">
+                        <h4 class="mb-3 text-primary"><i class="fas fa-list-alt me-2"></i>Master Booking Roster & Assignments</h4>
                         
-                        <!-- Quick-Fill Template Selector -->
-                        <div class="mb-3 p-3 bg-light rounded border">
+                        <!-- Quick Template Selector -->
+                        <div class="mb-3 p-3 bg-light rounded border admin-only">
                             <label class="form-label fw-bold text-muted small"><i class="fas fa-bolt me-1 text-warning"></i> Quick-Fill Template Selector</label>
                             <select id="quick-template" class="form-select form-select-sm" onchange="applyBookingTemplate(this.value)">
                                 <option value="">-- Choose Aggregator Template --</option>
                                 <option value="Gozo">Gozo Intercity Standard</option>
                                 <option value="Uber">Uber Fleet Corporate</option>
                                 <option value="Ola">Ola Outstation</option>
-                                <option value="Direct">Direct Client / Corporate</option>
                             </select>
                         </div>
 
-                        <form id="booking-form" onsubmit="handleSaveBooking(event)">
+                        <form id="booking-form" class="admin-only mb-4" onsubmit="handleSaveBooking(event)">
                             <div class="row g-3">
-                                <div class="col-md-4">
-                                    <label class="form-label">Booking ID</label>
-                                    <input type="text" id="b-id" class="form-control" required placeholder="e.g. GZO-89321">
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Vendor / Aggregator</label>
-                                    <input type="text" id="b-vendor" class="form-control" required placeholder="e.g. Gozo">
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Trip Type</label>
-                                    <select id="b-type" class="form-control" required>
-                                        <option value="One-Way">One-Way Outstation</option>
-                                        <option value="Round-Trip">Round-Trip</option>
-                                        <option value="Local Rental">Local Rental</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Date</label>
-                                    <input type="date" id="b-date" class="form-control" required>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Start Time</label>
-                                    <input type="time" id="b-time" class="form-control" required>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Payment Mode</label>
-                                    <select id="b-payment" class="form-control">
-                                        <option value="Online / Pre-paid">Online / Pre-paid</option>
-                                        <option value="Cash on Delivery">Cash on Delivery</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Pickup Location</label>
-                                    <input type="text" id="b-pickup" class="form-control" required placeholder="e.g. Airport T2">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Drop Location</label>
-                                    <input type="text" id="b-drop" class="form-control" required placeholder="e.g. City Center Hotel">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Company Fare ($)</label>
-                                    <input type="number" step="0.01" id="b-company-fare" class="form-control" required placeholder="0.00">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Driver Payout ($)</label>
-                                    <input type="number" step="0.01" id="b-driver-fare" class="form-control" required placeholder="0.00">
-                                </div>
+                                <div class="col-md-4"><label class="form-label">Booking ID</label><input type="text" id="b-id" class="form-control" required></div>
+                                <div class="col-md-4"><label class="form-label">Vendor</label><input type="text" id="b-vendor" class="form-control" required></div>
+                                <div class="col-md-4"><label class="form-label">Trip Type</label><select id="b-type" class="form-control"><option value="One-Way">One-Way</option><option value="Round-Trip">Round-Trip</option></select></div>
+                                <div class="col-md-4"><label class="form-label">Date</label><input type="date" id="b-date" class="form-control" required></div>
+                                <div class="col-md-4"><label class="form-label">Pickup</label><input type="text" id="b-pickup" class="form-control" required></div>
+                                <div class="col-md-4"><label class="form-label">Drop</label><input type="text" id="b-drop" class="form-control" required></div>
+                                <div class="col-md-6"><label class="form-label">Company Fare ($)</label><input type="number" step="0.01" id="b-company-fare" class="form-control" required></div>
+                                <div class="col-md-6"><label class="form-label">Driver Payout ($)</label><input type="number" step="0.01" id="b-driver-fare" class="form-control" required></div>
                             </div>
-                            <div class="mt-4 text-end">
-                                <button type="submit" class="btn btn-primary px-4"><i class="fas fa-save me-1"></i> Save Booking to Roster</button>
-                            </div>
+                            <div class="mt-3 text-end"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Add Booking</button></div>
                         </form>
+
+                        <hr>
+                        <h5 class="mb-3">Active Bookings Roster</h5>
+                        <div class="table-responsive">
+                            <table class="table table-striped align-middle" id="roster-table">
+                                <thead>
+                                    <tr><th>ID</th><th>Vendor</th><th>Date</th><th>Route</th><th>Fare</th><th>Status</th></tr>
+                                </thead>
+                                <tbody id="roster-tbody">
+                                    <tr><td colspan="6" class="text-center text-muted">Loading bookings...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
-                <!-- ==================== TAB 2: EXPENSE & AUDIT ==================== -->
+                <!-- TAB 3: EXPENSE & RECEIPT AUDIT -->
                 <div id="expense-tab" class="content-section d-none">
                     <div class="card p-4 shadow-sm">
                         <h4 class="mb-3 text-success"><i class="fas fa-receipt me-2"></i>Driver Expense & Receipt Audit</h4>
                         <form id="expense-form" onsubmit="handleLogDriverExpense(event)">
                             <div class="row g-3">
                                 <div class="col-md-4">
-                                    <label class="form-label">Expense Category</label>
+                                    <label class="form-label">Category</label>
                                     <select id="d-exp-cat" class="form-control" required>
                                         <option value="Fuel">Fuel (Receipt Mandatory)</option>
                                         <option value="EV Charging">EV Charging (Receipt Mandatory)</option>
                                         <option value="Toll">Toll Fee</option>
                                         <option value="Parking">Parking</option>
-                                        <option value="Maintenance">Maintenance / Repairs</option>
                                     </select>
                                 </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Amount ($)</label>
-                                    <input type="number" step="0.01" id="d-exp-amt" class="form-control" required placeholder="0.00">
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Expense Date</label>
-                                    <input type="date" id="d-exp-date" class="form-control" required>
-                                </div>
+                                <div class="col-md-4"><label class="form-label">Amount ($)</label><input type="number" step="0.01" id="d-exp-amt" class="form-control" required></div>
+                                <div class="col-md-4"><label class="form-label">Date</label><input type="date" id="d-exp-date" class="form-control" required></div>
                                 <div class="col-md-12">
-                                    <label class="form-label fw-bold text-dark">Upload Receipt / Invoice Image (Audit Proof)</label>
+                                    <label class="form-label fw-bold">Upload Receipt Image (Audit Proof)</label>
                                     <input type="file" id="d-exp-receipt" class="form-control" accept="image/*">
-                                    <div class="form-text text-muted">Mandatory for Fuel & EV Charging audit compliance. Captured directly for admin ledger verification.</div>
                                 </div>
                             </div>
-                            <div class="mt-4 text-end">
-                                <button type="submit" class="btn btn-success px-4"><i class="fas fa-check-circle me-1"></i> Submit Expense for Audit</button>
-                            </div>
+                            <div class="mt-4 text-end"><button type="submit" class="btn btn-success px-4"><i class="fas fa-check-circle me-1"></i> Submit Expense</button></div>
                         </form>
                     </div>
                 </div>
 
-                <!-- ==================== TAB 3: ADMIN ==================== -->
+                <!-- TAB 4: FMS ADMIN -->
                 <div id="admin-tab" class="content-section d-none">
                     <div class="card p-4 shadow-sm">
-                        <h4 class="mb-3 text-dark"><i class="fas fa-cogs me-2"></i>FMS Admin Configuration</h4>
-                        <p class="text-muted">Manage system settings, web app backend endpoints, and master configurations here.</p>
+                        <h4 class="mb-3 text-dark"><i class="fas fa-cogs me-2"></i>FMS Settings</h4>
                         <div class="mb-3">
                             <label class="form-label">Google Apps Script Web App URL</label>
                             <input type="text" id="config-webapp-url" class="form-control" placeholder="https://script.google.com/macros/s/.../exec">
                         </div>
-                        <button class="btn btn-dark" onclick="saveConfiguration()">Save Settings</button>
+                        <button class="btn btn-dark" onclick="saveConfiguration()">Save Web App URL</button>
                     </div>
                 </div>
-
             </main>
         </div>
     </div>
 
-    <!-- Bootstrap & JS Logic -->
+    <!-- Bootstrap & Logic Script -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Replace with your deployed Google Apps Script Web App URL
-        const WEB_APP_URL = localStorage.getItem("FMS_WEB_APP_URL") || "YOUR_APPS_SCRIPT_WEB_APP_URL";
-        let currentUser = { username: "AdminDriver" };
+        let currentUser = JSON.parse(localStorage.getItem("FMS_USER")) || null;
+        let WEB_APP_URL = localStorage.getItem("FMS_WEB_APP_URL") || "";
 
         document.addEventListener("DOMContentLoaded", () => {
-            document.getElementById('config-webapp-url').value = WEB_APP_URL;
-            // Set default date fields to today
+            if (currentUser) {
+                appInit();
+            }
             const today = new Date().toISOString().split('T')[0];
             if(document.getElementById('b-date')) document.getElementById('b-date').value = today;
             if(document.getElementById('d-exp-date')) document.getElementById('d-exp-date').value = today;
+            if(document.getElementById('config-webapp-url')) document.getElementById('config-webapp-url').value = WEB_APP_URL;
         });
+
+        function handleLogin() {
+            const username = document.getElementById('login-username').value.trim();
+            const role = document.getElementById('login-role').value;
+            if (!username) { alert("Please enter a username."); return; }
+            currentUser = { username, role };
+            localStorage.setItem("FMS_USER", JSON.stringify(currentUser));
+            appInit();
+        }
+
+        function handleLogout() {
+            localStorage.removeItem("FMS_USER");
+            currentUser = null;
+            document.getElementById('main-dashboard').classList.add('d-none');
+            document.getElementById('login-screen').classList.remove('d-none');
+        }
+
+        function appInit() {
+            document.getElementById('login-screen').classList.add('d-none');
+            document.getElementById('main-dashboard').classList.remove('d-none');
+            document.getElementById('user-display').textContent = currentUser.username;
+            document.getElementById('role-display').textContent = currentUser.role;
+
+            if (currentUser.role === 'Driver') {
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.add('d-none'));
+            } else {
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('d-none'));
+            }
+            fetchRosterData();
+        }
 
         function switchTab(tabId, el) {
             document.querySelectorAll('.content-section').forEach(sec => sec.classList.add('d-none'));
@@ -195,38 +221,52 @@
         }
 
         function saveConfiguration() {
-            const url = document.getElementById('config-webapp-url').value.trim();
-            localStorage.setItem("FMS_WEB_APP_URL", url);
-            showBanner("Configuration saved successfully!", "success");
+            WEB_APP_URL = document.getElementById('config-webapp-url').value.trim();
+            localStorage.setItem("FMS_WEB_APP_URL", WEB_APP_URL);
+            showBanner("Web App URL saved successfully!", "success");
         }
 
-        // Generic API Caller to Google Apps Script Backend
         async function apiCall(action, payload) {
-            if (!WEB_APP_URL || WEB_APP_URL.includes("YOUR_")) {
-                alert("Please configure your Google Apps Script Web App URL in the FMS Admin tab first.");
+            if (!WEB_APP_URL) {
+                alert("Please configure your Google Apps Script Web App URL in FMS Admin.");
                 return { status: "error", message: "Missing Web App URL" };
             }
             try {
-                showBanner("Communicating with Google Sheets backend...", "warning");
-                const response = await fetch(WEB_APP_URL, {
+                showBanner("Syncing with Google Sheets...", "warning");
+                const res = await fetch(WEB_APP_URL, {
                     method: "POST",
                     body: JSON.stringify({ action, payload })
                 });
-                const result = await response.json();
-                return result;
+                return await res.json();
             } catch (err) {
                 return { status: "error", message: err.message };
             }
         }
 
-        // Quick-Fill Template Logic
+        function toggleShift(isStarting) {
+            const statusText = document.getElementById('shift-status-text');
+            const startBtn = document.getElementById('btn-start-shift');
+            const endBtn = document.getElementById('btn-end-shift');
+            if (isStarting) {
+                statusText.className = "mb-3 text-success";
+                statusText.innerHTML = '<i class="fas fa-circle me-1"></i> Shift Status: ONLINE (Active)';
+                startBtn.classList.add('d-none');
+                endBtn.classList.remove('d-none');
+                showBanner("Shift started successfully.", "success");
+            } else {
+                statusText.className = "mb-3 text-danger";
+                statusText.innerHTML = '<i class="fas fa-circle me-1"></i> Shift Status: OFFLINE';
+                endBtn.classList.add('d-none');
+                startBtn.classList.remove('d-none');
+                showBanner("Shift ended.", "info");
+            }
+        }
+
         function applyBookingTemplate(val) {
-            if (!val) return;
             const templates = {
-                "Gozo": { vendor: "Gozo", type: "One-Way", company: 120.00, driver: 95.00 },
-                "Uber": { vendor: "Uber Fleet", type: "Local Rental", company: 45.00, driver: 35.00 },
-                "Ola": { vendor: "Ola Outstation", type: "Round-Trip", company: 180.00, driver: 140.00 },
-                "Direct": { vendor: "Direct Corporate", type: "One-Way", company: 150.00, driver: 120.00 }
+                "Gozo": { vendor: "Gozo", type: "One-Way", company: 120, driver: 95 },
+                "Uber": { vendor: "Uber Fleet", type: "Local Rental", company: 45, driver: 35 },
+                "Ola": { vendor: "Ola Outstation", type: "Round-Trip", company: 180, driver: 140 }
             };
             const t = templates[val];
             if (t) {
@@ -234,11 +274,9 @@
                 document.getElementById('b-type').value = t.type;
                 document.getElementById('b-company-fare').value = t.company;
                 document.getElementById('b-driver-fare').value = t.driver;
-                document.getElementById('b-time').value = "09:00";
             }
         }
 
-        // Save Booking Handler
         async function handleSaveBooking(e) {
             e.preventDefault();
             const payload = {
@@ -246,43 +284,53 @@
                 vendor: document.getElementById('b-vendor').value,
                 type: document.getElementById('b-type').value,
                 date: document.getElementById('b-date').value,
-                time: document.getElementById('b-time').value,
-                payment: document.getElementById('b-payment').value,
                 pickup: document.getElementById('b-pickup').value,
                 drop: document.getElementById('b-drop').value,
                 companyFare: document.getElementById('b-company-fare').value,
                 driverFare: document.getElementById('b-driver-fare').value
             };
-
             const res = await apiCall("addBooking", payload);
-            showBanner(res.message || "Booking saved successfully!", res.status === "success" ? "success" : "danger");
-            if(res.status === "success") { e.target.reset(); }
+            showBanner(res.message, res.status === "success" ? "success" : "danger");
+            if (res.status === "success") { e.target.reset(); fetchRosterData(); }
         }
 
-        // Driver Expense Audit Handler
         async function handleLogDriverExpense(e) {
             e.preventDefault();
             const cat = document.getElementById("d-exp-cat").value;
-            const fileInput = document.getElementById("d-exp-receipt");
-            const file = fileInput.files[0];
-
+            const file = document.getElementById("d-exp-receipt").files[0];
             if ((cat === "Fuel" || cat === "EV Charging") && !file) {
-                alert("Receipt image is mandatory for Fuel / EV audit compliance.");
+                alert("Receipt image is mandatory for Fuel / EV audits.");
                 return;
             }
-
             const payload = {
-                driver: currentUser ? currentUser.username : "AdminDriver",
+                driver: currentUser.username,
                 category: cat,
                 amount: document.getElementById("d-exp-amt").value,
                 date: document.getElementById("d-exp-date").value,
-                receiptAttached: !!file,
-                status: file ? "Verified & Attached" : "Pending Manual Audit"
+                receiptAttached: !!file ? "Attached" : "Missing"
             };
-
             const res = await apiCall("addDriverExpense", payload);
-            showBanner(res.message || "Expense recorded for audit!", res.status === "success" ? "success" : "danger");
-            if(res.status === "success") { e.target.reset(); }
+            showBanner(res.message, res.status === "success" ? "success" : "danger");
+            if (res.status === "success") { e.target.reset(); }
+        }
+
+        async function fetchRosterData() {
+            const res = await apiCall("getRoster", {});
+            const tbody = document.getElementById('roster-tbody');
+            if (res.status === "success" && res.data && res.data.length > 0) {
+                tbody.innerHTML = res.data.map(row => `
+                    <tr>
+                        <td>${row[0]}</td>
+                        <td>${row[1]}</td>
+                        <td>${row[3]}</td>
+                        <td>${row[4]} → ${row[5]}</td>
+                        <td>$${row[6]}</td>
+                        <td><span class="badge bg-secondary">${row[8] || 'Active'}</span></td>
+                    </tr>
+                `).join('');
+            } else {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">No active bookings found in sheet.</td></tr>`;
+            }
         }
     </script>
 </body>
