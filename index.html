@@ -24,7 +24,7 @@
             <h3 class="text-center mb-4"><i class="fas fa-truck-fast text-primary me-2"></i>Fleet Portal Login</h3>
             <div class="mb-3">
                 <label class="form-label">Username / Driver ID</label>
-                <input type="text" id="login-username" class="form-control" placeholder="e.g. admin or driver_name">
+                <input type="text" id="login-username" class="form-control" placeholder="e.g. admin or safiul">
             </div>
             <div class="mb-3">
                 <label class="form-label">Password</label>
@@ -44,7 +44,7 @@
                     <i class="fas fa-user-circle me-1"></i> <span id="user-display">User</span> (<span id="role-display">Role</span>)
                 </div>
                 <ul class="nav flex-column">
-                    <li class="nav-item"><a href="#" class="nav-link active" onclick="switchTab('shift-tab', this)"><i class="fas fa-clock me-2"></i>Shift Control</a></li>
+                    <li class="nav-item" id="nav-shift-tab"><a href="#" class="nav-link active" onclick="switchTab('shift-tab', this)"><i class="fas fa-clock me-2"></i>Shift Control</a></li>
                     <li class="nav-item"><a href="#" class="nav-link" onclick="switchTab('roster-tab', this)"><i class="fas fa-list-alt me-2"></i>Booking Roster</a></li>
                     <li class="nav-item"><a href="#" class="nav-link" onclick="switchTab('expense-tab', this)"><i class="fas fa-receipt me-2"></i>Expenses & Cash</a></li>
                     <li class="nav-item admin-only"><a href="#" class="nav-link" onclick="switchTab('admin-tab', this)"><i class="fas fa-cogs me-2"></i>FMS Admin</a></li>
@@ -100,9 +100,9 @@
                                     <div class="col-md-3"><label class="form-label">Pickup</label><input type="text" id="b-pickup" class="form-control" required></div>
                                     <div class="col-md-3"><label class="form-label">Drop</label><input type="text" id="b-drop" class="form-control" required></div>
                                     <div class="col-md-3"><label class="form-label">Payment Mode</label><select id="b-paymode" class="form-control"><option value="Online">Online</option><option value="Cash">Cash</option></select></div>
-                                    <div class="col-md-3"><label class="form-label">Company Fare ($)</label><input type="number" step="0.01" id="b-company-fare" class="form-control" required></div>
-                                    <div class="col-md-3"><label class="form-label">Driver Payout ($)</label><input type="number" step="0.01" id="b-driver-fare" class="form-control" required></div>
-                                    <div class="col-md-3"><label class="form-label">Cash to Collect ($)</label><input type="number" step="0.01" id="b-cash-collect" class="form-control" value="0"></div>
+                                    <div class="col-md-4"><label class="form-label">Company Fare ($)</label><input type="number" step="0.01" id="b-company-fare" class="form-control" required></div>
+                                    <div class="col-md-4"><label class="form-label">Driver-Facing Fare (Masked Fare) ($)</label><input type="number" step="0.01" id="b-driver-fare" class="form-control" required></div>
+                                    <div class="col-md-4"><label class="form-label">Cash to Collect ($)</label><input type="number" step="0.01" id="b-cash-collect" class="form-control" value="0"></div>
                                 </div>
                                 <div class="mt-3 text-end"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Save Booking</button></div>
                             </form>
@@ -113,7 +113,7 @@
                         <div class="table-responsive">
                             <table class="table table-striped align-middle" id="roster-table">
                                 <thead>
-                                    <tr><th>ID</th><th>Vendor</th><th>Date/Time</th><th>Route</th><th>Fare</th><th>Status</th><th>Assignment / Actions</th></tr>
+                                    <tr><th>ID</th><th>Vendor</th><th>Date/Time</th><th>Route</th><th>Fare (Comp / Driver)</th><th>Status</th><th>Assignment / Actions</th></tr>
                                 </thead>
                                 <tbody id="roster-tbody">
                                     <tr><td colspan="7" class="text-center text-muted">Loading bookings...</td></tr>
@@ -126,6 +126,7 @@
                 <!-- TAB 3: EXPENSE & CASH AUDIT -->
                 <div id="expense-tab" class="content-section d-none">
                     <div class="row">
+                        <!-- Driver Expense Column -->
                         <div class="col-md-6 mb-4">
                             <div class="card p-4 shadow-sm h-100">
                                 <h4 class="mb-3 text-success"><i class="fas fa-receipt me-2"></i>Log Driver Expense</h4>
@@ -150,6 +151,7 @@
                             </div>
                         </div>
 
+                        <!-- Cash Deposit Column -->
                         <div class="col-md-6 mb-4">
                             <div class="card p-4 shadow-sm h-100">
                                 <h4 class="mb-3 text-warning"><i class="fas fa-money-bill-wave me-2"></i>Cash Deposit / Handover</h4>
@@ -165,6 +167,41 @@
                                 </form>
                             </div>
                         </div>
+
+                        <!-- Admin General Company Expenses -->
+                        <div class="col-md-12 admin-only mb-4">
+                            <div class="card p-4 shadow-sm border-dark">
+                                <h4 class="mb-3 text-dark"><i class="fas fa-building me-2"></i>Admin General & Company Expense Ledger</h4>
+                                <p class="text-muted small">Record general company expenses (e.g. office rent), car-specific expenses (e.g. insurance), or driver settlements.</p>
+                                <form onsubmit="handleAdminExpense(event)" class="row g-3">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Expense Category</label>
+                                        <select id="adm-exp-cat" class="form-control">
+                                            <option value="Office Rent">Office Rent / General Overhead</option>
+                                            <option value="Car Insurance">Car Insurance / Maintenance</option>
+                                            <option value="Driver Settlement">Driver Final Settlement</option>
+                                            <option value="Other">Other Company Expense</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Allocation Head</label>
+                                        <select id="adm-exp-alloc" class="form-control" onchange="toggleAllocationTarget(this.value)">
+                                            <option value="Company General">Company General (e.g. Rent)</option>
+                                            <option value="Car Specific">Car Specific (e.g. Insurance)</option>
+                                            <option value="Driver Specific">Driver Specific (e.g. Settlement)</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3" id="target-entity-container" style="display: none;">
+                                        <label class="form-label" id="target-entity-label">Target Entity</label>
+                                        <select id="adm-exp-target" class="form-control"></select>
+                                    </div>
+                                    <div class="col-md-3"><label class="form-label">Amount ($)</label><input type="number" step="0.01" id="adm-exp-amt" class="form-control" required></div>
+                                    <div class="col-md-3"><label class="form-label">Payment Mode</label><select id="adm-exp-mode" class="form-control"><option value="Bank Transfer">Bank Transfer</option><option value="Cash">Cash</option><option value="Credit Card">Credit Card</option></select></div>
+                                    <div class="col-md-6"><label class="form-label">Notes / Description</label><input type="text" id="adm-exp-notes" class="form-control" placeholder="e.g. November Office Rent or Crysta Insurance"></div>
+                                    <div class="col-md-3 text-end d-flex align-items-end"><button type="submit" class="btn btn-dark w-100">Record Expense</button></div>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -175,21 +212,32 @@
                         <form onsubmit="handleRegisterCar(event)" class="row g-3">
                             <div class="col-md-3"><label class="form-label">Registration No.</label><input type="text" id="c-reg" class="form-control" required></div>
                             <div class="col-md-4"><label class="form-label">Description / Model</label><input type="text" id="c-desc" class="form-control" required></div>
-                            <div class="col-md-2"><label class="form-label">Fuel Type</label><select id="c-fuel" class="form-control"><option value="EV">EV</option><option value="Petrol">Petrol</option><option value="Diesel">Diesel</option></select></div>
+                            <div class="col-md-2"><label class="form-label">Fuel Type</label><select id="c-fuel" class="form-control"><option value="EV">EV</option><option value="Diesel">Diesel</option><option value="Petrol">Petrol</option></select></div>
                             <div class="col-md-3"><label class="form-label">Owner</label><input type="text" id="c-owner" class="form-control" required></div>
                             <div class="col-12 text-end"><button type="submit" class="btn btn-dark">Register Car</button></div>
                         </form>
                     </div>
 
-                    <div class="card p-4 shadow-sm">
+                    <div class="card p-4 shadow-sm mb-4">
                         <h4 class="mb-3 text-dark"><i class="fas fa-user-plus me-2"></i>Create User Account</h4>
                         <form onsubmit="handleRegisterUser(event)" class="row g-3">
                             <div class="col-md-3"><label class="form-label">Username</label><input type="text" id="u-user" class="form-control" required></div>
                             <div class="col-md-3"><label class="form-label">Password</label><input type="password" id="u-pass" class="form-control" required></div>
-                            <div class="col-md-3"><label class="form-label">Role</label><select id="u-role" class="form-control"><option value="Driver">Driver</option><option value="Admin">Admin</option></select></div>
+                            <div class="col-md-3"><label class="form-label">Role</label><select id="u-role" class="form-control"><option value="driver">Driver</option><option value="admin">Admin</option></select></div>
                             <div class="col-md-3"><label class="form-label">Status</label><select id="u-status" class="form-control"><option value="Active">Active</option><option value="Inactive">Inactive</option></select></div>
                             <div class="col-12 text-end"><button type="submit" class="btn btn-dark">Create User</button></div>
                         </form>
+                    </div>
+
+                    <!-- User List Viewer -->
+                    <div class="card p-4 shadow-sm">
+                        <h4 class="mb-3 text-dark"><i class="fas fa-users me-2"></i>Registered Users & Drivers List</h4>
+                        <div class="table-responsive">
+                            <table class="table table-striped align-middle">
+                                <thead><tr><th>Username</th><th>Role</th><th>Status</th></tr></thead>
+                                <tbody id="users-tbody"><tr><td colspan="3" class="text-center text-muted">Loading users...</td></tr></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </main>
@@ -211,6 +259,7 @@
             if(document.getElementById('b-date')) document.getElementById('b-date').value = today;
             if(document.getElementById('d-exp-date')) document.getElementById('d-exp-date').value = today;
             if(document.getElementById('dep-date')) document.getElementById('dep-date').value = today;
+            if(document.getElementById('adm-exp-date')) document.getElementById('adm-exp-date').value = today;
         });
 
         async function handleLogin() {
@@ -248,10 +297,14 @@
             document.getElementById('user-display').textContent = currentUser.username;
             document.getElementById('role-display').textContent = currentUser.role;
 
-            if (currentUser.role === 'Driver') {
-                document.querySelectorAll('.admin-only').forEach(el => el.classList.add('d-none'));
-            } else {
+            if (currentUser.role.toLowerCase() === 'admin' || currentUser.role.toLowerCase() === 'superadmin') {
                 document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('d-none'));
+                document.getElementById('nav-shift-tab').style.display = 'none';
+                switchTab('roster-tab', document.querySelector('.sidebar .nav-link'));
+            } else {
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.add('d-none'));
+                document.getElementById('nav-shift-tab').style.display = 'block';
+                switchTab('shift-tab', document.querySelector('.sidebar .nav-link'));
             }
             await fetchDatabase();
         }
@@ -290,6 +343,7 @@
                 dbData = res;
                 populateDropdowns();
                 renderRoster();
+                renderUsersTable();
                 checkActiveShift();
                 showBanner("Data synchronized successfully!", "success");
             } else {
@@ -304,7 +358,43 @@
             }
         }
 
+        function toggleAllocationTarget(val) {
+            const container = document.getElementById('target-entity-container');
+            const label = document.getElementById('target-entity-label');
+            const select = document.getElementById('adm-exp-target');
+
+            if (val === "Company General") {
+                container.style.display = 'none';
+            } else if (val === "Car Specific") {
+                container.style.display = 'block';
+                label.textContent = "Select Car Registration";
+                select.innerHTML = dbData.cars.map(c => `<option value="${c.reg}">${c.reg} - ${c.desc}</option>`).join('');
+            } else if (val === "Driver Specific") {
+                container.style.display = 'block';
+                label.textContent = "Select Driver";
+                const drivers = dbData.users.filter(u => u.role.toLowerCase() === 'driver');
+                select.innerHTML = drivers.map(d => `<option value="${d.username}">${d.username}</option>`).join('');
+            }
+        }
+
+        function renderUsersTable() {
+            const tbody = document.getElementById('users-tbody');
+            if (!tbody) return;
+            if (!dbData.users || dbData.users.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="text-center text-muted">No users found.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = dbData.users.map(u => `
+                <tr>
+                    <td><strong>${u.username}</strong></td>
+                    <td><span class="badge bg-primary">${u.role}</span></td>
+                    <td><span class="badge bg-success">${u.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
         function checkActiveShift() {
+            if (currentUser.role.toLowerCase() === 'admin' || currentUser.role.toLowerCase() === 'superadmin') return;
             const activeShift = dbData.shifts.find(s => s.driver.toLowerCase() === currentUser.username.toLowerCase() && s.status.toLowerCase() === 'active');
             const startBtn = document.getElementById('btn-start-shift');
             const endBtn = document.getElementById('btn-end-shift');
@@ -407,6 +497,24 @@
             if (res.status === "success") { e.target.reset(); }
         }
 
+        async function handleAdminExpense(e) {
+            e.preventDefault();
+            const allocType = document.getElementById('adm-exp-alloc').value;
+            const target = allocType === "Company General" ? "General" : document.getElementById('adm-exp-target').value;
+            const payload = {
+                adminName: currentUser.username,
+                category: document.getElementById('adm-exp-cat').value,
+                allocationType: allocType,
+                targetEntity: target,
+                amount: document.getElementById('adm-exp-amt').value,
+                paymentMode: document.getElementById('adm-exp-mode').value,
+                notes: document.getElementById('adm-exp-notes').value
+            };
+            const res = await apiCall("addAdminExpense", payload);
+            showBanner(res.message, res.status === "success" ? "success" : "danger");
+            if (res.status === "success") { e.target.reset(); document.getElementById('target-entity-container').style.display = 'none'; }
+        }
+
         async function handleCashDeposit(e) {
             e.preventDefault();
             const payload = {
@@ -457,7 +565,7 @@
 
             tbody.innerHTML = dbData.bookings.map(b => {
                 let actionButtons = '';
-                if (currentUser.role === 'Admin') {
+                if (currentUser.role.toLowerCase() === 'admin' || currentUser.role.toLowerCase() === 'superadmin') {
                     if (b.status === 'Pending Assignment') {
                         actionButtons += `<button class="btn btn-sm btn-outline-primary me-1" onclick="assignDriver('${b.bookingId}')">Assign</button>`;
                     }
@@ -475,7 +583,7 @@
                         <td>${b.vendor}</td>
                         <td>${b.date}<br><small>${b.startTime || ''}</small></td>
                         <td>${b.pickup} → ${b.drop}</td>
-                        <td>$${b.companyFare}<br><small class="text-success">Pay: $${b.driverFare}</small></td>
+                        <td>$${b.companyFare}<br><small class="text-success">Masked Driver Fare: $${b.driverFare}</small></td>
                         <td><span class="badge bg-secondary">${b.status}</span><br><small>${b.assignedDriver ? 'Driver: ' + b.assignedDriver : ''}</small></td>
                         <td>${actionButtons}</td>
                     </tr>
