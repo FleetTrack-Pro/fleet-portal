@@ -112,10 +112,10 @@
                         <div class="table-responsive">
                             <table class="table table-striped align-middle">
                                 <thead>
-                                    <tr><th>ID</th><th>Vendor</th><th>Date/Time</th><th>Route</th><th>Fare</th><th>Status</th><th>Actions</th></tr>
+                                    <tr><th>ID</th><th>Vendor</th><th>Date/Time</th><th>Route</th><th>Fare / Payment</th><th>Assigned To</th><th>Status</th><th>Actions</th></tr>
                                 </thead>
                                 <tbody id="roster-tbody">
-                                    <tr><td colspan="7" class="text-center text-muted">Loading bookings...</td></tr>
+                                    <tr><td colspan="8" class="text-center text-muted">Loading bookings...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -185,6 +185,7 @@
                                             <option value="Office Rent">Office Rent / General Overhead</option>
                                             <option value="Car Insurance">Car Insurance / Maintenance</option>
                                             <option value="Driver Settlement">Driver Final Settlement</option>
+                                            <option value="Driver Fine">Driver Fine / Deduction</option>
                                             <option value="Fuel / EV">Fuel / EV Charging</option>
                                             <option value="Other">Other Company Expense</option>
                                         </select>
@@ -194,7 +195,7 @@
                                         <select id="adm-exp-alloc" class="form-control" onchange="toggleAllocationTarget(this.value)">
                                             <option value="Company General">Company General (e.g. Rent)</option>
                                             <option value="Car Specific">Car Specific (e.g. Insurance)</option>
-                                            <option value="Driver Specific">Driver Specific (e.g. Settlement)</option>
+                                            <option value="Driver Specific">Driver Specific (e.g. Settlement / Fine)</option>
                                         </select>
                                     </div>
                                     <div class="col-md-3" id="target-entity-container" style="display: none;">
@@ -217,8 +218,8 @@
                                 <h5 class="mb-3 text-warning"><i class="fas fa-hand-holding-usd me-2"></i>Cash Deposits & Handover History</h5>
                                 <div class="table-responsive">
                                     <table class="table table-striped align-middle">
-                                        <thead><tr><th>Deposit ID</th><th>From Driver</th><th>Date</th><th>Amount</th><th>Mode</th><th>Paid To</th><th>Status</th></tr></thead>
-                                        <tbody id="cash-deposits-tbody"><tr><td colspan="7" class="text-center text-muted">Loading deposits...</td></tr></tbody>
+                                        <thead><tr><th>Deposit ID</th><th>From Driver</th><th>Date</th><th>Amount</th><th>Mode</th><th>Paid To</th><th>Status</th><th class="admin-only">Admin Action</th></tr></thead>
+                                        <tbody id="cash-deposits-tbody"><tr><td colspan="8" class="text-center text-muted">Loading deposits...</td></tr></tbody>
                                     </table>
                                 </div>
                             </div>
@@ -229,7 +230,7 @@
                                 <h5 class="mb-3 text-success"><i class="fas fa-file-invoice-dollar me-2"></i>Driver Shift Expenses & Receipts</h5>
                                 <div class="table-responsive">
                                     <table class="table table-striped align-middle">
-                                        <thead><tr><th>Driver</th><th>Car Reg</th><th>Date</th><th>Category</th><th>Amount</th><th>Timestamp</th><th>Receipt</th></tr></thead>
+                                        <thead><tr><th>Driver</th><th>Car Reg</th><th>Date</th><th>Category</th><th>Amount</th><th>Time</th><th>Receipt</th></tr></thead>
                                         <tbody id="driver-expenses-tbody"><tr><td colspan="7" class="text-center text-muted">Loading driver expenses...</td></tr></tbody>
                                     </table>
                                 </div>
@@ -254,7 +255,7 @@
                 <div id="reports-tab" class="content-section d-none">
                     <div class="card p-4 shadow-sm mb-4">
                         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-                            <h4 class="text-primary mb-2 mb-md-0"><i class="fas fa-chart-line me-2"></i>Financial Analytics: Driver Earnings & Car P&L</h4>
+                            <h4 class="text-primary mb-2 mb-md-0"><i class="fas fa-chart-line me-2"></i>Driver Earnings & Vehicle P&L</h4>
                             <div class="d-flex gap-2 align-items-center">
                                 <input type="date" id="rep-start-date" class="form-control form-control-sm" onchange="renderAnalytics()">
                                 <span class="text-muted">to</span>
@@ -264,24 +265,25 @@
                         </div>
 
                         <!-- Driver Earnings & Settlement Table -->
-                        <h5 class="mt-3 mb-2 text-success"><i class="fas fa-user-tie me-2"></i>Driver Earnings & Settlement Statement</h5>
-                        <p class="text-muted small">Net Balance = (Completed Masked Fares + Shift Expenses Paid) − (Cash Collected on Trips + Cash Deposited + Admin Settlements Paid)</p>
+                        <h5 class="mt-3 mb-2 text-success"><i class="fas fa-user-tie me-2"></i>Driver Earnings, Expenses & Settlement Ledger</h5>
+                        <p class="text-muted small">Shows completed trip earnings (driver fare / commission share), shift expenses reimbursed, cash collected on rides, verified deposits, and fines/settlements.</p>
                         <div class="table-responsive mb-4">
                             <table class="table table-bordered table-striped align-middle">
                                 <thead class="table-dark">
                                     <tr>
                                         <th>Driver</th>
                                         <th>Completed Trips</th>
-                                        <th>Gross Driver Fare</th>
-                                        <th>Shift Expenses (+)</th>
+                                        <th>Trip Earnings (+)</th>
+                                        <th>Company Margin</th>
+                                        <th>Expenses Paid (+)</th>
                                         <th>Cash Collected (−)</th>
-                                        <th>Cash Deposited (−)</th>
-                                        <th>Admin Settlements (−)</th>
-                                        <th>Net Payable / Balance</th>
+                                        <th>Verified Deposits (−)</th>
+                                        <th>Settlements / Fines (−)</th>
+                                        <th>Net Payable Balance</th>
                                     </tr>
                                 </thead>
                                 <tbody id="driver-earnings-tbody">
-                                    <tr><td colspan="8" class="text-center text-muted">Calculating earnings...</td></tr>
+                                    <tr><td colspan="9" class="text-center text-muted">Calculating earnings...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -290,7 +292,7 @@
                         <div class="admin-only">
                             <hr>
                             <h5 class="mt-3 mb-2 text-dark"><i class="fas fa-car-side me-2"></i>Vehicle Profit & Loss (Car P&L)</h5>
-                            <p class="text-muted small">Net Car Profit = Gross Company Trip Revenue − (Shift Fuel/EV/Toll Expenses + Car-Specific Admin Expenses like Insurance/Maintenance)</p>
+                            <p class="text-muted small">Net Car Profit = Gross Company Trip Revenue − (Driver Fare Payout + Shift Fuel/EV/Toll Expenses + Car-Specific Admin Expenses)</p>
                             <div class="table-responsive mb-3">
                                 <table class="table table-bordered table-striped align-middle">
                                     <thead class="table-dark">
@@ -299,7 +301,7 @@
                                             <th>Model / Fuel</th>
                                             <th>Trips</th>
                                             <th>Company Revenue (+)</th>
-                                            <th>Driver Fare Cost (−)</th>
+                                            <th>Driver Payout (−)</th>
                                             <th>Shift Fuel/Ops (−)</th>
                                             <th>Car Admin Exp (−)</th>
                                             <th>Net Car P&L</th>
@@ -394,6 +396,80 @@
         </div>
     </div>
 
+    <!-- ==================== EDIT BOOKING MODAL (ADMIN) ==================== -->
+    <div class="modal fade" id="editBookingModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Edit Booking Details & Status</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="edit-b-id">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Booking Status</label>
+                            <select id="edit-b-status" class="form-select">
+                                <option value="Pending Assignment">Pending Assignment</option>
+                                <option value="Assigned">Assigned</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Date</label>
+                            <input type="date" id="edit-b-date" class="form-control">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Pickup Time</label>
+                            <input type="time" id="edit-b-time" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Pickup Location</label>
+                            <input type="text" id="edit-b-pickup" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Drop Location</label>
+                            <input type="text" id="edit-b-drop" class="form-control">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Payment Mode</label>
+                            <select id="edit-b-paymode" class="form-select">
+                                <option value="Online">Online</option>
+                                <option value="Cash">Cash</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Company Fare (₹)</label>
+                            <input type="number" step="0.01" id="edit-b-comp-fare" class="form-control">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Driver Fare (₹)</label>
+                            <input type="number" step="0.01" id="edit-b-drv-fare" class="form-control">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Cash to Collect (₹)</label>
+                            <input type="number" step="0.01" id="edit-b-cash" class="form-control">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Assigned Driver</label>
+                            <select id="edit-b-driver" class="form-select"></select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Assigned Car</label>
+                            <select id="edit-b-car" class="form-select"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="saveEditedBooking()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzgq0DU2ZPO4SQ0b5kBjQQaqOLeRdnZ9O1nEsU6jVfVvT9jQDt2OqC3pvGZOY6JB5o/exec";
@@ -401,12 +477,53 @@
         let dbData = { users: [], cars: [], shifts: [], bookings: [], driverExpenses: [], adminExpenses: [], cashDeposits: [] };
         let currentActiveShift = null;
         let assignModalInstance = null;
+        let editModalInstance = null;
 
         document.addEventListener("DOMContentLoaded", () => {
             if (currentUser) appInit();
             setDefaultDates();
             assignModalInstance = new bootstrap.Modal(document.getElementById('assignModal'));
+            editModalInstance = new bootstrap.Modal(document.getElementById('editBookingModal'));
         });
+
+        function normalizeName(str) {
+            return (str || "").toString().trim().toLowerCase().replace(/[\s_]+/g, '');
+        }
+
+        function formatDisplayTime(val) {
+            if (!val) return "";
+            const str = val.toString().trim();
+            if (str.includes("T") && str.endsWith("Z")) {
+                const d = new Date(str);
+                if (!isNaN(d.getTime())) {
+                    return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+                }
+            }
+            const match = str.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+            if (match) {
+                let h = parseInt(match[1], 10);
+                const m = match[2];
+                const ampm = h >= 12 ? "PM" : "AM";
+                h = h % 12 || 12;
+                return `${h.toString().padStart(2, '0')}:${m} ${ampm}`;
+            }
+            return str;
+        }
+
+        function to24HourTime(val) {
+            if (!val) return "";
+            const str = formatDisplayTime(val);
+            const match = str.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+            if (match) {
+                let h = parseInt(match[1], 10);
+                const m = match[2];
+                const ampm = match[3].toUpperCase();
+                if (ampm === "PM" && h < 12) h += 12;
+                if (ampm === "AM" && h === 12) h = 0;
+                return `${h.toString().padStart(2, '0')}:${m}`;
+            }
+            return val;
+        }
 
         function setDefaultDates() {
             const today = new Date().toISOString().split('T')[0];
@@ -564,11 +681,60 @@
             if (res.status === "success") await fetchDatabase();
         }
 
+        function openEditBookingModal(bookingId) {
+            const b = dbData.bookings.find(item => item.bookingId.toString() === bookingId.toString());
+            if (!b) return;
+
+            document.getElementById('edit-b-id').value = b.bookingId;
+            document.getElementById('edit-b-status').value = b.status || "Pending Assignment";
+            document.getElementById('edit-b-date').value = b.date || "";
+            document.getElementById('edit-b-time').value = to24HourTime(b.startTime);
+            document.getElementById('edit-b-pickup').value = b.pickup || "";
+            document.getElementById('edit-b-drop').value = b.drop || "";
+            document.getElementById('edit-b-paymode').value = b.paymentMode || "Online";
+            document.getElementById('edit-b-comp-fare').value = b.companyFare || 0;
+            document.getElementById('edit-b-drv-fare').value = b.driverFare || 0;
+            document.getElementById('edit-b-cash').value = b.cashToCollect || 0;
+
+            const drivers = dbData.users.filter(u => u.role.toLowerCase() === 'driver');
+            const drvSel = document.getElementById('edit-b-driver');
+            drvSel.innerHTML = `<option value="">-- Unassigned --</option>` + drivers.map(d => `<option value="${d.username}">${d.username}</option>`).join('');
+            drvSel.value = b.assignedDriver || "";
+
+            const carSel = document.getElementById('edit-b-car');
+            carSel.innerHTML = `<option value="">-- Unassigned --</option>` + dbData.cars.map(c => `<option value="${c.reg}">${c.reg} - ${c.desc}</option>`).join('');
+            carSel.value = b.assignedCar || "";
+
+            editModalInstance.show();
+        }
+
+        async function saveEditedBooking() {
+            const payload = {
+                bookingId: document.getElementById('edit-b-id').value,
+                status: document.getElementById('edit-b-status').value,
+                date: document.getElementById('edit-b-date').value,
+                startTime: document.getElementById('edit-b-time').value,
+                pickup: document.getElementById('edit-b-pickup').value,
+                drop: document.getElementById('edit-b-drop').value,
+                paymentMode: document.getElementById('edit-b-paymode').value,
+                companyFare: document.getElementById('edit-b-comp-fare').value,
+                driverFare: document.getElementById('edit-b-drv-fare').value,
+                cashToCollect: document.getElementById('edit-b-cash').value,
+                assignedDriver: document.getElementById('edit-b-driver').value,
+                assignedCar: document.getElementById('edit-b-car').value
+            };
+
+            editModalInstance.hide();
+            const res = await apiCall("updateBooking", payload);
+            showBanner(res.message, res.status === "success" ? "success" : "danger");
+            if (res.status === "success") await fetchDatabase();
+        }
+
         function checkActiveShift() {
             const role = currentUser.role.toLowerCase();
             if (role === 'admin' || role === 'superadmin') return;
 
-            currentActiveShift = dbData.shifts.find(s => s.driver.toLowerCase() === currentUser.username.toLowerCase() && s.status.toLowerCase() === 'active') || null;
+            currentActiveShift = dbData.shifts.find(s => normalizeName(s.driver) === normalizeName(currentUser.username) && s.status.toLowerCase() === 'active') || null;
             const startBtn = document.getElementById('btn-start-shift');
             const endBtn = document.getElementById('btn-end-shift');
             const statusText = document.getElementById('shift-status-text');
@@ -607,7 +773,6 @@
                 driver: currentUser.username,
                 regNumber,
                 date: new Date().toISOString().split('T')[0],
-                startTime: new Date().toLocaleTimeString(),
                 startOdometer
             });
             showBanner(res.message, res.status === "success" ? "success" : "danger");
@@ -620,7 +785,6 @@
 
             const res = await apiCall("endShift", {
                 driver: currentUser.username,
-                endTime: new Date().toLocaleTimeString(),
                 endOdometer
             });
             showBanner(res.message, res.status === "success" ? "success" : "danger");
@@ -649,6 +813,12 @@
 
         async function updateTripStatus(bookingId, actionType) {
             const res = await apiCall(actionType, { bookingId });
+            showBanner(res.message, res.status === "success" ? "success" : "danger");
+            if (res.status === "success") await fetchDatabase();
+        }
+
+        async function changeDepositStatus(depositId, newStatus) {
+            const res = await apiCall("updateDepositStatus", { depositId, newStatus });
             showBanner(res.message, res.status === "success" ? "success" : "danger");
             if (res.status === "success") await fetchDatabase();
         }
@@ -826,21 +996,37 @@
             const isAdmin = myRole === 'admin' || myRole === 'superadmin';
 
             const depTbody = document.getElementById('cash-deposits-tbody');
-            const deposits = isAdmin ? dbData.cashDeposits : dbData.cashDeposits.filter(d => d.driverName.toLowerCase() === currentUser.username.toLowerCase());
-            depTbody.innerHTML = deposits.length ? deposits.map(d => `
-                <tr>
-                    <td>${d.depositId}</td>
-                    <td><strong>${d.driverName}</strong></td>
-                    <td>${d.date}</td>
-                    <td>₹${d.amount}</td>
-                    <td>${d.paymentMode}</td>
-                    <td>${d.paidTo}</td>
-                    <td><span class="badge bg-warning text-dark">${d.status}</span></td>
-                </tr>
-            `).join('') : `<tr><td colspan="7" class="text-center text-muted">No cash deposits recorded.</td></tr>`;
+            const deposits = isAdmin ? dbData.cashDeposits : dbData.cashDeposits.filter(d => normalizeName(d.driverName) === normalizeName(currentUser.username));
+            depTbody.innerHTML = deposits.length ? deposits.map(d => {
+                const statusBadge = d.status === 'Verified'
+                    ? `<span class="badge bg-success">Verified</span>`
+                    : d.status === 'Rejected'
+                        ? `<span class="badge bg-danger">Rejected</span>`
+                        : `<span class="badge bg-warning text-dark">${d.status}</span>`;
+
+                const adminCol = isAdmin ? `
+                    <td>
+                        <button class="btn btn-sm btn-success me-1" onclick="changeDepositStatus('${d.depositId}', 'Verified')">Verify</button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="changeDepositStatus('${d.depositId}', 'Rejected')">Reject</button>
+                    </td>
+                ` : '';
+
+                return `
+                    <tr>
+                        <td>${d.depositId}</td>
+                        <td><strong>${d.driverName}</strong></td>
+                        <td>${d.date}</td>
+                        <td>₹${d.amount}</td>
+                        <td>${d.paymentMode}</td>
+                        <td>${d.paidTo}</td>
+                        <td>${statusBadge}</td>
+                        ${adminCol}
+                    </tr>
+                `;
+            }).join('') : `<tr><td colspan="8" class="text-center text-muted">No cash deposits recorded.</td></tr>`;
 
             const drvExpTbody = document.getElementById('driver-expenses-tbody');
-            const drvExps = isAdmin ? dbData.driverExpenses : dbData.driverExpenses.filter(e => e.driverName.toLowerCase() === currentUser.username.toLowerCase());
+            const drvExps = isAdmin ? dbData.driverExpenses : dbData.driverExpenses.filter(e => normalizeName(e.driverName) === normalizeName(currentUser.username));
             drvExpTbody.innerHTML = drvExps.length ? drvExps.map(e => `
                 <tr>
                     <td><strong>${e.driverName}</strong></td>
@@ -848,7 +1034,7 @@
                     <td>${e.date}</td>
                     <td>${e.category}</td>
                     <td>₹${e.amount}</td>
-                    <td><small>${e.timestamp || ''}</small></td>
+                    <td><small>${formatDisplayTime(e.timestamp)}</small></td>
                     <td>${e.receiptUrl && e.receiptUrl.startsWith('http') ? `<a href="${e.receiptUrl}" target="_blank" class="btn btn-sm btn-outline-primary">View Receipt</a>` : (e.receiptUrl || 'None')}</td>
                 </tr>
             `).join('') : `<tr><td colspan="7" class="text-center text-muted">No driver expenses recorded.</td></tr>`;
@@ -885,52 +1071,55 @@
             const startStr = document.getElementById('rep-start-date')?.value || "";
             const endStr = document.getElementById('rep-end-date')?.value || "";
 
-            // 1. Driver Earnings Calculation
+            // 1. Driver Earnings, Commission, Expenses & Fines Calculation
             const driversList = isAdmin
                 ? dbData.users.filter(u => u.role.toLowerCase() === 'driver')
-                : dbData.users.filter(u => u.username.toLowerCase() === currentUser.username.toLowerCase());
+                : dbData.users.filter(u => normalizeName(u.username) === normalizeName(currentUser.username));
 
             const earningsTbody = document.getElementById('driver-earnings-tbody');
             if (earningsTbody) {
                 earningsTbody.innerHTML = driversList.length ? driversList.map(drv => {
-                    const name = drv.username.trim().toLowerCase();
+                    const normDrv = normalizeName(drv.username);
 
                     const completedTrips = dbData.bookings.filter(b =>
                         b.status === 'Completed' &&
-                        b.assignedDriver && b.assignedDriver.trim().toLowerCase() === name &&
+                        normalizeName(b.assignedDriver) === normDrv &&
                         isWithinDateRange(b.date, startStr, endStr)
                     );
 
+                    const grossCompanyFare = completedTrips.reduce((sum, b) => sum + (parseFloat(b.companyFare) || 0), 0);
                     const grossDriverFare = completedTrips.reduce((sum, b) => sum + (parseFloat(b.driverFare) || 0), 0);
+                    const companyCommission = Math.max(0, grossCompanyFare - grossDriverFare);
                     const cashCollected = completedTrips.reduce((sum, b) => sum + (b.paymentMode === 'Cash' ? (parseFloat(b.cashToCollect) || 0) : 0), 0);
 
                     const shiftExpenses = dbData.driverExpenses
-                        .filter(e => e.driverName && e.driverName.trim().toLowerCase() === name && isWithinDateRange(e.date, startStr, endStr))
+                        .filter(e => normalizeName(e.driverName) === normDrv && isWithinDateRange(e.date, startStr, endStr))
                         .reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
 
-                    const cashDeposited = dbData.cashDeposits
-                        .filter(d => d.driverName && d.driverName.trim().toLowerCase() === name && isWithinDateRange(d.date, startStr, endStr))
+                    const verifiedDeposits = dbData.cashDeposits
+                        .filter(d => normalizeName(d.driverName) === normDrv && d.status === 'Verified' && isWithinDateRange(d.date, startStr, endStr))
                         .reduce((sum, d) => sum + (parseFloat(d.amount) || 0), 0);
 
-                    const adminSettlements = dbData.adminExpenses
-                        .filter(a => a.allocationType === 'Driver Specific' && a.targetEntity && a.targetEntity.trim().toLowerCase() === name && isWithinDateRange(a.date, startStr, endStr))
+                    const adminSettlementsAndFines = dbData.adminExpenses
+                        .filter(a => a.allocationType === 'Driver Specific' && normalizeName(a.targetEntity) === normDrv && isWithinDateRange(a.date, startStr, endStr))
                         .reduce((sum, a) => sum + (parseFloat(a.amount) || 0), 0);
 
-                    const netBalance = (grossDriverFare + shiftExpenses) - (cashCollected + cashDeposited + adminSettlements);
+                    const netBalance = (grossDriverFare + shiftExpenses) - (cashCollected + verifiedDeposits + adminSettlementsAndFines);
 
                     return `
                         <tr>
                             <td><strong>${drv.username}</strong></td>
                             <td>${completedTrips.length}</td>
                             <td>₹${grossDriverFare.toFixed(2)}</td>
+                            <td class="text-muted">₹${companyCommission.toFixed(2)}</td>
                             <td class="text-primary">+₹${shiftExpenses.toFixed(2)}</td>
                             <td class="text-danger">−₹${cashCollected.toFixed(2)}</td>
-                            <td class="text-success">−₹${cashDeposited.toFixed(2)}</td>
-                            <td class="text-secondary">−₹${adminSettlements.toFixed(2)}</td>
+                            <td class="text-success">−₹${verifiedDeposits.toFixed(2)}</td>
+                            <td class="text-secondary">−₹${adminSettlementsAndFines.toFixed(2)}</td>
                             <td class="fw-bold ${netBalance >= 0 ? 'text-success' : 'text-danger'}">₹${netBalance.toFixed(2)}</td>
                         </tr>
                     `;
-                }).join('') : `<tr><td colspan="8" class="text-center text-muted">No driver records found.</td></tr>`;
+                }).join('') : `<tr><td colspan="9" class="text-center text-muted">No driver records found.</td></tr>`;
             }
 
             // 2. Car P&L Calculation (Admin Only)
@@ -990,39 +1179,58 @@
 
             const visibleBookings = isAdmin 
                 ? dbData.bookings 
-                : dbData.bookings.filter(b => b.assignedDriver && b.assignedDriver.trim().toLowerCase() === currentUser.username.trim().toLowerCase());
+                : dbData.bookings.filter(b => normalizeName(b.assignedDriver) === normalizeName(currentUser.username));
 
             if (!visibleBookings || visibleBookings.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No bookings found in roster.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">No bookings found in roster.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = visibleBookings.map(b => {
                 let actionButtons = '';
-                if (isAdmin && b.status === 'Pending Assignment') {
-                    actionButtons += `<button class="btn btn-sm btn-outline-primary me-1" onclick="openAssignModal('${b.bookingId}')">Assign</button>`;
+                if (isAdmin) {
+                    if (b.status === 'Pending Assignment') {
+                        actionButtons += `<button class="btn btn-sm btn-primary me-1 mb-1" onclick="openAssignModal('${b.bookingId}')">Assign</button>`;
+                    }
+                    if (b.status === 'Assigned' || b.status === 'In Progress') {
+                        actionButtons += `<button class="btn btn-sm btn-success me-1 mb-1" onclick="updateTripStatus('${b.bookingId}', 'closeTrip')">Complete</button>`;
+                    }
+                    actionButtons += `<button class="btn btn-sm btn-outline-secondary mb-1" onclick="openEditBookingModal('${b.bookingId}')"><i class="fas fa-edit"></i> Edit</button>`;
+                } else {
+                    if (b.status === 'Assigned') {
+                        actionButtons += `<button class="btn btn-sm btn-success me-1" onclick="updateTripStatus('${b.bookingId}', 'startTrip')">Start Trip</button>`;
+                    } else if (b.status === 'In Progress') {
+                        actionButtons += `<button class="btn btn-sm btn-dark me-1" onclick="updateTripStatus('${b.bookingId}', 'closeTrip')">Complete</button>`;
+                    } else {
+                        actionButtons = `<span class="text-muted small">None</span>`;
+                    }
                 }
-                if (b.status === 'Assigned' && !isAdmin) {
-                    actionButtons += `<button class="btn btn-sm btn-success me-1" onclick="updateTripStatus('${b.bookingId}', 'startTrip')">Start Trip</button>`;
-                } else if (b.status === 'In Progress' && !isAdmin) {
-                    actionButtons += `<button class="btn btn-sm btn-dark me-1" onclick="updateTripStatus('${b.bookingId}', 'closeTrip')">Complete</button>`;
-                } else if (isAdmin) {
-                    actionButtons += `<small class="text-muted">Assigned: ${b.assignedDriver || 'None'} (${b.assignedCar || 'N/A'})</small>`;
-                }
-                if (!actionButtons) actionButtons = `<span class="text-muted small">None</span>`;
 
                 const fareDisplay = isAdmin
-                    ? `Comp: ₹${b.companyFare}<br><small class="text-success">Driver Fare: ₹${b.driverFare}</small>`
-                    : `<strong>₹${b.driverFare}</strong>`;
+                    ? `Comp: ₹${b.companyFare}<br><small class="text-success">Driver: ₹${b.driverFare}</small><br><small class="text-muted">${b.paymentMode || 'Online'} (Cash: ₹${b.cashToCollect || 0})</small>`
+                    : `<strong>₹${b.driverFare}</strong><br><small class="text-muted">${b.paymentMode || 'Online'} (Collect: ₹${b.cashToCollect || 0})</small>`;
+
+                const assignedDisplay = b.assignedDriver
+                    ? `<strong>${b.assignedDriver}</strong><br><span class="badge bg-info text-dark">${b.assignedCar || 'No Car'}</span>`
+                    : `<span class="text-muted small">Unassigned</span>`;
+
+                const statusBadge = b.status === 'Completed'
+                    ? 'bg-success'
+                    : b.status === 'Cancelled'
+                        ? 'bg-danger'
+                        : b.status === 'Assigned'
+                            ? 'bg-primary'
+                            : 'bg-secondary';
 
                 return `
                     <tr>
                         <td><strong>${b.bookingId}</strong></td>
                         <td>${b.vendor}</td>
-                        <td>${b.date}<br><small>${b.startTime || ''}</small></td>
+                        <td>${b.date}<br><small class="fw-bold text-primary">${formatDisplayTime(b.startTime)}</small></td>
                         <td>${b.pickup} → ${b.drop}</td>
                         <td>${fareDisplay}</td>
-                        <td><span class="badge bg-secondary">${b.status}</span></td>
+                        <td>${assignedDisplay}</td>
+                        <td><span class="badge ${statusBadge}">${b.status}</span></td>
                         <td>${actionButtons}</td>
                     </tr>
                 `;
