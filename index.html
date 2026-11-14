@@ -98,21 +98,39 @@
                                     <div class="col-md-3"><label class="form-label">Start Time</label><input type="time" id="b-time" class="form-control" required></div>
                                     <div class="col-md-3"><label class="form-label">Pickup</label><input type="text" id="b-pickup" class="form-control" required></div>
                                     <div class="col-md-3"><label class="form-label">Drop</label><input type="text" id="b-drop" class="form-control" required></div>
-                                    <div class="col-md-3"><label class="form-label">Payment Mode</label><select id="b-paymode" class="form-control"><option value="Online">Online</option><option value="Cash">Cash</option></select></div>
-                                    <div class="col-md-4"><label class="form-label">Company Fare (₹)</label><input type="number" step="0.01" id="b-company-fare" class="form-control" required></div>
-                                    <div class="col-md-4"><label class="form-label">Driver-Facing Fare (Masked Fare ₹)</label><input type="number" step="0.01" id="b-driver-fare" class="form-control" required></div>
-                                    <div class="col-md-4"><label class="form-label">Cash to Collect (₹)</label><input type="number" step="0.01" id="b-cash-collect" class="form-control" value="0"></div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Payment Mode</label>
+                                        <select id="b-paymode" class="form-control" onchange="syncCashFieldState('b-paymode', 'b-cash-collect', 'b-company-fare', 'b-vendor-balance')">
+                                            <option value="Online">Online</option>
+                                            <option value="Cash">Cash</option>
+                                            <option value="Partial Cash (Vendor Balance)">Partial Cash (Vendor Balance)</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3"><label class="form-label">Company Fare (₹)</label><input type="number" step="0.01" id="b-company-fare" class="form-control" oninput="syncCashFieldState('b-paymode', 'b-cash-collect', 'b-company-fare', 'b-vendor-balance')" required></div>
+                                    <div class="col-md-3"><label class="form-label">Driver-Facing Fare (₹)</label><input type="number" step="0.01" id="b-driver-fare" class="form-control" required></div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Cash to Collect (₹)</label>
+                                        <input type="number" step="0.01" id="b-cash-collect" class="form-control" value="0" disabled oninput="syncCashFieldState('b-paymode', 'b-cash-collect', 'b-company-fare', 'b-vendor-balance')">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Vendor Balance (₹)</label>
+                                        <input type="text" id="b-vendor-balance" class="form-control bg-light" value="0.00" readonly>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Airport Parking Fee (₹) <small class="text-muted">(Driver Reimbursed)</small></label>
+                                        <input type="number" step="0.01" id="b-parking-fee" class="form-control" value="0">
+                                    </div>
                                 </div>
                                 <div class="mt-3 text-end"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Save Booking</button></div>
                             </form>
                         </div>
 
                         <hr>
-                        <h5 class="mb-3">Live Roster & Assignments</h5>
+                        <h5 class="mb-3">Live Roster & Assignments <small class="text-muted fw-normal">(Latest date & time on top)</small></h5>
                         <div class="table-responsive">
                             <table class="table table-striped align-middle">
                                 <thead>
-                                    <tr><th>ID</th><th>Vendor</th><th>Date/Time</th><th>Route</th><th>Fare / Payment</th><th>Assigned To</th><th>Status</th><th>Actions</th></tr>
+                                    <tr><th>ID</th><th>Vendor</th><th>Date/Time</th><th>Route</th><th>Fare & Collection</th><th>Assigned To</th><th>Status</th><th>Actions</th></tr>
                                 </thead>
                                 <tbody id="roster-tbody">
                                     <tr><td colspan="8" class="text-center text-muted">Loading bookings...</td></tr>
@@ -125,7 +143,6 @@
                 <!-- TAB 3: EXPENSE & CASH AUDIT -->
                 <div id="expense-tab" class="content-section d-none">
                     <div class="row">
-                        <!-- Driver Expense Column (DRIVER ONLY) -->
                         <div class="col-md-6 mb-4 driver-only">
                             <div class="card p-4 shadow-sm h-100">
                                 <h4 class="mb-3 text-success"><i class="fas fa-receipt me-2"></i>Log Shift Expense</h4>
@@ -142,6 +159,7 @@
                                         <select id="d-exp-cat" class="form-control">
                                             <option value="EV Charging">EV Charging (Upload Phone Screenshot)</option>
                                             <option value="Fuel">Fuel (Take Photo of Hard Copy)</option>
+                                            <option value="Airport Parking">Airport Parking (Reimbursable)</option>
                                             <option value="Toll">Toll Fee</option>
                                             <option value="Parking">Parking</option>
                                         </select>
@@ -157,7 +175,6 @@
                             </div>
                         </div>
 
-                        <!-- Cash Deposit Form (DRIVER ONLY) -->
                         <div class="col-md-6 mb-4 driver-only">
                             <div class="card p-4 shadow-sm h-100">
                                 <h4 class="mb-3 text-warning"><i class="fas fa-money-bill-wave me-2"></i>Cash Deposit / Handover</h4>
@@ -174,7 +191,6 @@
                             </div>
                         </div>
 
-                        <!-- Admin General Company Expenses -->
                         <div class="col-md-12 admin-only mb-4">
                             <div class="card p-4 shadow-sm border-dark">
                                 <h4 class="mb-3 text-dark"><i class="fas fa-building me-2"></i>Admin General & Company Expense Ledger</h4>
@@ -212,7 +228,6 @@
                             </div>
                         </div>
 
-                        <!-- Live Ledgers -->
                         <div class="col-md-12 mb-4">
                             <div class="card p-4 shadow-sm">
                                 <h5 class="mb-3 text-warning"><i class="fas fa-hand-holding-usd me-2"></i>Cash Deposits & Handover History</h5>
@@ -264,18 +279,17 @@
                             </div>
                         </div>
 
-                        <!-- Driver Earnings & Settlement Table -->
                         <h5 class="mt-3 mb-2 text-success"><i class="fas fa-user-tie me-2"></i>Driver Earnings, Expenses & Settlement Ledger</h5>
-                        <p class="text-muted small">Shows completed trip earnings (driver fare / commission share), shift expenses reimbursed, cash collected on rides, verified deposits, and fines/settlements.</p>
+                        <p class="text-muted small">Ready for your ChatGPT earnings/commission/fine formula snippet—currently showing completed trip earnings, parking reimbursement, shift expenses, cash collected, verified deposits, and settlements/fines.</p>
                         <div class="table-responsive mb-4">
                             <table class="table table-bordered table-striped align-middle">
                                 <thead class="table-dark">
                                     <tr>
                                         <th>Driver</th>
-                                        <th>Completed Trips</th>
+                                        <th>Trips</th>
                                         <th>Trip Earnings (+)</th>
-                                        <th>Company Margin</th>
-                                        <th>Expenses Paid (+)</th>
+                                        <th>Parking Reimbursed (+)</th>
+                                        <th>Shift Expenses (+)</th>
                                         <th>Cash Collected (−)</th>
                                         <th>Verified Deposits (−)</th>
                                         <th>Settlements / Fines (−)</th>
@@ -288,11 +302,9 @@
                             </table>
                         </div>
 
-                        <!-- Individual Car P&L Statement (ADMIN ONLY) -->
                         <div class="admin-only">
                             <hr>
                             <h5 class="mt-3 mb-2 text-dark"><i class="fas fa-car-side me-2"></i>Vehicle Profit & Loss (Car P&L)</h5>
-                            <p class="text-muted small">Net Car Profit = Gross Company Trip Revenue − (Driver Fare Payout + Shift Fuel/EV/Toll Expenses + Car-Specific Admin Expenses)</p>
                             <div class="table-responsive mb-3">
                                 <table class="table table-bordered table-striped align-middle">
                                     <thead class="table-dark">
@@ -369,7 +381,7 @@
         </div>
     </div>
 
-    <!-- ==================== ASSIGNMENT MODAL (DROPDOWN SELECTORS) ==================== -->
+    <!-- ==================== ASSIGNMENT MODAL ==================== -->
     <div class="modal fade" id="assignModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -435,14 +447,15 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Payment Mode</label>
-                            <select id="edit-b-paymode" class="form-select">
+                            <select id="edit-b-paymode" class="form-select" onchange="syncCashFieldState('edit-b-paymode', 'edit-b-cash', 'edit-b-comp-fare', 'edit-b-vendor-bal')">
                                 <option value="Online">Online</option>
                                 <option value="Cash">Cash</option>
+                                <option value="Partial Cash (Vendor Balance)">Partial Cash (Vendor Balance)</option>
                             </select>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Company Fare (₹)</label>
-                            <input type="number" step="0.01" id="edit-b-comp-fare" class="form-control">
+                            <input type="number" step="0.01" id="edit-b-comp-fare" class="form-control" oninput="syncCashFieldState('edit-b-paymode', 'edit-b-cash', 'edit-b-comp-fare', 'edit-b-vendor-bal')">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Driver Fare (₹)</label>
@@ -450,13 +463,21 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Cash to Collect (₹)</label>
-                            <input type="number" step="0.01" id="edit-b-cash" class="form-control">
+                            <input type="number" step="0.01" id="edit-b-cash" class="form-control" oninput="syncCashFieldState('edit-b-paymode', 'edit-b-cash', 'edit-b-comp-fare', 'edit-b-vendor-bal')">
                         </div>
                         <div class="col-md-4">
+                            <label class="form-label">Vendor Balance (₹)</label>
+                            <input type="text" id="edit-b-vendor-bal" class="form-control bg-light" readonly>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Airport Parking Fee (₹)</label>
+                            <input type="number" step="0.01" id="edit-b-parking" class="form-control">
+                        </div>
+                        <div class="col-md-6">
                             <label class="form-label">Assigned Driver</label>
                             <select id="edit-b-driver" class="form-select"></select>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label class="form-label">Assigned Car</label>
                             <select id="edit-b-car" class="form-select"></select>
                         </div>
@@ -485,6 +506,30 @@
             assignModalInstance = new bootstrap.Modal(document.getElementById('assignModal'));
             editModalInstance = new bootstrap.Modal(document.getElementById('editBookingModal'));
         });
+
+        // Strict rule: Online payment cannot have Cash to Collect
+        function syncCashFieldState(modeId, cashId, compFareId, vendorBalId) {
+            const mode = document.getElementById(modeId)?.value || "Online";
+            const cashInput = document.getElementById(cashId);
+            const compFare = parseFloat(document.getElementById(compFareId)?.value) || 0;
+            const vendorBalEl = document.getElementById(vendorBalId);
+
+            if (mode === "Online") {
+                if (cashInput) {
+                    cashInput.value = 0;
+                    cashInput.disabled = true;
+                }
+                if (vendorBalEl) vendorBalEl.value = "0.00";
+            } else {
+                if (cashInput) {
+                    cashInput.disabled = false;
+                }
+                const cashVal = parseFloat(cashInput?.value) || 0;
+                if (vendorBalEl) {
+                    vendorBalEl.value = Math.max(0, compFare - cashVal).toFixed(2);
+                }
+            }
+        }
 
         function normalizeName(str) {
             return (str || "").toString().trim().toLowerCase().replace(/[\s_]+/g, '');
@@ -525,11 +570,19 @@
             return val;
         }
 
+        function getBookingSortTimestamp(b) {
+            const datePart = (b.date || "1970-01-01").toString().split('T')[0];
+            const timePart = to24HourTime(b.startTime) || "00:00";
+            const ts = Date.parse(`${datePart}T${timePart}:00`);
+            return isNaN(ts) ? 0 : ts;
+        }
+
         function setDefaultDates() {
             const today = new Date().toISOString().split('T')[0];
             ['b-date', 'd-exp-date', 'dep-date', 'adm-exp-date'].forEach(id => {
                 if (document.getElementById(id)) document.getElementById(id).value = today;
             });
+            syncCashFieldState('b-paymode', 'b-cash-collect', 'b-company-fare', 'b-vendor-balance');
         }
 
         function clearReportDates() {
@@ -654,14 +707,9 @@
 
         function openAssignModal(bookingId) {
             document.getElementById('modal-booking-id').value = bookingId;
-            
             const drivers = dbData.users.filter(u => u.role.toLowerCase() === 'driver' && u.status.toLowerCase() === 'active');
-            const driverSelect = document.getElementById('modal-driver-select');
-            driverSelect.innerHTML = drivers.map(d => `<option value="${d.username}">${d.username}</option>`).join('');
-
-            const carSelect = document.getElementById('modal-car-select');
-            carSelect.innerHTML = dbData.cars.map(c => `<option value="${c.reg}">${c.reg} - ${c.desc}</option>`).join('');
-
+            document.getElementById('modal-driver-select').innerHTML = drivers.map(d => `<option value="${d.username}">${d.username}</option>`).join('');
+            document.getElementById('modal-car-select').innerHTML = dbData.cars.map(c => `<option value="${c.reg}">${c.reg} - ${c.desc}</option>`).join('');
             assignModalInstance.show();
         }
 
@@ -669,11 +717,7 @@
             const bookingId = document.getElementById('modal-booking-id').value;
             const assignedDriver = document.getElementById('modal-driver-select').value;
             const assignedCar = document.getElementById('modal-car-select').value;
-
-            if (!assignedDriver || !assignedCar) {
-                alert("Please select both a driver and a car.");
-                return;
-            }
+            if (!assignedDriver || !assignedCar) { alert("Please select both a driver and a car."); return; }
 
             assignModalInstance.hide();
             const res = await apiCall("assignBookingDriver", { bookingId, assignedDriver, assignedCar });
@@ -695,6 +739,7 @@
             document.getElementById('edit-b-comp-fare').value = b.companyFare || 0;
             document.getElementById('edit-b-drv-fare').value = b.driverFare || 0;
             document.getElementById('edit-b-cash').value = b.cashToCollect || 0;
+            document.getElementById('edit-b-parking').value = b.parkingFee || 0;
 
             const drivers = dbData.users.filter(u => u.role.toLowerCase() === 'driver');
             const drvSel = document.getElementById('edit-b-driver');
@@ -705,10 +750,18 @@
             carSel.innerHTML = `<option value="">-- Unassigned --</option>` + dbData.cars.map(c => `<option value="${c.reg}">${c.reg} - ${c.desc}</option>`).join('');
             carSel.value = b.assignedCar || "";
 
+            syncCashFieldState('edit-b-paymode', 'edit-b-cash', 'edit-b-comp-fare', 'edit-b-vendor-bal');
             editModalInstance.show();
         }
 
         async function saveEditedBooking() {
+            const payMode = document.getElementById('edit-b-paymode').value;
+            const rawCash = parseFloat(document.getElementById('edit-b-cash').value) || 0;
+            if (payMode === "Online" && rawCash > 0) {
+                alert("Online bookings cannot have Cash to Collect.");
+                return;
+            }
+
             const payload = {
                 bookingId: document.getElementById('edit-b-id').value,
                 status: document.getElementById('edit-b-status').value,
@@ -716,10 +769,11 @@
                 startTime: document.getElementById('edit-b-time').value,
                 pickup: document.getElementById('edit-b-pickup').value,
                 drop: document.getElementById('edit-b-drop').value,
-                paymentMode: document.getElementById('edit-b-paymode').value,
+                paymentMode: payMode,
                 companyFare: document.getElementById('edit-b-comp-fare').value,
                 driverFare: document.getElementById('edit-b-drv-fare').value,
-                cashToCollect: document.getElementById('edit-b-cash').value,
+                cashToCollect: payMode === "Online" ? 0 : rawCash,
+                parkingFee: document.getElementById('edit-b-parking').value || 0,
                 assignedDriver: document.getElementById('edit-b-driver').value,
                 assignedCar: document.getElementById('edit-b-car').value
             };
@@ -738,7 +792,6 @@
             const startBtn = document.getElementById('btn-start-shift');
             const endBtn = document.getElementById('btn-end-shift');
             const statusText = document.getElementById('shift-status-text');
-
             const expLock = document.getElementById('driver-shift-expense-lock');
             const expBtn = document.getElementById('btn-submit-driver-exp');
             const expCarInput = document.getElementById('d-exp-car');
@@ -748,7 +801,6 @@
                 statusText.innerHTML = `<i class="fas fa-circle me-1"></i> Shift Status: OPEN (Car: ${currentActiveShift.regNumber}, Start Odo: ${currentActiveShift.startOdometer})`;
                 startBtn.classList.add('d-none');
                 endBtn.classList.remove('d-none');
-
                 expLock.classList.add('d-none');
                 expBtn.disabled = false;
                 expCarInput.value = currentActiveShift.regNumber;
@@ -757,7 +809,6 @@
                 statusText.innerHTML = '<i class="fas fa-circle me-1"></i> Shift Status: CLOSED';
                 endBtn.classList.add('d-none');
                 startBtn.classList.remove('d-none');
-
                 expLock.classList.remove('d-none');
                 expBtn.disabled = true;
                 expCarInput.value = "";
@@ -783,16 +834,20 @@
             const endOdometer = prompt("Enter End Odometer Reading:");
             if (!endOdometer) return;
 
-            const res = await apiCall("endShift", {
-                driver: currentUser.username,
-                endOdometer
-            });
+            const res = await apiCall("endShift", { driver: currentUser.username, endOdometer });
             showBanner(res.message, res.status === "success" ? "success" : "danger");
             if (res.status === "success") await fetchDatabase();
         }
 
         async function handleSaveBooking(e) {
             e.preventDefault();
+            const payMode = document.getElementById('b-paymode').value;
+            const rawCash = parseFloat(document.getElementById('b-cash-collect').value) || 0;
+            if (payMode === "Online" && rawCash > 0) {
+                alert("Online payment mode cannot have Cash to Collect.");
+                return;
+            }
+
             const res = await apiCall("addBooking", {
                 bookingId: document.getElementById('b-id').value,
                 vendor: document.getElementById('b-vendor').value,
@@ -801,10 +856,11 @@
                 startTime: document.getElementById('b-time').value,
                 pickup: document.getElementById('b-pickup').value,
                 drop: document.getElementById('b-drop').value,
-                paymentMode: document.getElementById('b-paymode').value,
+                paymentMode: payMode,
                 companyFare: document.getElementById('b-company-fare').value,
                 driverFare: document.getElementById('b-driver-fare').value,
-                cashToCollect: document.getElementById('b-cash-collect').value,
+                cashToCollect: payMode === "Online" ? 0 : rawCash,
+                parkingFee: document.getElementById('b-parking-fee').value || 0,
                 status: "Pending Assignment"
             });
             showBanner(res.message, res.status === "success" ? "success" : "danger");
@@ -825,10 +881,7 @@
 
         async function handleDriverExpense(e) {
             e.preventDefault();
-            if (!currentActiveShift) {
-                alert("You can only upload expenses while your shift is open.");
-                return;
-            }
+            if (!currentActiveShift) { alert("You can only upload expenses while your shift is open."); return; }
             const category = document.getElementById('d-exp-cat').value;
             const receiptImage = await readFileAsBase64('d-exp-receipt-file');
             if ((category === "Fuel" || category === "EV Charging") && !receiptImage) {
@@ -970,7 +1023,6 @@
             tbody.innerHTML = dbData.users.map(u => {
                 const targetRole = u.role.toLowerCase();
                 let buttons = '';
-
                 if (myRole === 'superadmin' && targetRole !== 'superadmin') {
                     buttons += `<button class="btn btn-sm btn-outline-warning me-1" onclick="changeUserStatus('${u.username}', '${u.status}')">${u.status.toLowerCase() === 'active' ? 'Deactivate' : 'Activate'}</button>`;
                     buttons += `<button class="btn btn-sm btn-outline-danger" onclick="removeUser('${u.username}')">Delete</button>`;
@@ -979,7 +1031,6 @@
                 } else {
                     buttons = `<span class="text-muted small">Restricted</span>`;
                 }
-
                 return `
                     <tr>
                         <td><strong>${u.username}</strong></td>
@@ -1071,7 +1122,6 @@
             const startStr = document.getElementById('rep-start-date')?.value || "";
             const endStr = document.getElementById('rep-end-date')?.value || "";
 
-            // 1. Driver Earnings, Commission, Expenses & Fines Calculation
             const driversList = isAdmin
                 ? dbData.users.filter(u => u.role.toLowerCase() === 'driver')
                 : dbData.users.filter(u => normalizeName(u.username) === normalizeName(currentUser.username));
@@ -1087,10 +1137,12 @@
                         isWithinDateRange(b.date, startStr, endStr)
                     );
 
-                    const grossCompanyFare = completedTrips.reduce((sum, b) => sum + (parseFloat(b.companyFare) || 0), 0);
                     const grossDriverFare = completedTrips.reduce((sum, b) => sum + (parseFloat(b.driverFare) || 0), 0);
-                    const companyCommission = Math.max(0, grossCompanyFare - grossDriverFare);
-                    const cashCollected = completedTrips.reduce((sum, b) => sum + (b.paymentMode === 'Cash' ? (parseFloat(b.cashToCollect) || 0) : 0), 0);
+                    const parkingReimbursed = completedTrips.reduce((sum, b) => sum + (parseFloat(b.parkingFee) || 0), 0);
+                    const cashCollected = completedTrips.reduce((sum, b) => {
+                        const isOnline = (b.paymentMode || "").toLowerCase() === "online";
+                        return sum + (isOnline ? 0 : (parseFloat(b.cashToCollect) || 0));
+                    }, 0);
 
                     const shiftExpenses = dbData.driverExpenses
                         .filter(e => normalizeName(e.driverName) === normDrv && isWithinDateRange(e.date, startStr, endStr))
@@ -1104,14 +1156,14 @@
                         .filter(a => a.allocationType === 'Driver Specific' && normalizeName(a.targetEntity) === normDrv && isWithinDateRange(a.date, startStr, endStr))
                         .reduce((sum, a) => sum + (parseFloat(a.amount) || 0), 0);
 
-                    const netBalance = (grossDriverFare + shiftExpenses) - (cashCollected + verifiedDeposits + adminSettlementsAndFines);
+                    const netBalance = (grossDriverFare + parkingReimbursed + shiftExpenses) - (cashCollected + verifiedDeposits + adminSettlementsAndFines);
 
                     return `
                         <tr>
                             <td><strong>${drv.username}</strong></td>
                             <td>${completedTrips.length}</td>
                             <td>₹${grossDriverFare.toFixed(2)}</td>
-                            <td class="text-muted">₹${companyCommission.toFixed(2)}</td>
+                            <td class="text-info">+₹${parkingReimbursed.toFixed(2)}</td>
                             <td class="text-primary">+₹${shiftExpenses.toFixed(2)}</td>
                             <td class="text-danger">−₹${cashCollected.toFixed(2)}</td>
                             <td class="text-success">−₹${verifiedDeposits.toFixed(2)}</td>
@@ -1122,7 +1174,6 @@
                 }).join('') : `<tr><td colspan="9" class="text-center text-muted">No driver records found.</td></tr>`;
             }
 
-            // 2. Car P&L Calculation (Admin Only)
             const pnlTbody = document.getElementById('car-pnl-tbody');
             const overheadBox = document.getElementById('company-overhead-summary');
             if (pnlTbody && isAdmin) {
@@ -1177,9 +1228,11 @@
             const myRole = currentUser.role.toLowerCase();
             const isAdmin = myRole === 'admin' || myRole === 'superadmin';
 
-            const visibleBookings = isAdmin 
+            const visibleBookings = (isAdmin 
                 ? dbData.bookings 
-                : dbData.bookings.filter(b => normalizeName(b.assignedDriver) === normalizeName(currentUser.username));
+                : dbData.bookings.filter(b => normalizeName(b.assignedDriver) === normalizeName(currentUser.username)))
+                .slice()
+                .sort((a, b) => getBookingSortTimestamp(b) - getBookingSortTimestamp(a));
 
             if (!visibleBookings || visibleBookings.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">No bookings found in roster.</td></tr>`;
@@ -1206,9 +1259,15 @@
                     }
                 }
 
+                const isOnline = (b.paymentMode || "Online").toLowerCase() === "online";
+                const cashVal = isOnline ? 0 : (parseFloat(b.cashToCollect) || 0);
+                const compVal = parseFloat(b.companyFare) || 0;
+                const vendorBal = Math.max(0, compVal - cashVal);
+                const parkingVal = parseFloat(b.parkingFee) || 0;
+
                 const fareDisplay = isAdmin
-                    ? `Comp: ₹${b.companyFare}<br><small class="text-success">Driver: ₹${b.driverFare}</small><br><small class="text-muted">${b.paymentMode || 'Online'} (Cash: ₹${b.cashToCollect || 0})</small>`
-                    : `<strong>₹${b.driverFare}</strong><br><small class="text-muted">${b.paymentMode || 'Online'} (Collect: ₹${b.cashToCollect || 0})</small>`;
+                    ? `Comp: ₹${compVal} | Drv: ₹${b.driverFare}<br><small class="text-muted">${b.paymentMode || 'Online'} | Cash: ₹${cashVal} | Vendor Bal: ₹${vendorBal}</small>${parkingVal > 0 ? `<br><small class="text-info">Parking: ₹${parkingVal}</small>` : ''}`
+                    : `<strong>₹${b.driverFare}</strong><br><small class="text-muted">${b.paymentMode || 'Online'} | Collect: ₹${cashVal}</small>${parkingVal > 0 ? `<br><small class="text-info">Parking: ₹${parkingVal}</small>` : ''}`;
 
                 const assignedDisplay = b.assignedDriver
                     ? `<strong>${b.assignedDriver}</strong><br><span class="badge bg-info text-dark">${b.assignedCar || 'No Car'}</span>`
