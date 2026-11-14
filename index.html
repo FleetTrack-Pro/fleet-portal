@@ -22,7 +22,7 @@
             <h3 class="text-center mb-4"><i class="fas fa-truck-fast text-primary me-2"></i>Fleet Portal Login</h3>
             <div class="mb-3">
                 <label class="form-label">Username / Driver ID</label>
-                <input type="text" id="login-username" class="form-control" placeholder="e.g. superadmin, saroj, or Safiul">
+                <input type="text" id="login-username" class="form-control" placeholder="e.g. Saroj_Mondal or admin">
             </div>
             <div class="mb-3">
                 <label class="form-label">Password</label>
@@ -45,6 +45,7 @@
                     <li class="nav-item driver-only"><a href="#" class="nav-link active" id="link-shift" onclick="switchTab('shift-tab', this)"><i class="fas fa-clock me-2"></i>Shift Control</a></li>
                     <li class="nav-item"><a href="#" class="nav-link" id="link-roster" onclick="switchTab('roster-tab', this)"><i class="fas fa-list-alt me-2"></i>Booking Roster</a></li>
                     <li class="nav-item"><a href="#" class="nav-link" id="link-expense" onclick="switchTab('expense-tab', this)"><i class="fas fa-receipt me-2"></i>Expenses & Cash</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link" id="link-reports" onclick="switchTab('reports-tab', this)"><i class="fas fa-chart-line me-2"></i>Earnings & P&L</a></li>
                     <li class="nav-item admin-only"><a href="#" class="nav-link" id="link-cars" onclick="switchTab('cars-tab', this)"><i class="fas fa-car me-2"></i>Fleet Cars</a></li>
                     <li class="nav-item admin-only"><a href="#" class="nav-link" id="link-users" onclick="switchTab('users-tab', this)"><i class="fas fa-users-cog me-2"></i>User Management</a></li>
                     <li class="nav-item mt-4"><a href="#" class="nav-link text-danger" onclick="handleLogout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
@@ -98,9 +99,9 @@
                                     <div class="col-md-3"><label class="form-label">Pickup</label><input type="text" id="b-pickup" class="form-control" required></div>
                                     <div class="col-md-3"><label class="form-label">Drop</label><input type="text" id="b-drop" class="form-control" required></div>
                                     <div class="col-md-3"><label class="form-label">Payment Mode</label><select id="b-paymode" class="form-control"><option value="Online">Online</option><option value="Cash">Cash</option></select></div>
-                                    <div class="col-md-4"><label class="form-label">Company Fare</label><input type="number" step="0.01" id="b-company-fare" class="form-control" required></div>
-                                    <div class="col-md-4"><label class="form-label">Driver-Facing Fare (Masked Fare)</label><input type="number" step="0.01" id="b-driver-fare" class="form-control" required></div>
-                                    <div class="col-md-4"><label class="form-label">Cash to Collect</label><input type="number" step="0.01" id="b-cash-collect" class="form-control" value="0"></div>
+                                    <div class="col-md-4"><label class="form-label">Company Fare (₹)</label><input type="number" step="0.01" id="b-company-fare" class="form-control" required></div>
+                                    <div class="col-md-4"><label class="form-label">Driver-Facing Fare (Masked Fare ₹)</label><input type="number" step="0.01" id="b-driver-fare" class="form-control" required></div>
+                                    <div class="col-md-4"><label class="form-label">Cash to Collect (₹)</label><input type="number" step="0.01" id="b-cash-collect" class="form-control" value="0"></div>
                                 </div>
                                 <div class="mt-3 text-end"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Save Booking</button></div>
                             </form>
@@ -145,7 +146,7 @@
                                             <option value="Parking">Parking</option>
                                         </select>
                                     </div>
-                                    <div class="mb-2"><label class="form-label">Amount</label><input type="number" step="0.01" id="d-exp-amt" class="form-control" required></div>
+                                    <div class="mb-2"><label class="form-label">Amount (₹)</label><input type="number" step="0.01" id="d-exp-amt" class="form-control" required></div>
                                     <div class="mb-2"><label class="form-label">Date</label><input type="date" id="d-exp-date" class="form-control" required></div>
                                     <div class="mb-3">
                                         <label class="form-label fw-bold">Upload or Take Receipt Photo (Mandatory for Fuel/EV)</label>
@@ -161,7 +162,7 @@
                             <div class="card p-4 shadow-sm h-100">
                                 <h4 class="mb-3 text-warning"><i class="fas fa-money-bill-wave me-2"></i>Cash Deposit / Handover</h4>
                                 <form onsubmit="handleCashDeposit(event)">
-                                    <div class="mb-3"><label class="form-label">Amount Deposited</label><input type="number" step="0.01" id="dep-amt" class="form-control" required></div>
+                                    <div class="mb-3"><label class="form-label">Amount Deposited (₹)</label><input type="number" step="0.01" id="dep-amt" class="form-control" required></div>
                                     <div class="mb-3"><label class="form-label">Date</label><input type="date" id="dep-date" class="form-control" required></div>
                                     <div class="mb-3">
                                         <label class="form-label">Payment Mode</label>
@@ -173,7 +174,7 @@
                             </div>
                         </div>
 
-                        <!-- Admin General Company Expenses (ADMIN ONLY) -->
+                        <!-- Admin General Company Expenses -->
                         <div class="col-md-12 admin-only mb-4">
                             <div class="card p-4 shadow-sm border-dark">
                                 <h4 class="mb-3 text-dark"><i class="fas fa-building me-2"></i>Admin General & Company Expense Ledger</h4>
@@ -200,7 +201,7 @@
                                         <label class="form-label" id="target-entity-label">Target Entity</label>
                                         <select id="adm-exp-target" class="form-control"></select>
                                     </div>
-                                    <div class="col-md-3"><label class="form-label">Amount</label><input type="number" step="0.01" id="adm-exp-amt" class="form-control" required></div>
+                                    <div class="col-md-3"><label class="form-label">Amount (₹)</label><input type="number" step="0.01" id="adm-exp-amt" class="form-control" required></div>
                                     <div class="col-md-3"><label class="form-label">Date</label><input type="date" id="adm-exp-date" class="form-control" required></div>
                                     <div class="col-md-3"><label class="form-label">Payment Mode</label><select id="adm-exp-mode" class="form-control"><option value="Bank Transfer">Bank Transfer</option><option value="Cash">Cash</option><option value="UPI">UPI</option></select></div>
                                     <div class="col-md-6"><label class="form-label">Upload Receipt Photo (Optional)</label><input type="file" id="adm-exp-receipt-file" class="form-control" accept="image/*"></div>
@@ -210,7 +211,7 @@
                             </div>
                         </div>
 
-                        <!-- Live Cash Deposits Ledger (BOTH ADMIN & DRIVER) -->
+                        <!-- Live Ledgers -->
                         <div class="col-md-12 mb-4">
                             <div class="card p-4 shadow-sm">
                                 <h5 class="mb-3 text-warning"><i class="fas fa-hand-holding-usd me-2"></i>Cash Deposits & Handover History</h5>
@@ -223,7 +224,6 @@
                             </div>
                         </div>
 
-                        <!-- Live Driver & Admin Expenses Ledger -->
                         <div class="col-md-12 mb-4">
                             <div class="card p-4 shadow-sm">
                                 <h5 class="mb-3 text-success"><i class="fas fa-file-invoice-dollar me-2"></i>Driver Shift Expenses & Receipts</h5>
@@ -250,7 +250,72 @@
                     </div>
                 </div>
 
-                <!-- TAB 4: FLEET CARS (SEPARATE TAB) -->
+                <!-- TAB 4: EARNINGS & CAR P&L ANALYTICS -->
+                <div id="reports-tab" class="content-section d-none">
+                    <div class="card p-4 shadow-sm mb-4">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                            <h4 class="text-primary mb-2 mb-md-0"><i class="fas fa-chart-line me-2"></i>Financial Analytics: Driver Earnings & Car P&L</h4>
+                            <div class="d-flex gap-2 align-items-center">
+                                <input type="date" id="rep-start-date" class="form-control form-control-sm" onchange="renderAnalytics()">
+                                <span class="text-muted">to</span>
+                                <input type="date" id="rep-end-date" class="form-control form-control-sm" onchange="renderAnalytics()">
+                                <button class="btn btn-sm btn-outline-secondary" onclick="clearReportDates()">All Time</button>
+                            </div>
+                        </div>
+
+                        <!-- Driver Earnings & Settlement Table -->
+                        <h5 class="mt-3 mb-2 text-success"><i class="fas fa-user-tie me-2"></i>Driver Earnings & Settlement Statement</h5>
+                        <p class="text-muted small">Net Balance = (Completed Masked Fares + Shift Expenses Paid) − (Cash Collected on Trips + Cash Deposited + Admin Settlements Paid)</p>
+                        <div class="table-responsive mb-4">
+                            <table class="table table-bordered table-striped align-middle">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Driver</th>
+                                        <th>Completed Trips</th>
+                                        <th>Gross Driver Fare</th>
+                                        <th>Shift Expenses (+)</th>
+                                        <th>Cash Collected (−)</th>
+                                        <th>Cash Deposited (−)</th>
+                                        <th>Admin Settlements (−)</th>
+                                        <th>Net Payable / Balance</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="driver-earnings-tbody">
+                                    <tr><td colspan="8" class="text-center text-muted">Calculating earnings...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Individual Car P&L Statement (ADMIN ONLY) -->
+                        <div class="admin-only">
+                            <hr>
+                            <h5 class="mt-3 mb-2 text-dark"><i class="fas fa-car-side me-2"></i>Vehicle Profit & Loss (Car P&L)</h5>
+                            <p class="text-muted small">Net Car Profit = Gross Company Trip Revenue − (Shift Fuel/EV/Toll Expenses + Car-Specific Admin Expenses like Insurance/Maintenance)</p>
+                            <div class="table-responsive mb-3">
+                                <table class="table table-bordered table-striped align-middle">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Car Reg</th>
+                                            <th>Model / Fuel</th>
+                                            <th>Trips</th>
+                                            <th>Company Revenue (+)</th>
+                                            <th>Driver Fare Cost (−)</th>
+                                            <th>Shift Fuel/Ops (−)</th>
+                                            <th>Car Admin Exp (−)</th>
+                                            <th>Net Car P&L</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="car-pnl-tbody">
+                                        <tr><td colspan="8" class="text-center text-muted">Calculating Car P&L...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="company-overhead-summary" class="alert alert-secondary mb-0"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 5: FLEET CARS -->
                 <div id="cars-tab" class="content-section admin-only d-none">
                     <div class="card p-4 shadow-sm mb-4">
                         <h4 class="mb-3 text-dark"><i class="fas fa-car me-2"></i>Register New Fleet Car</h4>
@@ -274,7 +339,7 @@
                     </div>
                 </div>
 
-                <!-- TAB 5: USER MANAGEMENT (SEPARATE TAB) -->
+                <!-- TAB 6: USER MANAGEMENT -->
                 <div id="users-tab" class="content-section admin-only d-none">
                     <div class="card p-4 shadow-sm mb-4">
                         <h4 class="mb-3 text-dark"><i class="fas fa-user-plus me-2"></i>Create User Account</h4>
@@ -302,16 +367,45 @@
         </div>
     </div>
 
+    <!-- ==================== ASSIGNMENT MODAL (DROPDOWN SELECTORS) ==================== -->
+    <div class="modal fade" id="assignModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-user-check me-2"></i>Assign Booking to Driver & Car</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="modal-booking-id">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Select Driver</label>
+                        <select id="modal-driver-select" class="form-select"></select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Select Car</label>
+                        <select id="modal-car-select" class="form-select"></select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmBookingAssignment()">Confirm Assignment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzgq0DU2ZPO4SQ0b5kBjQQaqOLeRdnZ9O1nEsU6jVfVvT9jQDt2OqC3pvGZOY6JB5o/exec";
         let currentUser = JSON.parse(localStorage.getItem("FMS_USER")) || null;
         let dbData = { users: [], cars: [], shifts: [], bookings: [], driverExpenses: [], adminExpenses: [], cashDeposits: [] };
         let currentActiveShift = null;
+        let assignModalInstance = null;
 
         document.addEventListener("DOMContentLoaded", () => {
             if (currentUser) appInit();
             setDefaultDates();
+            assignModalInstance = new bootstrap.Modal(document.getElementById('assignModal'));
         });
 
         function setDefaultDates() {
@@ -319,6 +413,12 @@
             ['b-date', 'd-exp-date', 'dep-date', 'adm-exp-date'].forEach(id => {
                 if (document.getElementById(id)) document.getElementById(id).value = today;
             });
+        }
+
+        function clearReportDates() {
+            document.getElementById('rep-start-date').value = "";
+            document.getElementById('rep-end-date').value = "";
+            renderAnalytics();
         }
 
         function readFileAsBase64(fileInputId) {
@@ -387,6 +487,7 @@
             document.getElementById(tabId).classList.remove('d-none');
             document.querySelectorAll('.sidebar .nav-link').forEach(link => link.classList.remove('active'));
             if (el) el.classList.add('active');
+            if (tabId === 'reports-tab') renderAnalytics();
         }
 
         function showBanner(msg, type = "info") {
@@ -419,6 +520,7 @@
                 renderCarsTable();
                 renderUsersTable();
                 renderFinancialLedgers();
+                renderAnalytics();
                 checkActiveShift();
                 showBanner("Data synchronized!", "success");
             } else {
@@ -431,6 +533,35 @@
             if (carSelect && dbData.cars) {
                 carSelect.innerHTML = dbData.cars.map(c => `<option value="${c.reg}">${c.reg} - ${c.desc} (${c.fuelType})</option>`).join('');
             }
+        }
+
+        function openAssignModal(bookingId) {
+            document.getElementById('modal-booking-id').value = bookingId;
+            
+            const drivers = dbData.users.filter(u => u.role.toLowerCase() === 'driver' && u.status.toLowerCase() === 'active');
+            const driverSelect = document.getElementById('modal-driver-select');
+            driverSelect.innerHTML = drivers.map(d => `<option value="${d.username}">${d.username}</option>`).join('');
+
+            const carSelect = document.getElementById('modal-car-select');
+            carSelect.innerHTML = dbData.cars.map(c => `<option value="${c.reg}">${c.reg} - ${c.desc}</option>`).join('');
+
+            assignModalInstance.show();
+        }
+
+        async function confirmBookingAssignment() {
+            const bookingId = document.getElementById('modal-booking-id').value;
+            const assignedDriver = document.getElementById('modal-driver-select').value;
+            const assignedCar = document.getElementById('modal-car-select').value;
+
+            if (!assignedDriver || !assignedCar) {
+                alert("Please select both a driver and a car.");
+                return;
+            }
+
+            assignModalInstance.hide();
+            const res = await apiCall("assignBookingDriver", { bookingId, assignedDriver, assignedCar });
+            showBanner(res.message, res.status === "success" ? "success" : "danger");
+            if (res.status === "success") await fetchDatabase();
         }
 
         function checkActiveShift() {
@@ -514,17 +645,6 @@
             });
             showBanner(res.message, res.status === "success" ? "success" : "danger");
             if (res.status === "success") { e.target.reset(); setDefaultDates(); await fetchDatabase(); }
-        }
-
-        async function assignDriver(bookingId) {
-            const driver = prompt("Enter Driver Username to Assign:");
-            if (!driver) return;
-            const car = prompt("Enter Assigned Car Registration:");
-            if (!car) return;
-
-            const res = await apiCall("assignBookingDriver", { bookingId, assignedDriver: driver, assignedCar: car });
-            showBanner(res.message, res.status === "success" ? "success" : "danger");
-            if (res.status === "success") await fetchDatabase();
         }
 
         async function updateTripStatus(bookingId, actionType) {
@@ -705,7 +825,6 @@
             const myRole = currentUser.role.toLowerCase();
             const isAdmin = myRole === 'admin' || myRole === 'superadmin';
 
-            // 1. Cash Deposits Table
             const depTbody = document.getElementById('cash-deposits-tbody');
             const deposits = isAdmin ? dbData.cashDeposits : dbData.cashDeposits.filter(d => d.driverName.toLowerCase() === currentUser.username.toLowerCase());
             depTbody.innerHTML = deposits.length ? deposits.map(d => `
@@ -713,14 +832,13 @@
                     <td>${d.depositId}</td>
                     <td><strong>${d.driverName}</strong></td>
                     <td>${d.date}</td>
-                    <td>${d.amount}</td>
+                    <td>₹${d.amount}</td>
                     <td>${d.paymentMode}</td>
                     <td>${d.paidTo}</td>
                     <td><span class="badge bg-warning text-dark">${d.status}</span></td>
                 </tr>
             `).join('') : `<tr><td colspan="7" class="text-center text-muted">No cash deposits recorded.</td></tr>`;
 
-            // 2. Driver Expenses Table
             const drvExpTbody = document.getElementById('driver-expenses-tbody');
             const drvExps = isAdmin ? dbData.driverExpenses : dbData.driverExpenses.filter(e => e.driverName.toLowerCase() === currentUser.username.toLowerCase());
             drvExpTbody.innerHTML = drvExps.length ? drvExps.map(e => `
@@ -729,13 +847,12 @@
                     <td>${e.regNumber}</td>
                     <td>${e.date}</td>
                     <td>${e.category}</td>
-                    <td>${e.amount}</td>
+                    <td>₹${e.amount}</td>
                     <td><small>${e.timestamp || ''}</small></td>
                     <td>${e.receiptUrl && e.receiptUrl.startsWith('http') ? `<a href="${e.receiptUrl}" target="_blank" class="btn btn-sm btn-outline-primary">View Receipt</a>` : (e.receiptUrl || 'None')}</td>
                 </tr>
             `).join('') : `<tr><td colspan="7" class="text-center text-muted">No driver expenses recorded.</td></tr>`;
 
-            // 3. Admin Expenses Table
             const admExpTbody = document.getElementById('admin-expenses-tbody');
             if (admExpTbody && isAdmin) {
                 admExpTbody.innerHTML = dbData.adminExpenses.length ? dbData.adminExpenses.map(a => `
@@ -746,10 +863,123 @@
                         <td>${a.category}</td>
                         <td>${a.allocationType}</td>
                         <td><strong>${a.targetEntity}</strong></td>
-                        <td>${a.amount}</td>
+                        <td>₹${a.amount}</td>
                         <td>${a.receiptUrl && a.receiptUrl.startsWith('http') ? `<a href="${a.receiptUrl}" target="_blank" class="btn btn-sm btn-outline-dark">View</a>` : 'None'}</td>
                     </tr>
                 `).join('') : `<tr><td colspan="8" class="text-center text-muted">No admin expenses recorded.</td></tr>`;
+            }
+        }
+
+        function isWithinDateRange(dateVal, startStr, endStr) {
+            if (!startStr && !endStr) return true;
+            if (!dateVal) return false;
+            const d = dateVal.toString().split('T')[0];
+            if (startStr && d < startStr) return false;
+            if (endStr && d > endStr) return false;
+            return true;
+        }
+
+        function renderAnalytics() {
+            const myRole = currentUser.role.toLowerCase();
+            const isAdmin = myRole === 'admin' || myRole === 'superadmin';
+            const startStr = document.getElementById('rep-start-date')?.value || "";
+            const endStr = document.getElementById('rep-end-date')?.value || "";
+
+            // 1. Driver Earnings Calculation
+            const driversList = isAdmin
+                ? dbData.users.filter(u => u.role.toLowerCase() === 'driver')
+                : dbData.users.filter(u => u.username.toLowerCase() === currentUser.username.toLowerCase());
+
+            const earningsTbody = document.getElementById('driver-earnings-tbody');
+            if (earningsTbody) {
+                earningsTbody.innerHTML = driversList.length ? driversList.map(drv => {
+                    const name = drv.username.trim().toLowerCase();
+
+                    const completedTrips = dbData.bookings.filter(b =>
+                        b.status === 'Completed' &&
+                        b.assignedDriver && b.assignedDriver.trim().toLowerCase() === name &&
+                        isWithinDateRange(b.date, startStr, endStr)
+                    );
+
+                    const grossDriverFare = completedTrips.reduce((sum, b) => sum + (parseFloat(b.driverFare) || 0), 0);
+                    const cashCollected = completedTrips.reduce((sum, b) => sum + (b.paymentMode === 'Cash' ? (parseFloat(b.cashToCollect) || 0) : 0), 0);
+
+                    const shiftExpenses = dbData.driverExpenses
+                        .filter(e => e.driverName && e.driverName.trim().toLowerCase() === name && isWithinDateRange(e.date, startStr, endStr))
+                        .reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+
+                    const cashDeposited = dbData.cashDeposits
+                        .filter(d => d.driverName && d.driverName.trim().toLowerCase() === name && isWithinDateRange(d.date, startStr, endStr))
+                        .reduce((sum, d) => sum + (parseFloat(d.amount) || 0), 0);
+
+                    const adminSettlements = dbData.adminExpenses
+                        .filter(a => a.allocationType === 'Driver Specific' && a.targetEntity && a.targetEntity.trim().toLowerCase() === name && isWithinDateRange(a.date, startStr, endStr))
+                        .reduce((sum, a) => sum + (parseFloat(a.amount) || 0), 0);
+
+                    const netBalance = (grossDriverFare + shiftExpenses) - (cashCollected + cashDeposited + adminSettlements);
+
+                    return `
+                        <tr>
+                            <td><strong>${drv.username}</strong></td>
+                            <td>${completedTrips.length}</td>
+                            <td>₹${grossDriverFare.toFixed(2)}</td>
+                            <td class="text-primary">+₹${shiftExpenses.toFixed(2)}</td>
+                            <td class="text-danger">−₹${cashCollected.toFixed(2)}</td>
+                            <td class="text-success">−₹${cashDeposited.toFixed(2)}</td>
+                            <td class="text-secondary">−₹${adminSettlements.toFixed(2)}</td>
+                            <td class="fw-bold ${netBalance >= 0 ? 'text-success' : 'text-danger'}">₹${netBalance.toFixed(2)}</td>
+                        </tr>
+                    `;
+                }).join('') : `<tr><td colspan="8" class="text-center text-muted">No driver records found.</td></tr>`;
+            }
+
+            // 2. Car P&L Calculation (Admin Only)
+            const pnlTbody = document.getElementById('car-pnl-tbody');
+            const overheadBox = document.getElementById('company-overhead-summary');
+            if (pnlTbody && isAdmin) {
+                pnlTbody.innerHTML = dbData.cars.length ? dbData.cars.map(car => {
+                    const reg = car.reg.trim().toLowerCase();
+
+                    const carTrips = dbData.bookings.filter(b =>
+                        b.status === 'Completed' &&
+                        b.assignedCar && b.assignedCar.trim().toLowerCase() === reg &&
+                        isWithinDateRange(b.date, startStr, endStr)
+                    );
+
+                    const companyRevenue = carTrips.reduce((sum, b) => sum + (parseFloat(b.companyFare) || 0), 0);
+                    const driverFareCost = carTrips.reduce((sum, b) => sum + (parseFloat(b.driverFare) || 0), 0);
+
+                    const shiftOpsCost = dbData.driverExpenses
+                        .filter(e => e.regNumber && e.regNumber.trim().toLowerCase() === reg && isWithinDateRange(e.date, startStr, endStr))
+                        .reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+
+                    const carAdminCost = dbData.adminExpenses
+                        .filter(a => a.allocationType === 'Car Specific' && a.targetEntity && a.targetEntity.trim().toLowerCase() === reg && isWithinDateRange(a.date, startStr, endStr))
+                        .reduce((sum, a) => sum + (parseFloat(a.amount) || 0), 0);
+
+                    const netCarPnL = companyRevenue - (driverFareCost + shiftOpsCost + carAdminCost);
+
+                    return `
+                        <tr>
+                            <td><strong>${car.reg}</strong></td>
+                            <td>${car.desc} <span class="badge bg-info text-dark">${car.fuelType}</span></td>
+                            <td>${carTrips.length}</td>
+                            <td class="text-success">+₹${companyRevenue.toFixed(2)}</td>
+                            <td>−₹${driverFareCost.toFixed(2)}</td>
+                            <td>−₹${shiftOpsCost.toFixed(2)}</td>
+                            <td>−₹${carAdminCost.toFixed(2)}</td>
+                            <td class="fw-bold ${netCarPnL >= 0 ? 'text-success' : 'text-danger'}">₹${netCarPnL.toFixed(2)}</td>
+                        </tr>
+                    `;
+                }).join('') : `<tr><td colspan="8" class="text-center text-muted">No vehicles registered.</td></tr>`;
+
+                const generalOverhead = dbData.adminExpenses
+                    .filter(a => a.allocationType === 'Company General' && isWithinDateRange(a.date, startStr, endStr))
+                    .reduce((sum, a) => sum + (parseFloat(a.amount) || 0), 0);
+
+                if (overheadBox) {
+                    overheadBox.innerHTML = `<strong>Unallocated Company General Overhead (Office Rent / Admin):</strong> ₹${generalOverhead.toFixed(2)}`;
+                }
             }
         }
 
@@ -758,7 +988,9 @@
             const myRole = currentUser.role.toLowerCase();
             const isAdmin = myRole === 'admin' || myRole === 'superadmin';
 
-            const visibleBookings = isAdmin ? dbData.bookings : dbData.bookings.filter(b => b.assignedDriver && b.assignedDriver.toLowerCase() === currentUser.username.toLowerCase());
+            const visibleBookings = isAdmin 
+                ? dbData.bookings 
+                : dbData.bookings.filter(b => b.assignedDriver && b.assignedDriver.trim().toLowerCase() === currentUser.username.trim().toLowerCase());
 
             if (!visibleBookings || visibleBookings.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No bookings found in roster.</td></tr>`;
@@ -768,18 +1000,20 @@
             tbody.innerHTML = visibleBookings.map(b => {
                 let actionButtons = '';
                 if (isAdmin && b.status === 'Pending Assignment') {
-                    actionButtons += `<button class="btn btn-sm btn-outline-primary me-1" onclick="assignDriver('${b.bookingId}')">Assign</button>`;
+                    actionButtons += `<button class="btn btn-sm btn-outline-primary me-1" onclick="openAssignModal('${b.bookingId}')">Assign</button>`;
                 }
-                if (b.status === 'Assigned') {
+                if (b.status === 'Assigned' && !isAdmin) {
                     actionButtons += `<button class="btn btn-sm btn-success me-1" onclick="updateTripStatus('${b.bookingId}', 'startTrip')">Start Trip</button>`;
-                } else if (b.status === 'In Progress') {
+                } else if (b.status === 'In Progress' && !isAdmin) {
                     actionButtons += `<button class="btn btn-sm btn-dark me-1" onclick="updateTripStatus('${b.bookingId}', 'closeTrip')">Complete</button>`;
+                } else if (isAdmin) {
+                    actionButtons += `<small class="text-muted">Assigned: ${b.assignedDriver || 'None'} (${b.assignedCar || 'N/A'})</small>`;
                 }
                 if (!actionButtons) actionButtons = `<span class="text-muted small">None</span>`;
 
                 const fareDisplay = isAdmin
-                    ? `Comp: ${b.companyFare}<br><small class="text-success">Driver Fare: ${b.driverFare}</small>`
-                    : `<strong>${b.driverFare}</strong>`;
+                    ? `Comp: ₹${b.companyFare}<br><small class="text-success">Driver Fare: ₹${b.driverFare}</small>`
+                    : `<strong>₹${b.driverFare}</strong>`;
 
                 return `
                     <tr>
@@ -788,7 +1022,7 @@
                         <td>${b.date}<br><small>${b.startTime || ''}</small></td>
                         <td>${b.pickup} → ${b.drop}</td>
                         <td>${fareDisplay}</td>
-                        <td><span class="badge bg-secondary">${b.status}</span><br><small>${b.assignedDriver ? 'Driver: ' + b.assignedDriver : ''}</small></td>
+                        <td><span class="badge bg-secondary">${b.status}</span></td>
                         <td>${actionButtons}</td>
                     </tr>
                 `;
